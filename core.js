@@ -95,7 +95,7 @@ function passportChip(c) {
   return `<span class="pp pp-${c.verified}">${marks(c.level)}<span>${st}, level ${c.level}</span></span>`;
 }
 /* Listings that shipped with the site are examples, not live offers; each one says so where it appears. */
-const isExample = x => /^[gv]\d+$/.test(x.id);
+const isExample = x => /^(v[1-8]|g[1-7])$/.test(x.id);
 const exTag = x => isExample(x) ? tag('Example listing', 'warn') : '';
 function tag(text, kind) { return `<span class="tag${kind ? ' tag-' + kind : ''}">${esc(text)}</span>`; }
 function plimsoll(size) {
@@ -151,7 +151,7 @@ function shell(route) {
   <footer class="foot">
     <div><strong>FindAVessel</strong><p>Whole-ship charters for owners, cargo interests and brokers who are new to each other.</p></div>
     <div><strong>Platform</strong><a href="#/enquire">Leave an enquiry</a><a href="#/cargoes">Enquiry board</a><a href="#/vessels">Vessels</a><a href="ports.html">Ports by country</a><a href="suppliers.html">Supplier directory</a><a href="#/guide/safeguards">Safeguards</a><a href="#/guide/payments">How payment works</a><a href="#/join">Create an account</a></div>
-    <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="what-is-demurrage.html">What is demurrage</a><a href="how-to-charter-a-ship.html">How to charter a ship</a><a href="faq.html">Questions and answers</a></div>
+    <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="what-is-demurrage.html">What is demurrage</a><a href="how-to-charter-a-ship.html">How to charter a ship</a><a href="faq.html">Questions and answers</a><a href="privacy.html">Privacy and cookies</a></div>
     <div><p>Prototype build. No regulated service is offered here: payments, sanctions screening and document checks are simulated.</p><p>© 2026 FindAVessel. All rights reserved.</p><button class="link" data-act="reset">Reset the sample data</button></div>
   </footer>
   <nav class="tabbar" aria-label="Main, mobile">${NAV.slice(0, 3).map(n => `<a href="#/${n[0]}"${top === n[0] ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}<a href="guides.html">Guides</a><a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a></nav>

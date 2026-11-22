@@ -18,8 +18,12 @@
     return true;
   }
   var panel;
+  function T(n, p) { if (window.fvTrack) window.fvTrack(n, p); }
+  // A coarse label for what the enquiry is about; the text itself is never sent to analytics.
+  function topic(t) { t = t.toLowerCase(); var k = [['tanker', /tanker|crude|diesel|gasoil|oil|bitumen|chemical/], ['bulk', /bulk|grain|wheat|coal|ore|bauxite|cement|clinker|fertili|urea|supramax|panamax|handy|capesize/], ['gas', /lpg|lng|propane|butane|ammonia|gas carrier/], ['container', /container|teu|feeder/], ['project', /project|heavy.?lift|breakbulk|multipurpose|mpp/], ['vehicles', /ro-?ro|car carrier|vehicles?/], ['supplier', /spare|chandler|repair|supply|supplier|provision/]]; var out = []; k.forEach(function (x) { if (x[1].test(t)) out.push(x[0]); }); if (/open |our vessel|my vessel|dwt/.test(t)) out.push('has ship'); return out.join(',') || 'other'; }
   function open(force) {
     if (panel || (!force && (!due() || blocked()))) return;
+    if (!force && document.querySelector('.ck')) { setTimeout(open, 4000); return; }
     var busy = document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
     if (busy && !force) { setTimeout(open, 5000); return; }
     panel = document.createElement('aside');
@@ -38,13 +42,14 @@
       '<p class="fine">We use these details only to answer your enquiry. No mailing list.</p></form>';
     document.body.appendChild(panel);
     requestAnimationFrame(function () { panel.classList.add('qe-in'); });
+    T('quick_enquiry_shown', { trigger: force ? 'manual' : 'timer' });
     panel.querySelector('.qe-x').addEventListener('click', function () { close(true); });
     panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(true); });
     panel.querySelector('form').addEventListener('submit', send);
   }
   function close(snooze) {
     if (!panel) return;
-    if (snooze && !state.sent) { state.closed = Date.now(); save(); }
+    if (snooze && !state.sent) { state.closed = Date.now(); save(); T('quick_enquiry_closed', {}); }
     panel.remove(); panel = null;
   }
   function send(e) {
@@ -63,6 +68,8 @@
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || String(j.success) === 'false') throw new Error(j.message || 'not sent'); }); })
       .then(function () {
         state.sent = Date.now(); save();
+        T('quick_enquiry_sent', { has_phone: v.phone ? 'yes' : 'no', words: v.enquiry.split(/\s+/).length, topic: topic(v.enquiry) });
+        T('generate_lead', { lead_type: 'quick_enquiry', topic: topic(v.enquiry) });
         panel.innerHTML = '<button class="qe-x" type="button" aria-label="Close">×</button><h2 id="qe-h">Enquiry sent</h2>' +
           '<p class="qe-lede">Thank you, ' + esc(v.name.split(' ')[0]) + '. Your enquiry has reached us and we will reply to ' + esc(v.email) + ' as soon as we can, usually within one working day.</p>' +
           '<p class="fine">To give owners the full picture now, you can also <a href="' + (document.querySelector('#app') ? '' : (/\/providers\//.test(location.pathname) ? '../' : '') + 'index.html') + '#/enquire">add ports, dates and quantities</a>.</p>';
@@ -70,6 +77,7 @@
       })
       .catch(function () {
         btn.disabled = false; btn.textContent = 'Send enquiry';
+        T('quick_enquiry_error', {});
         fail('That did not send. Check your connection and try again. Your text is still here.');
       });
   }
