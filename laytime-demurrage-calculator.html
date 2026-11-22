@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laytime and demurrage calculator | FindAVessel</title>
+<meta name="description" content="Free laytime and demurrage calculator. Enter cargo quantity, loading rate, start and finish times and the demurrage rate to see what is owed.">
+<meta name="theme-color" content="#0A1C2E">
+<link rel="canonical" href="https://findavessel.com/laytime-demurrage-calculator">
+<meta property="og:title" content="Laytime and demurrage calculator">
+<meta property="og:description" content="Free laytime and demurrage calculator. Enter cargo quantity, loading rate, start and finish times and the demurrage rate to see what is owed.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://findavessel.com/laytime-demurrage-calculator">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='6' fill='%230A1C2E'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%23fff' stroke-width='3'/%3E%3Cpath d='M5 20h30' stroke='%23fff' stroke-width='3'/%3E%3C/svg%3E">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "headline": "Laytime and demurrage calculator", "description": "Free laytime and demurrage calculator. Enter cargo quantity, loading rate, start and finish times and the demurrage rate to see what is owed.", "datePublished": "2026-11-22", "dateModified": "2026-11-22", "author": {"@type": "Organization", "name": "FindAVessel"}, "publisher": {"@type": "Organization", "name": "FindAVessel"}, "mainEntityOfPage": "https://findavessel.com/laytime-demurrage-calculator"}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="index.html"><svg width="24" height="24" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="11" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M4 20h32M20 3v6M20 31v6" stroke="currentColor" stroke-width="2.6"/></svg><span>FindAVessel</span></a>
+  <nav class="nav" aria-label="Main"><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/deals">Deals</a><a href="index.html#/passport">Passport</a><a href="guides.html">Guides</a><a href="tools.html" aria-current="page">Tools</a></nav>
+  <div class="top-right"><button class="theme-btn" data-theme-toggle aria-label="Switch between dark and light theme"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span>Theme</span></button><a class="btn btn-primary" href="index.html#/join">Create an account</a></div>
+</header>
+<main id="main"><article class="article">
+<p class="crumbs"><a href="tools.html">Tools</a> / Laytime and demurrage calculator</p>
+<h1>Laytime and demurrage calculator</h1>
+<p class="standfirst">Enter the cargo, the rate and the times. The calculator shows the laytime allowed, the time used and the demurrage or despatch that follows.</p>
+<figure><svg class="fig" viewBox="0 0 720 200" role="img" aria-label="Laytime bar followed by demurrage" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="96" width="371" height="46" class="f-done"/><text x="225.6" y="124" font-size="14" text-anchor="middle" font-weight="600" class="t-on">Laytime allowed</text><rect x="411" y="96" width="269" height="46" class="f-accent"/><text x="545.6" y="124" font-size="14" text-anchor="middle" font-weight="600" class="t-on">Demurrage</text><path d="M40 50V142" class="s-rule" stroke-width="1.5"/><text x="40" y="44" font-size="13" text-anchor="start" font-weight="500" class="">Laytime starts</text><path d="M411 76V142" class="s-rule" stroke-width="1.5"/><text x="411.2" y="70" font-size="13" text-anchor="middle" font-weight="500" class="">Laytime expires</text><path d="M680 50V142" class="s-rule" stroke-width="1.5"/><text x="680" y="44" font-size="13" text-anchor="end" font-weight="500" class="">Cargo work ends</text></svg><figcaption>Time used beyond the allowance is charged at the demurrage rate.</figcaption></figure>
+<div class="calc"><div class="grid"><div class="field"><label for="q">Cargo quantity (tonnes)</label><input id="q" type="number" step="any" value="28000"></div><div class="field"><label for="r">Rate (tonnes per day)</label><input id="r" type="number" step="any" value="4000"><p class=hint>Laytime allowed is quantity divided by rate. Or enter days directly below.</p></div><div class="field"><label for="a">Or laytime allowed (days)</label><input id="a" type="number" step="any" value=""><p class=hint>Leave empty to use quantity and rate.</p></div><div class="field"><label for="d">Demurrage rate (USD per day)</label><input id="d" type="number" step="any" value="12000"></div><div class="field"><label for="s">Laytime started</label><input id="s" type="datetime-local" value="2026-12-01T08:00"></div><div class="field"><label for="f">Cargo work completed</label><input id="f" type="datetime-local" value="2026-12-13T08:00"></div><div class="field"><label for="x">Excluded time (hours)</label><input id="x" type="number" step="any" value="0"><p class=hint>Weather, holidays or other periods your charter party does not count.</p></div><div class="field"><label for="h">Despatch</label><select id="h"><option value="0.5">Half demurrage</option><option value="1">Same as demurrage</option><option value="0">None</option></select></div></div><div class="calc-out"><span class="big" id="res"></span><span class="sub" id="det"></span></div></div><h2>How the sum is done</h2><ol><li>Laytime allowed is the quantity divided by the daily rate, unless a fixed number of days is agreed.</li><li>Time used runs from the start of laytime to completion of cargo work, less any excluded time.</li><li>If time used is greater, the difference multiplied by the demurrage rate is owed to the owner.</li><li>If it is less, despatch may be owed to the charterer, usually at half the demurrage rate.</li></ol>
+<h2>What this calculator does not do</h2><p>It treats one port at a time and takes your word for the start time and the excluded hours. Real laytime statements turn on the charter party wording: when notice of readiness was valid, turn time, whether Sundays and holidays count, and whether time is reversible between ports. Read <a href="laytime.html">laytime explained</a> for those terms, and use the statement of facts as your source.</p>
+<div class="article-cta"><h2>Put it into practice</h2><p>FindAVessel lets cargo owners post a full shipload and receive firm offers from verified vessel owners and brokers, with subjects, payment and the time log in one record.</p>
+<div class="row"><a class="btn btn-primary" href="index.html#/join">Create an account</a><a class="btn" href="index.html">See the sample market</a></div></div>
+<div class="related"><h2>Keep reading</h2><ul><li><a href="what-is-demurrage.html">What is demurrage?</a></li><li><a href="laytime.html">Laytime explained</a></li><li><a href="laycan.html">Laycan: laydays and cancelling</a></li><li><a href="voyage-estimator.html">Voyage estimator</a></li></ul></div>
+<p class="fine">Published 22 November 2026. General information for people new to chartering, not legal advice.</p>
+</article></main>
+<footer class="foot">
+  <div><strong>FindAVessel</strong><p>Whole-ship charters for owners, cargo interests and brokers who are new to each other.</p></div>
+  <div><strong>Platform</strong><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/guide/safeguards">Safeguards</a><a href="index.html#/join">Create an account</a></div>
+  <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a></div>
+  <div><p>Guides are general information, not legal advice. The wording of your charter party governs. FindAVessel is a prototype and offers no regulated service.</p></div>
+</footer>
+<nav class="tabbar" aria-label="Main, mobile"><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="guides.html">Guides</a><a href="tools.html" aria-current="page">Tools</a><a href="index.html#/join">Join</a></nav>
+<script>(function(){function g(i){return document.getElementById(i)}function n(i){return Number(g(i).value)||0}
+function fmt(v){return 'USD '+Math.round(v).toLocaleString('en-GB')}
+function go(){var allowed=n('a')||(n('r')?n('q')/n('r'):0),used=(new Date(g('s').value)-new Date(g('f').value))/-864e5-n('x')/24;
+if(!allowed||!(used>0)){g('res').textContent='Enter the figures above';g('det').textContent='';return}
+var diff=used-allowed;g('res').textContent=diff>0?'Demurrage due: '+fmt(diff*n('d')):diff<0&&Number(g('h').value)?'Despatch due: '+fmt(-diff*n('d')*Number(g('h').value)):'Nothing due';
+g('det').textContent='Allowed '+allowed.toFixed(2)+' days. Used '+used.toFixed(2)+' days. '+(diff>0?diff.toFixed(2)+' days on demurrage.':(-diff).toFixed(2)+' days saved.')}
+['q','r','a','d','s','f','x','h'].forEach(function(i){g(i).addEventListener('input',go)});go()})();</script>
+</body>
+</html>

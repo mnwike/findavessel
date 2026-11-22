@@ -104,6 +104,15 @@ route('', () => {
     ${safeguardTable(SAFEGUARDS.slice(0, 6))}
   </section>
 
+  <section class="band">
+    <div class="sec-head"><h2>Learn the trade before you fix</h2><a href="guides.html">All guides and tools</a></div>
+    <div class="tiles">
+      <a class="tile" href="how-to-charter-a-ship.html"><div><h3>How to charter a ship</h3><p>The seven steps from enquiry to settlement, and what each side must have ready.</p></div></a>
+      <a class="tile" href="what-is-demurrage.html"><div><h3>What is demurrage</h3><p>How it is calculated, who pays it, and how it differs from container demurrage.</p></div></a>
+      <a class="tile" href="laytime-demurrage-calculator.html"><div><h3>Laytime and demurrage calculator</h3><p>Work out time allowed, time used and what is owed.</p></div></a>
+    </div>
+  </section>
+
   <section class="band cta">
     <h2>Start with the passport.</h2>
     <p>It is useful on its own: one verified profile you can show any broker or counterparty, on this platform or off it.</p>

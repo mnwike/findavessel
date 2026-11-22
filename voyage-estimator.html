@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voyage estimator: time charter equivalent (TCE) calculator | FindAVessel</title>
+<meta name="description" content="Free voyage estimate calculator. Turn a freight rate into a daily time charter equivalent after fuel, port costs and commission.">
+<meta name="theme-color" content="#0A1C2E">
+<link rel="canonical" href="https://findavessel.com/voyage-estimator">
+<meta property="og:title" content="Voyage estimator: time charter equivalent (TCE) calculator">
+<meta property="og:description" content="Free voyage estimate calculator. Turn a freight rate into a daily time charter equivalent after fuel, port costs and commission.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://findavessel.com/voyage-estimator">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='6' fill='%230A1C2E'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%23fff' stroke-width='3'/%3E%3Cpath d='M5 20h30' stroke='%23fff' stroke-width='3'/%3E%3C/svg%3E">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "headline": "Voyage estimator: time charter equivalent (TCE) calculator", "description": "Free voyage estimate calculator. Turn a freight rate into a daily time charter equivalent after fuel, port costs and commission.", "datePublished": "2026-11-22", "dateModified": "2026-11-22", "author": {"@type": "Organization", "name": "FindAVessel"}, "publisher": {"@type": "Organization", "name": "FindAVessel"}, "mainEntityOfPage": "https://findavessel.com/voyage-estimator"}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="index.html"><svg width="24" height="24" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="11" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M4 20h32M20 3v6M20 31v6" stroke="currentColor" stroke-width="2.6"/></svg><span>FindAVessel</span></a>
+  <nav class="nav" aria-label="Main"><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/deals">Deals</a><a href="index.html#/passport">Passport</a><a href="guides.html">Guides</a><a href="tools.html" aria-current="page">Tools</a></nav>
+  <div class="top-right"><button class="theme-btn" data-theme-toggle aria-label="Switch between dark and light theme"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span>Theme</span></button><a class="btn btn-primary" href="index.html#/join">Create an account</a></div>
+</header>
+<main id="main"><article class="article">
+<p class="crumbs"><a href="tools.html">Tools</a> / Voyage estimator</p>
+<h1>Voyage estimator</h1>
+<p class="standfirst">A voyage estimate tells an owner what a cargo is worth per day. Enter the freight, distances and costs to get the time charter equivalent.</p>
+<figure><svg class="fig" viewBox="0 0 720 200" role="img" aria-label="Route from Load port to Discharge port" xmlns="http://www.w3.org/2000/svg"><path d="M70 150C220 30 500 30 650 150" class="s-accent" stroke-width="2.5" stroke-dasharray="2 9" stroke-linecap="round"/><circle cx="70" cy="150" r="9" class="f-done"/><text x="70" y="184" font-size="14" text-anchor="middle" font-weight="600" class="">Load port</text><circle cx="650" cy="150" r="9" class="f-done"/><text x="650" y="184" font-size="14" text-anchor="middle" font-weight="600" class="">Discharge port</text><path d="M330 58h60l-10 14h-40z" class="f-done"/><rect x="368" y="46" width="12" height="12" class="f-accent"/><text x="360" y="104" font-size="13" text-anchor="middle" font-weight="400" class="t-muted">Days, fuel and port costs</text></svg><figcaption>Revenue less voyage costs, divided by the days the voyage takes.</figcaption></figure>
+<div class="calc"><div class="grid"><div class="field"><label for="q">Cargo (tonnes)</label><input id="q" type="number" step="any" value="30000"></div><div class="field"><label for="fr">Freight (USD per tonne)</label><input id="fr" type="number" step="any" value="26"></div><div class="field"><label for="c">Total commission (%)</label><input id="c" type="number" step="any" value="2.5"></div><div class="field"><label for="bd">Ballast distance (nautical miles)</label><input id="bd" type="number" step="any" value="400"><p class=hint>From where the ship is open to the load port.</p></div><div class="field"><label for="ld">Laden distance (nautical miles)</label><input id="ld" type="number" step="any" value="1020"></div><div class="field"><label for="sp">Speed (knots)</label><input id="sp" type="number" step="any" value="13"></div><div class="field"><label for="fs">Fuel at sea (tonnes per day)</label><input id="fs" type="number" step="any" value="24"></div><div class="field"><label for="pd">Days in port, both ends</label><input id="pd" type="number" step="any" value="13"></div><div class="field"><label for="fp">Fuel in port (tonnes per day)</label><input id="fp" type="number" step="any" value="4"></div><div class="field"><label for="bp">Fuel price (USD per tonne)</label><input id="bp" type="number" step="any" value="600"></div><div class="field"><label for="pc">Port costs, both ends (USD)</label><input id="pc" type="number" step="any" value="90000"></div><div class="field"><label for="oc">Other costs (USD)</label><input id="oc" type="number" step="any" value="0"><p class=hint>Canal tolls, extra insurance, hold cleaning.</p></div></div><div class="calc-out"><span class="big" id="res"></span><span class="sub" id="det"></span></div></div><h2>What time charter equivalent means</h2><p>Time charter equivalent, or TCE, is the daily earning of a voyage after the costs the owner pays on a voyage charter: fuel, port charges, canal tolls and commissions. It lets an owner compare a voyage at USD 26 a tonne with a time charter at USD 14,000 a day, or one cargo with another.</p>
+<div class="keyfact"><p><strong>TCE</strong> = (freight − commission − fuel − port and other voyage costs) ÷ voyage days</p></div>
+<h2>Why charterers should care</h2><p>If you know roughly what an owner's sum looks like, you know whether your freight idea is realistic. A cargo that works out below the daily rate ships are earning elsewhere will not attract offers.</p>
+<h2>Limits</h2><p>You need to supply the distances: this page does not hold a sea distance table. Use a routed distance, not a straight line, and allow for weather and waiting. Daily running costs such as crew and insurance are not deducted, because TCE is measured before them.</p>
+<div class="article-cta"><h2>Put it into practice</h2><p>FindAVessel lets cargo owners post a full shipload and receive firm offers from verified vessel owners and brokers, with subjects, payment and the time log in one record.</p>
+<div class="row"><a class="btn btn-primary" href="index.html#/join">Create an account</a><a class="btn" href="index.html">See the sample market</a></div></div>
+<div class="related"><h2>Keep reading</h2><ul><li><a href="voyage-charter-vs-time-charter.html">Voyage, time and bareboat charters</a></li><li><a href="laytime-demurrage-calculator.html">Laytime and demurrage calculator</a></li><li><a href="how-to-charter-a-ship.html">How to charter a ship</a></li><li><a href="ship-sizes.html">Ship sizes and classes</a></li></ul></div>
+<p class="fine">Published 22 November 2026. General information for people new to chartering, not legal advice.</p>
+</article></main>
+<footer class="foot">
+  <div><strong>FindAVessel</strong><p>Whole-ship charters for owners, cargo interests and brokers who are new to each other.</p></div>
+  <div><strong>Platform</strong><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/guide/safeguards">Safeguards</a><a href="index.html#/join">Create an account</a></div>
+  <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a></div>
+  <div><p>Guides are general information, not legal advice. The wording of your charter party governs. FindAVessel is a prototype and offers no regulated service.</p></div>
+</footer>
+<nav class="tabbar" aria-label="Main, mobile"><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="guides.html">Guides</a><a href="tools.html" aria-current="page">Tools</a><a href="index.html#/join">Join</a></nav>
+<script>(function(){function g(i){return document.getElementById(i)}function n(i){return Number(g(i).value)||0}
+function fmt(v){return 'USD '+Math.round(v).toLocaleString('en-GB')}
+function go(){var gross=n('q')*n('fr'),sea=n('sp')?(n('bd')+n('ld'))/(n('sp')*24):0,days=sea+n('pd'),fuel=(sea*n('fs')+n('pd')*n('fp'))*n('bp'),comm=gross*n('c')/100,net=gross-comm-fuel-n('pc')-n('oc');
+if(!days){g('res').textContent='Enter the figures above';return}
+g('res').textContent='Time charter equivalent: '+fmt(net/days)+' per day';
+g('det').textContent='Voyage '+days.toFixed(1)+' days ('+sea.toFixed(1)+' at sea). Gross freight '+fmt(gross)+', commission '+fmt(comm)+', fuel '+fmt(fuel)+', net '+fmt(net)+'.'}
+['q','fr','c','bd','ld','sp','fs','pd','fp','bp','pc','oc'].forEach(function(i){g(i).addEventListener('input',go)});go()})();</script>
+</body>
+</html>

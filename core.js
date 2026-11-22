@@ -113,7 +113,8 @@ function needRole(roles, what) {
 }
 
 /* ---------- Shell ---------- */
-const NAV = [['cargoes', 'Cargoes'], ['vessels', 'Vessels'], ['deals', 'Deals'], ['passport', 'Passport'], ['guide', 'Guide']];
+const NAV = [['cargoes', 'Cargoes'], ['vessels', 'Vessels'], ['deals', 'Deals'], ['passport', 'Passport']];
+const THEME_BTN = `<button class="theme-btn" data-theme-toggle aria-label="Switch between dark and light theme"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span>Theme</span></button>`;
 function shell(route) {
   const top = route.split('/')[0];
   const c = S.role === 'guest' ? null : me();
@@ -123,22 +124,24 @@ function shell(route) {
   <div class="demo-bar">Prototype with sample data. The companies, ships, cargoes and payments shown are invented and nothing here is a live offer.</div>
   <header class="top">
     <a class="brand" href="#/">${plimsoll(26)}<span>FindAVessel</span></a>
-    <nav class="nav" aria-label="Main">${NAV.map(n => `<a href="#/${n[0]}"${top === n[0] || (n[0] === 'cargoes' && top === 'cargo') || (n[0] === 'vessels' && top === 'vessel') || (n[0] === 'deals' && top === 'deal') ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}${S.role === 'desk' ? `<a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a>` : ''}</nav>
+    <nav class="nav" aria-label="Main">${NAV.map(n => `<a href="#/${n[0]}"${top === n[0] || (n[0] === 'cargoes' && top === 'cargo') || (n[0] === 'vessels' && top === 'vessel') || (n[0] === 'deals' && top === 'deal') ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}<a href="guides.html">Guides</a><a href="tools.html">Tools</a>${S.role === 'desk' ? `<a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a>` : ''}</nav>
     <div class="top-right">
+      ${THEME_BTN}
       <label class="role"><span>Viewing as</span>
         <select data-live="roleSelect" aria-label="Viewing as">${Object.keys(ROLE_NAME).map(r => `<option value="${r}"${S.role === r ? ' selected' : ''}>${ROLE_NAME[r]}</option>`).join('')}</select>
       </label>
       ${S.role === 'guest' ? `<a class="btn btn-primary" href="#/join">Create an account</a>` : S.role === 'desk' ? '' : S.role === 'broker' ? `<a class="btn btn-primary" href="#/cargoes">Find cargoes</a>` : `<a class="btn btn-primary" href="${postHref}">${postLabel}</a>`}
     </div>
   </header>
-  ${c ? `<div class="whoami"><span>${esc(c.name)}</span>${passportChip(c)}<a href="#/desk">My desk</a></div>` : ''}
+  ${c ? `<div class="whoami"><span>${esc(c.name)}</span>${passportChip(c)}<span class="who-links"><a href="#/passport">Passport</a> <a href="#/desk">My desk</a></span></div>` : ''}
   <main id="main" tabindex="-1"></main>
   <footer class="foot">
     <div><strong>FindAVessel</strong><p>Whole-ship charters for owners, cargo interests and brokers who are new to each other.</p></div>
-    <div><a href="#/guide">How chartering works</a><a href="#/guide/safeguards">Safeguards</a><a href="#/guide/classes">Vessel classes</a><a href="#/join">Create an account</a></div>
+    <div><strong>Platform</strong><a href="#/cargoes">Cargoes</a><a href="#/vessels">Vessels</a><a href="#/guide/safeguards">Safeguards</a><a href="#/guide/payments">How payment works</a><a href="#/join">Create an account</a></div>
+    <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="what-is-demurrage.html">What is demurrage</a><a href="how-to-charter-a-ship.html">How to charter a ship</a></div>
     <div><p>Prototype build. No regulated service is offered here: payments, sanctions screening and document checks are simulated.</p><button class="link" data-act="reset">Reset the sample data</button></div>
   </footer>
-  <nav class="tabbar" aria-label="Main, mobile">${NAV.slice(0, 4).map(n => `<a href="#/${n[0]}"${top === n[0] ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}<a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a></nav>
+  <nav class="tabbar" aria-label="Main, mobile">${NAV.slice(0, 3).map(n => `<a href="#/${n[0]}"${top === n[0] ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}<a href="guides.html">Guides</a><a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a></nav>
   <div id="toast" role="status" hidden></div>`;
 }
 

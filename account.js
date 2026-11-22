@@ -110,7 +110,11 @@ route('post/cargo', () => {
   const d = S.draft.cargo || {}, x = d.x || {}, seg = d.seg || 'bulk', s = SEG[seg], type = d.type || 'voyage';
   const invitees = S.companies.filter(c => (c.role === 'owner' || c.role === 'broker') && c.verified === 'verified');
   return `<section class="page narrow"><div class="page-head"><div><h1>Post a cargo</h1><p>Whole shiploads and whole-ship time charters only. An owner should be able to price it from this page without calling you.</p></div></div>
-    ${needRole(['charterer'], 'Posting a cargo') || `<form class="form" data-form="cargo">${portList()}
+    ${needRole(['charterer'], 'Posting a cargo') || `<details class="paste"${d.qty ? '' : ' open'}><summary>Paste an enquiry and let the form fill itself</summary>
+      <label for="pasteBox" class="sub">Paste the cargo order as you would email it to a broker. Quantity, cargo, ports, laycan, rates and freight idea are picked out.</label>
+      <textarea id="pasteBox" rows="4" placeholder="30,000 mt wheat in bulk 10 pct moloo, Constanta / Alexandria, laycan 10-15 December, 8000 shinc / 4000 shex, idea usd 24.50 pmt"></textarea>
+      <button class="btn" type="button" data-act="parseEnquiry">Fill the form from this text</button></details>
+    <form class="form" data-form="cargo">${portList()}
     <fieldset><legend>1. What is moving</legend><div class="grid">
       ${field({ k: 'type', l: 'Charter', t: 'select', o: [['voyage', 'Voyage charter: freight for one voyage'], ['time', 'Time charter: hire the ship by the day']], req: true, live: 'reseg' }, type)}
       ${field({ k: 'seg', l: 'Vessel type needed', t: 'select', o: SEG_OPTS, req: true, live: 'reseg' }, seg)}
@@ -230,4 +234,43 @@ ACT.verifyCheck = d => { const c = co(d.c); passportOf(c)[d.k] = 'verified'; rec
 ACT.sharePassport = () => {
   const url = location.origin + location.pathname + '#/company/' + myId();
   (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast('Link copied'), () => toast(url));
+};
+
+/* ---------- Paste an enquiry: pick the main terms out of free text ---------- */
+function parseEnquiry(text) {
+  const low = ' ' + text.toLowerCase().replace(/\s+/g, ' ') + ' ', out = { x: {} }, found = [];
+  let m = low.match(/(\d{1,3}(?:[,.]\d{3})+|\d+(?:\.\d+)?\s?k|\d{3,6})\s*(?:mts?|tons?|tonnes?|t)\b/);
+  if (m) { const q = m[1].replace(/\s/g, ''); out.qty = /k$/.test(q) ? parseFloat(q) * 1000 : Number(q.replace(/[,.]/g, '')); found.push('quantity'); }
+  m = low.match(/(\d{1,2})\s*(?:%|pct|pc)\s*(?:moloo|molchopt|mol\b|more or less)/);
+  if (m) { out.tol = ['0', '5', '10'].includes(m[1]) ? m[1] : '10'; found.push('tolerance'); }
+  const syn = { ulsd: ['tanker', 'Gasoil / diesel'], gasoil: ['tanker', 'Gasoil / diesel'], diesel: ['tanker', 'Gasoil / diesel'], mogas: ['tanker', 'Gasoline'], 'jet a': ['tanker', 'Jet fuel'], crude: ['tanker', 'Crude oil'], 'iron ore': ['bulk', 'Iron ore'], coal: ['bulk', 'Steam coal'], cement: ['bulk', 'Bulk cement'], sugar: ['bulk', 'Raw sugar'], rice: ['bulk', 'Bagged rice'], steel: ['bulk', 'Steel coils'], lpg: ['gas', 'Propane / butane mix'], grain: ['bulk', 'Wheat'], fertiliser: ['bulk', 'Urea'], fertilizer: ['bulk', 'Urea'] };
+  let hit = null;
+  Object.keys(SEG).forEach(k => SEG[k].cargoes.forEach(c => { if (!hit && low.includes(c.toLowerCase())) hit = [k, c]; }));
+  if (!hit) Object.keys(syn).forEach(k => { if (!hit && low.includes(k)) hit = syn[k]; });
+  if (hit) { out.seg = hit[0]; out.cargo = hit[1]; found.push('cargo'); }
+  const ports = PORTS.map(p => [low.indexOf(p.name.toLowerCase()), p.name]).filter(p => p[0] >= 0).sort((a, b) => a[0] - b[0]);
+  if (ports[0]) { out.load = ports[0][1]; found.push('load port'); }
+  if (ports[1]) { out.disch = ports[1][1]; found.push('discharge port'); }
+  m = low.match(/(\d{1,2})\s*(?:-|–|\/|to)\s*(\d{1,2})\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/);
+  if (m) {
+    const mon = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(m[3]), now = new Date();
+    let y = now.getUTCFullYear(); if (new Date(Date.UTC(y, mon, Number(m[2]))) < now) y++;
+    const iso = d => new Date(Date.UTC(y, mon, Number(d))).toISOString().slice(0, 10);
+    out.from = iso(m[1]); out.to = iso(m[2]); found.push('laycan');
+  }
+  const rates = [...low.matchAll(/(\d{1,3}(?:[,.]\d{3})|\d{4,5})\s*(?:mts?|t)?\s*(?:shinc|shex|pwwd|wwd|per day|pd\b)/g)].map(r => Number(r[1].replace(/[,.]/g, '')));
+  if (rates[0]) { out.x.loadRate = rates[0]; found.push('load rate'); }
+  if (rates[1]) { out.x.dischRate = rates[1]; found.push('discharge rate'); }
+  m = low.match(/(?:usd|\$)\s*(\d+(?:\.\d+)?)\s*(?:pmt|per\s*(?:mt|ton|tonne))/);
+  if (m) { out.idea = Number(m[1]); out.rateType = 'USD per tonne'; found.push('freight idea'); }
+  return { out, found };
+}
+ACT.parseEnquiry = () => {
+  const text = ($('#pasteBox') || {}).value || '';
+  if (text.trim().length < 10) return toast('Paste the enquiry text first');
+  const { out, found } = parseEnquiry(text);
+  if (!found.length) return toast('Nothing recognised. Fill the form by hand.');
+  const d = S.draft.cargo || { x: {} };
+  S.draft.cargo = Object.assign({}, d, out, { x: Object.assign({}, d.x, out.x), type: d.type || 'voyage' });
+  save(); render(); toast('Filled: ' + found.join(', ') + '. Check every field.');
 };
