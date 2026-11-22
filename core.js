@@ -149,7 +149,7 @@ function shell(route) {
   <footer class="foot">
     <div><strong>FindAVessel</strong><p>Whole-ship charters for owners, cargo interests and brokers who are new to each other.</p></div>
     <div><strong>Platform</strong><a href="#/enquire">Leave an enquiry</a><a href="#/cargoes">Enquiry board</a><a href="#/vessels">Vessels</a><a href="ports.html">Ports by country</a><a href="suppliers.html">Supplier directory</a><a href="#/guide/safeguards">Safeguards</a><a href="#/guide/payments">How payment works</a><a href="#/join">Create an account</a></div>
-    <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="what-is-demurrage.html">What is demurrage</a><a href="how-to-charter-a-ship.html">How to charter a ship</a></div>
+    <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="what-is-demurrage.html">What is demurrage</a><a href="how-to-charter-a-ship.html">How to charter a ship</a><a href="faq.html">Questions and answers</a></div>
     <div><p>Prototype build. No regulated service is offered here: payments, sanctions screening and document checks are simulated.</p><p>© 2026 FindAVessel. All rights reserved.</p><button class="link" data-act="reset">Reset the sample data</button></div>
   </footer>
   <nav class="tabbar" aria-label="Main, mobile">${NAV.slice(0, 3).map(n => `<a href="#/${n[0]}"${top === n[0] ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}<a href="guides.html">Guides</a><a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a></nav>
@@ -161,6 +161,65 @@ const ROUTES = [];
 const route = (pattern, fn) => ROUTES.push([new RegExp('^' + pattern.replace(/:\w+/g, '([^/]+)') + '$'), fn]);
 const ACT = {}, FORM = {}, LIVE = {};
 function go(path) { if (location.hash === '#/' + path) render(); else location.hash = '#/' + path; }
+
+/* Title and description formulas. Every view gets a title of at most 60 characters and a description of at most 155,
+   built from the listing itself: vessel name, type, size and open port; or cargo, quantity and route. */
+const HOME_TITLE = 'FindAVessel: charter a whole ship, or find cargo for yours';
+const HOME_DESC = 'Charter a whole ship or find cargo for your vessel. Post a shipload, get firm offers from owners and brokers, and find ports and marine suppliers.';
+const STATIC_META = {
+  cargoes: ['Cargo enquiries: shiploads looking for a vessel', 'Open whole-ship cargo enquiries by commodity, quantity, route and loading dates. Vessel owners and brokers can answer with a firm offer.'],
+  vessels: ['Vessels for charter: tankers, bulk carriers and more', 'Ships open for charter, with type, deadweight, year built, open port and date. Tankers, bulk carriers, gas carriers, container and multipurpose ships.'],
+  enquire: ['Leave a ship chartering enquiry', 'Tell us the cargo, quantity, ports and dates. Your enquiry goes on the board without your company name, for owners and brokers to answer.'],
+  join: ['Create an account: owner, charterer, broker or supplier', 'Register to post cargoes, list vessels, make offers or receive supplier requests on FindAVessel.'],
+  'post/vessel': ['List a vessel for charter', 'List your ship with its IMO number, type, size, open port and date, photographs and manager details, and be matched with cargo enquiries.'],
+  'post/cargo': ['Post a cargo for a whole-ship charter', 'Describe the cargo, quantity, ports and laycan, choose who can see it and receive firm offers from vessel owners and brokers.'],
+};
+function fitText(t, n) {
+  t = String(t).replace(/\s+/g, ' ').trim();
+  if (t.length <= n) return t;
+  const cut = t.slice(0, n + 1).replace(/\s+\S*$/, '').replace(/[\s,;:(-]+$/, '');
+  return cut.length > n / 2 ? cut : t.slice(0, n);
+}
+function fitTitle(...options) {
+  // Prefer the most detailed option that fits; add the brand only when there is room for it.
+  for (const t of options) { if (t.length + 14 <= 60) return t + ' | FindAVessel'; if (t.length <= 60) return t; }
+  return fitText(options[options.length - 1], 60);
+}
+const lc = s => /[A-Z]{2}/.test(s) ? s : s.toLowerCase();
+function metaFor(path) {
+  const [a, id] = path.split('/');
+  if (!path) return [HOME_TITLE, HOME_DESC];
+  if (a === 'vessel' && id) {
+    const v = S.vessels.find(x => x.id === id);
+    if (v) {
+      const cls = classify(v.seg, v.subtype, v.size), unit = SEG[v.seg].metric || 'DWT', kind = (cls && !/carrier|ship/i.test(cls) ? cls + ' ' : '') + lc(v.subtype);
+      return [fitTitle(`${v.name}: ${num(v.size)} ${unit} ${kind} for charter`, `${v.name}: ${num(v.size)} ${unit} ${lc(v.subtype)} for charter`, `${v.name}: ${lc(v.subtype)} for charter`, `${v.name} for charter`),
+        fitText(`${v.name} is a ${num(v.size)} ${unit} ${kind} built ${v.built}, ${v.flag} flag, open ${v.open} ${dstr(v.openDate)}. See particulars and make an offer on FindAVessel.`, 155)];
+    }
+  }
+  if ((a === 'cargo' || a === 'enquiry') && id) {
+    const g = cargoById(id);
+    if (g) {
+      const q = g.qty && g.seg !== 'container' && g.seg !== 'roro' ? num(g.qty) + ' t ' : '';
+      return [fitTitle(`${q}${g.cargo}, ${g.load} to ${g.disch}: ship wanted`, `${g.cargo}, ${g.load} to ${g.disch}: ship wanted`, `${g.cargo}: ship wanted for a full cargo`),
+        fitText(`Whole-ship ${g.type === 'time' ? 'time' : 'voyage'} charter wanted: ${q}${g.cargo} from ${g.load} to ${g.disch}, laycan ${laycan(g.from, g.to)}. Owners and brokers can send a firm offer on FindAVessel.`, 155)];
+    }
+  }
+  if (STATIC_META[path]) return STATIC_META[path];
+  const h1 = $('#main h1');
+  return [fitTitle(h1 ? h1.textContent : 'FindAVessel'), HOME_DESC];
+}
+function setMeta(path) {
+  let title = HOME_TITLE, desc = HOME_DESC;
+  try { [title, desc] = metaFor(path); } catch (e) { /* keep the defaults */ }
+  document.title = title;
+  const set = (sel, v) => { const el = document.querySelector(sel); if (el) el.setAttribute('content', v); };
+  set('meta[name="description"]', desc); set('meta[property="og:title"]', title); set('meta[property="og:description"]', desc);
+  // Private and transactional views should not be indexed; public listings and boards may be.
+  const priv = /^(deal|deals|desk|passport|offer|join|post|company)\b/.test(path) || /\/offer$/.test(path);
+  set('meta[name="robots"]', priv ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large');
+}
+
 function render() {
   const rawHash = location.hash.replace(/^#\/?/, ''), qi = rawHash.indexOf('?');
   const path = decodeURIComponent(qi < 0 ? rawHash : rawHash.slice(0, qi));
@@ -170,7 +229,7 @@ function render() {
   if (html == null) html = `<section class="page">${empty('Page not found', 'That address does not match anything here.', '<a class="btn" href="#/">Go to the start</a>')}</section>`;
   document.getElementById('app').innerHTML = shell(path);
   $('#main').innerHTML = html;
-  document.title = ($('#main h1') ? $('#main h1').textContent + ' | ' : '') + 'FindAVessel';
+  setMeta(path);
   if (render.last !== path) { window.scrollTo(0, 0); render.last = path; }
   document.querySelectorAll('[data-init]').forEach(el => LIVE[el.dataset.init] && LIVE[el.dataset.init](el));
 }
