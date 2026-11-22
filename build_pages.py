@@ -176,17 +176,17 @@ def shell(slug, title, desc, body, kind='Article', extra_head='', scripts=''):
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
   <a class="brand" href="index.html">{LOGO}<span>FindAVessel</span></a>
-  <nav class="nav" aria-label="Main"><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/deals">Deals</a><a href="index.html#/passport">Passport</a><a href="guides.html"{cur('guides')}>Guides</a><a href="tools.html"{cur('tools')}>Tools</a></nav>
-  <div class="top-right">{THEME_BTN}<a class="btn btn-primary" href="index.html#/join">Create an account</a></div>
+  <nav class="nav" aria-label="Main"><a href="index.html#/cargoes">Board</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/deals">Deals</a><a href="index.html#/passport">Passport</a><a href="ports.html"{cur('ports')}>Ports</a><a href="guides.html"{cur('guides')}>Guides</a><a href="tools.html"{cur('tools')}>Tools</a></nav>
+  <div class="top-right">{THEME_BTN}<a class="btn btn-primary" href="index.html#/enquire">Leave an enquiry</a></div>
 </header>
 <main id="main">{body}</main>
 <footer class="foot">
   <div><strong>FindAVessel</strong><p>Whole-ship charters for owners, cargo interests and brokers who are new to each other.</p></div>
   <div><strong>Platform</strong><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/guide/safeguards">Safeguards</a><a href="index.html#/join">Create an account</a></div>
-  <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a></div>
+  <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="ports.html">Ports by country</a></div>
   <div><p>Guides are general information, not legal advice. The wording of your charter party governs. FindAVessel is a prototype and offers no regulated service.</p></div>
 </footer>
-<nav class="tabbar" aria-label="Main, mobile"><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="guides.html"{cur('guides')}>Guides</a><a href="tools.html"{cur('tools')}>Tools</a><a href="index.html#/join">Join</a></nav>
+<nav class="tabbar" aria-label="Main, mobile"><a href="index.html#/cargoes">Board</a><a href="ports.html"{cur('ports')}>Ports</a><a href="guides.html"{cur('guides')}>Guides</a><a href="tools.html"{cur('tools')}>Tools</a><a href="index.html#/enquire">Enquire</a></nav>
 {scripts}
 </body>
 </html>
@@ -194,6 +194,24 @@ def shell(slug, title, desc, body, kind='Article', extra_head='', scripts=''):
 
 
 PAGES = {}  # slug -> (title, blurb, figure) for index tiles and related links
+import os
+P_TANKER = ('photo-tanker.jpg', 'Aerial view of an oil and chemical tanker under way near a wooded coast', 'An oil and chemical tanker under way.')
+P_BULK = ('photo-bulk-carrier.jpg', 'Aerial view of a bulk carrier with closed hatch covers and a tug alongside', 'A bulk carrier with a tug alongside.')
+P_PORT = ('photo-port.jpg', 'A cargo port at dusk with ships alongside under cranes', 'Cargo work at a port terminal.')
+P_ANCH = ('photo-anchorage.jpg', 'Many cargo ships lying at anchor off a coast', 'Ships at anchor waiting for a berth.')
+P_BRIDGE = ('photo-bridge.jpg', 'Navigation consoles and screens on a ship’s bridge', 'Consoles on a ship’s bridge.')
+P_DESK = ('photo-desk.jpg', 'A woman at a desk with several screens showing shipping routes on world maps', 'Following ships and routes from an operations desk.')
+P_DOC = ('photo-contract.jpg', 'A hand signing a printed contract with a pen', 'Signing a contract.')
+PHOTOS = {'what-is-demurrage': P_ANCH, 'laytime': P_PORT, 'laycan': P_BULK, 'voyage-charter-vs-time-charter': P_BRIDGE, 'charter-party': P_DOC, 'what-does-a-shipbroker-do': P_DESK,
+          'how-to-charter-a-ship': P_PORT, 'vlcc': P_TANKER, 'suezmax': P_TANKER, 'aframax': P_TANKER, 'panamax': P_BULK, 'capesize': P_BULK, 'supramax': P_BULK, 'handysize': P_BULK,
+          'ship-sizes': P_TANKER, 'laytime-demurrage-calculator': P_ANCH, 'voyage-estimator': P_BRIDGE, 'ports': P_PORT}
+PHOTOS = {k: v for k, v in PHOTOS.items() if os.path.exists(v[0])}
+
+
+def photo(slug, lazy=False):
+    p = PHOTOS.get(slug)
+    return f'<figure class="photo"><img src="{p[0]}" alt="{e(p[1])}" width="1200" height="675"{" loading=lazy" if lazy else ""}><figcaption>{e(p[2])} Photo: iStock.</figcaption></figure>' if p else ''
+
 
 
 def article(slug, title, desc, h1, standfirst, fig, caption, body, related, kind='guides', crumb='Guides', crumb_href='guides.html', scripts='', cta=True):
@@ -204,6 +222,7 @@ def article(slug, title, desc, h1, standfirst, fig, caption, body, related, kind
 <p class="crumbs"><a href="{crumb_href}">{crumb}</a> / {e(h1)}</p>
 <h1>{e(h1)}</h1>
 <p class="standfirst">{standfirst}</p>
+{photo(slug)}
 <figure>{fig}<figcaption>{caption}</figcaption></figure>
 {body}
 {cta_html}
@@ -468,7 +487,8 @@ article('voyage-estimator', 'Voyage estimator: time charter equivalent (TCE) cal
 # Index pages
 def tile(slug, href=None):
     t = PAGES[slug]
-    return f'<a class="tile" href="{href or slug + ".html"}">{t[2]}<div><h3>{e(t[0])}</h3><p>{e(t[1])}</p></div></a>'
+    img = f'<img src="{PHOTOS[slug][0]}" alt="" width="1200" height="675" loading="lazy">' if slug in PHOTOS else t[2]
+    return f'<a class="tile" href="{href or slug + ".html"}">{img}<div><h3>{e(t[0])}</h3><p>{e(t[1])}</p></div></a>'
 
 
 def index(slug, title, desc, h1, lede, sections, kind):
@@ -484,8 +504,54 @@ index('tools', 'Free chartering calculators and tools', 'Free tools for ship cha
       'Free calculators for the sums that come up on every fixture.',
       [('Calculators', [tile('laytime-demurrage-calculator'), tile('voyage-estimator'), tile('ship-sizes'), tile('paste', 'index.html#/post/cargo')])], 'tools')
 
+# Ports: a hub with the world map and one page per country (data from build_map.js)
+port_slugs = []
+if os.path.exists('mapdata.json'):
+    MD = json.load(open('mapdata.json'))
+    CS = sorted(MD['countries'].values(), key=lambda c: c['name'])
+    RESTRICTED = {'IR': 'Iran', 'KP': 'North Korea', 'SY': 'Syria'}
+    CAUTION = {'RU', 'BY', 'CU', 'VE', 'MM', 'SD', 'LY', 'YE'}
+    UPSELL = '<div class="upsell"><div><strong>Own, manage or broker ships?</strong><span>Register to be sent enquiries for these ports that fit your vessels.</span></div><a class="btn" href="index.html#/join">Register a fleet</a></div>'
+    SOURCE = '<p class="fine">Port names, codes and positions come from the open sea-ports dataset and country shapes from Natural Earth. The list covers commercial seaports and some inland terminals; it is not complete, positions are approximate and none of it is for navigation. Draught limits and berth details are not included yet.</p>'
+    pos = lambda p: f'{abs(p["lat"]):.2f}°{"N" if p["lat"] >= 0 else "S"}, {abs(p["lon"]):.2f}°{"E" if p["lon"] >= 0 else "W"}'
+    from urllib.parse import quote
+    for c in CS:
+        n, slug, ports = c['name'], 'ports-' + c['slug'], c['ports']
+        blocked = c['cc'] in RESTRICTED
+        rows = ''.join(f'<tr><td><strong>{e(p["n"])}</strong></td><td>{e(p["u"])}</td><td>{e(p["prov"])}</td><td>{pos(p)}</td>' + ('' if blocked else f'<td class="acts"><a href="index.html#/enquire?load={quote(p["n"])}">Ship from</a><a href="index.html#/enquire?disch={quote(p["n"])}">Ship to</a></td>') + '</tr>' for p in ports)
+        notice = '<div class="notice"><p><strong>Sanctions.</strong> Trade with this country is heavily restricted under UK, EU, US and UN measures. FindAVessel does not accept enquiries for its ports. The list is shown for reference only.</p></div>' if blocked else \
+            '<div class="notice"><p><strong>Sanctions.</strong> Some trade with this country is restricted under UK, EU, US or UN measures. Every enquiry is screened and may be declined.</p></div>' if c['cc'] in CAUTION else ''
+        count = f'{len(ports)} {"port" if len(ports) == 1 else "ports"}'
+        body = f'''<article class="article wide-article">
+<p class="crumbs"><a href="ports.html">Ports</a> / {e(n)}</p>
+<h1>Ports in {e(n)}</h1>
+<p class="standfirst">{count} in {e(n)}, with UN/LOCODE and position. Choose one as the loading or discharging port to start a shipping enquiry.</p>
+<figure>{c['svg']}<figcaption>{e(n)} and its listed ports. Hover a marker for the name.</figcaption></figure>
+{notice}
+<h2>Port list</h2>
+<div class="tbl"><table><thead><tr><th>Port</th><th>UN/LOCODE</th><th>Region</th><th>Position</th>{'' if blocked else '<th>Start an enquiry</th>'}</tr></thead><tbody>{rows}</tbody></table></div>
+{SOURCE}
+{'' if blocked else UPSELL}
+<h2>Chartering a ship to or from {e(n)}</h2>
+<p>A whole-ship charter needs the cargo, the quantity, both ports and a window of loading dates. With those an owner can price the voyage. If this is your first, read <a href="how-to-charter-a-ship.html">how to charter a ship</a>, check which <a href="ship-sizes.html">size of ship</a> the cargo needs, and look up the terms you will meet: <a href="laycan.html">laycan</a>, <a href="laytime.html">laytime</a> and <a href="what-is-demurrage.html">demurrage</a>.</p>
+{'' if blocked else '<div class="row"><a class="btn btn-primary" href="index.html#/enquire">Leave an enquiry</a><a class="btn" href="index.html#/cargoes">See the enquiry board</a></div>'}
+<div class="related"><h2>Keep reading</h2><ul><li><a href="ports.html">All countries</a></li><li><a href="how-to-charter-a-ship.html">How to charter a ship</a></li><li><a href="ship-sizes.html">Ship sizes and classes</a></li><li><a href="tools.html">Calculators</a></li></ul></div>
+</article>'''
+        open(f'{slug}.html', 'w').write(shell(slug, f'Ports in {n}: {count} with UN/LOCODE', f'List of {count} in {n} with UN/LOCODE and position. Start a ship chartering enquiry from or to any of them.', body, 'ports'))
+        port_slugs.append(slug)
+    clist = ''.join(f'<li><a href="ports-{c["slug"]}.html">{e(c["name"])}</a><span>{len(c["ports"])}</span></li>' for c in CS)
+    hub = f'''<section class="page"><div class="page-head"><div><h1>Ports of the world by country</h1><p>{MD["total"]:,} ports in {len(CS)} countries. Choose a country on the map or in the list to see its ports and start an enquiry.</p></div><a class="btn btn-primary" href="index.html#/enquire">Leave an enquiry</a></div>
+<figure>{MD["world"]}<figcaption>Each dot is a listed port. Shaded countries have port pages.</figcaption></figure>
+{UPSELL}
+<div class="sec-head"><h2>Countries A to Z</h2></div><ul class="countries">{clist}</ul>
+{photo('ports', True)}
+{SOURCE}</section>'''
+    open('ports.html', 'w').write(shell('ports', 'Ports of the world by country', f'World map and list of {MD["total"]:,} seaports in {len(CS)} countries, with UN/LOCODE and position. Start a ship chartering enquiry from any port.', hub, 'ports'))
+    port_slugs.insert(0, 'ports')
+    print('ports pages', len(port_slugs))
+
 # Sitemap and robots
-slugs = ['', 'guides', 'tools', 'ship-sizes', 'laytime-demurrage-calculator', 'voyage-estimator'] + [g['slug'] for g in GUIDES] + list(CLASSES)
+slugs = ['', 'guides', 'tools', 'ship-sizes', 'laytime-demurrage-calculator', 'voyage-estimator'] + [g['slug'] for g in GUIDES] + list(CLASSES) + port_slugs
 open('sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'  <url><loc>{SITE}/{s}</loc><lastmod>{DATE}</lastmod></url>\n' for s in slugs) + '</urlset>\n')
 open('robots.txt', 'w').write(f'User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n')
 print('built', len(slugs) - 1, 'pages')

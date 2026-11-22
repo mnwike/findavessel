@@ -10,6 +10,7 @@ function canSee(c) {
 }
 function posterLabel(c) {
   const p = co(c.by);
+  if (c.unverified && S.role !== 'desk') return 'Unverified enquiry';
   if (S.role === 'desk' || c.by === myId()) return esc(p.name);
   return (p.verified === 'verified' ? 'Verified cargo owner' : 'Cargo owner, in review') + ', ' + esc(p.country);
 }
@@ -55,8 +56,8 @@ route('', () => {
       <h1>Charter a whole ship without already knowing the right people.</h1>
       <p class="lede">Cargo owners post what has to move. Vessel owners and brokers bid for it. Every company, ship and cargo is checked before anyone commits, and freight is secured before the ship loads.</p>
       <div class="row">
-        <a class="btn btn-primary btn-lg" href="#/join">Create an account</a>
-        <button class="btn btn-ghost btn-lg" data-act="role" data-role="charterer">Explore the sample market</button>
+        <a class="btn btn-primary btn-lg" href="#/enquire">Leave an enquiry</a>
+        <a class="btn btn-ghost btn-lg" href="#/cargoes">See the enquiry board</a>
       </div>
       <p class="hero-note">Tankers, bulk carriers, gas carriers, container ships, multipurpose ships and vehicle carriers. Voyage and time charters. No part cargoes.</p>
     </div>
@@ -68,6 +69,12 @@ route('', () => {
       </ul>
       <p class="hc-foot">An unknown name gets ignored. A passport shows a counterparty exactly what has been checked, like draught marks on a hull show how deep a ship sits.</p>
     </aside>
+  </section>
+
+  <section class="band">
+    <div class="sec-head"><h2>Start from a port</h2><a href="ports.html">All countries and ports</a></div>
+    <p>Pick the country you are shipping from or to. ${Object.keys(WORLD).length} countries and ${Object.values(WORLD).reduce((n, c) => n + c[2].length, 0).toLocaleString('en-GB')} ports are listed.</p>
+    <div class="mapwrap">${WORLD_MAP}<div class="map-panel" id="mapPanel">${countryPanel(null)}</div></div>
   </section>
 
   <section class="band">
@@ -119,6 +126,94 @@ route('', () => {
     <a class="btn btn-primary btn-lg" href="#/join">Create an account</a>
   </section>`;
 });
+function upsell() {
+  return `<div class="upsell"><div><strong>Own, manage or broker ships?</strong><span>Register to be sent enquiries that fit your vessels, and to offer on them.</span></div><a class="btn" href="#/join">Register a fleet</a></div>`;
+}
+function countryPanel(cc) {
+  const opts = Object.keys(WORLD).sort((a, b) => WORLD[a][0].localeCompare(WORLD[b][0])).map(k => `<option value="${k}"${k === cc ? ' selected' : ''}>${esc(WORLD[k][0])} (${WORLD[k][2].length})</option>`).join('');
+  const pick = `<label class="sub" for="countryPick">Country</label><select id="countryPick" data-live="countryPick"><option value="">Choose a country</option>${opts}</select>`;
+  if (!cc || !WORLD[cc]) return `<h3>Where is the cargo?</h3><p class="fine">Select a country on the map or from the list. You will see its ports and can start an enquiry from any of them.</p>${pick}${upsell()}`;
+  const [name, slug, ports] = WORLD[cc], blocked = RESTRICTED.includes(name);
+  return `<h3>${esc(name)}</h3><p class="fine">${ports.length} ${ports.length === 1 ? 'port' : 'ports'} listed. Choose one as your loading or discharging port.</p>${pick}
+    ${blocked ? '<p class="note">Trade with this country is heavily restricted by sanctions. Enquiries are not accepted for its ports.</p>' : `<ul class="portlist">${ports.slice(0, 8).map(p => `<li><span>${esc(p[0])}</span><span><a href="#/enquire?load=${encodeURIComponent(p[0])}">Ship from</a><a href="#/enquire?disch=${encodeURIComponent(p[0])}">Ship to</a></span></li>`).join('')}</ul>`}
+    <a class="btn btn-sm" href="ports-${slug}.html">${ports.length > 8 ? 'All ' + ports.length + ' ports in ' + esc(name) : 'Port details for ' + esc(name)}</a>`;
+}
+ACT.country = d => { const p = $('#mapPanel'); if (!p) return; p.innerHTML = countryPanel(d.cc); document.querySelectorAll('.map a.sel').forEach(a => a.classList.remove('sel')); const a = document.querySelector('.map a[data-cc="' + d.cc + '"]'); if (a) a.classList.add('sel'); };
+LIVE.countryPick = el => ACT.country({ cc: el.value });
+
+/* ---------- Leave an enquiry: no account needed, shown on the board without a name ---------- */
+route('enquire', () => {
+  const q = render.q, d = S.draft.enq || {};
+  const v = k => q.get(k) || d[k] || '';
+  return `<section class="page narrow"><div class="page-head"><div><h1>Leave an enquiry</h1><p>Say what has to move. It goes on the board without your name, and owners and brokers with a ship that fits can respond.</p></div></div>
+    <div class="cols cols-even"><form class="form" data-form="enquiry">${portList()}
+    <fieldset><legend>The shipment</legend><div class="grid">
+      ${field({ k: 'cargo', l: 'What are you shipping?', req: true, ph: 'Wheat in bulk, steel coils, diesel', wide: true, live: 'enq' }, v('cargo'))}
+      ${field({ k: 'qty', l: 'Quantity (tonnes)', t: 'number', req: true, min: 1, live: 'enq' }, v('qty'))}
+      ${field({ k: 'seg', l: 'Ship type', t: 'select', o: [['', 'Not sure: suggest one']].concat(SEG_OPTS), live: 'enq' }, v('seg'))}
+      ${field({ k: 'load', l: 'From (loading port)', list: 'ports', req: true, ph: 'Start typing a port', live: 'enq' }, v('load'))}
+      ${field({ k: 'disch', l: 'To (discharging port)', list: 'ports', req: true, ph: 'Start typing a port', live: 'enq' }, v('disch'))}
+      ${field({ k: 'from', l: 'Earliest loading date', t: 'date', req: true }, v('from'))}${field({ k: 'to', l: 'Latest loading date', t: 'date', req: true }, v('to'))}
+      ${field({ k: 'note', l: 'Anything else', t: 'textarea', wide: true, ph: 'Packing, loading rates, restrictions at either port' }, v('note'))}
+    </div></fieldset>
+    <fieldset><legend>Where to reach you</legend><div class="grid">
+      ${field({ k: 'name', l: 'Your name', req: true }, v('name'))}${field({ k: 'company', l: 'Company', req: true }, v('company'))}
+      ${field({ k: 'email', l: 'Work email', t: 'email', req: true, wide: true, hint: 'Never shown on the board. Used only to tell you when someone responds.' }, v('email'))}
+      <div class="field wide"><label class="check"><input type="checkbox" name="decl" required> The cargo and the parties to the sale are not subject to UK, EU, US or UN sanctions.</label></div>
+    </div></fieldset>
+    <div class="form-end"><button class="btn btn-primary btn-lg">Put it on the board</button><p class="fine">Prototype: nothing is sent anywhere and the enquiry stays in this browser.</p></div></form>
+    <aside><div class="card" id="enqOut" data-init="enq"></div>${upsell()}</aside></div></section>`;
+});
+LIVE.enq = () => {
+  const out = $('#enqOut'); if (!out) return;
+  const g = k => ($('#f_' + k) || {}).value || '', qty = Number(g('qty')), load = g('load'), disch = g('disch');
+  let seg = g('seg') || guessSeg(g('cargo'), qty);
+  const rows = [];
+  if (qty && SEG[seg] && SEG[seg].metric === 'DWT') { const cls = classify(seg, seg === 'tanker' ? 'Clean product tanker' : '', Math.round(qty / 0.92)); rows.push(['Likely ship', (cls && !/bulker|tanker/i.test(cls) ? cls + ' ' + SEG[seg].short.toLowerCase() : cls || SEG[seg].short) + ', about ' + num(Math.round(qty / 0.92 / 500) * 500) + ' DWT']); }
+  else if (seg) rows.push(['Likely ship type', SEG[seg].label]);
+  const nm = roughMiles(load, disch);
+  if (nm) { rows.push(['Rough distance', num(nm) + ' nautical miles']); rows.push(['Sea passage', 'About ' + Math.max(1, Math.round(nm / (13 * 24))) + ' days at 13 knots']); }
+  if (PORT[load] && PORT[disch]) rows.push(['Route', PORT[load].country + ' to ' + PORT[disch].country]);
+  const fits = S.vessels.filter(x => x.seg === seg).length;
+  if (seg) rows.push(['Ships of this type listed', fits + ' in the sample data']);
+  const missing = [['cargo', 'the cargo'], ['qty', 'a quantity'], ['load', 'a loading port'], ['disch', 'a discharging port'], ['from', 'dates']].filter(x => !g(x[0])).map(x => x[1]);
+  out.innerHTML = `<h3>What this needs</h3>${rows.length ? kv(rows) : '<p class="fine">Fill in the shipment and this panel works out the likely ship, the distance and the time at sea.</p>'}
+    <p class="fine">${missing.length ? 'Still needed for an owner to price it: ' + missing.join(', ') + '.' : 'An owner can price this as it stands.'} Distances are rough estimates.</p>`;
+};
+function guessSeg(cargo, qty) {
+  const t = (cargo || '').toLowerCase(); if (!t) return '';
+  let hit = '';
+  Object.keys(SEG).forEach(k => SEG[k].cargoes.forEach(c => { if (!hit && t.includes(c.toLowerCase().split(' ')[0])) hit = k; }));
+  if (hit) return hit;
+  if (/oil|diesel|fuel|petrol|gasoline|chemical|liquid|bitumen/.test(t)) return 'tanker';
+  if (/lpg|lng|propane|butane|ammonia|gas\b/.test(t)) return 'gas';
+  if (/car|vehicle|truck|trailer/.test(t)) return 'roro';
+  if (/container/.test(t)) return 'container';
+  if (/project|machinery|turbine|heavy|steel|pipe|timber|bag/.test(t)) return qty > 15000 ? 'bulk' : 'mpp';
+  return qty && qty < 8000 ? 'mpp' : 'bulk';
+}
+FORM.enquiry = d => {
+  if (d.to < d.from) return toast('The latest date is before the earliest');
+  const bad = [d.load, d.disch].find(p => PORT[p] && RESTRICTED.includes(PORT[p].country));
+  if (bad) return toast('Enquiries are not accepted for ports in ' + PORT[bad].country);
+  const seg = d.seg || guessSeg(d.cargo, Number(d.qty)) || 'bulk', gid = nid('q-');
+  S.companies.push({ id: gid, name: d.company, role: 'charterer', country: (PORT[d.load] || {}).country || '', since: new Date().getFullYear(), verified: 'unverified', level: 0, fixtures: 0, respH: 0, about: '', contact: d.name, email: d.email });
+  const c = { id: nid('g'), by: gid, seg, type: 'voyage', cargo: d.cargo, qty: Number(d.qty), tol: 0, load: d.load, disch: d.disch, from: d.from, to: d.to, x: {}, terms: 'To be agreed', cp: SEG[seg].cp.voyage[0], idea: 0, rateType: SEG[seg].rateTypes[0], dem: 0, maxAge: 0,
+    vis: 'open', deadline: Date.now() + 7 * DAY, evidence: 'None: unverified enquiry', posted: Date.now(), status: 'open', note: d.note, unverified: true };
+  S.cargoes.push(c); delete S.draft.enq; save(); go('enquiry/' + c.id);
+};
+route('enquiry/:id', id => {
+  const c = cargoById(id); if (!c) return null;
+  return `<section class="page narrow"><div class="page-head"><div><h1>Your enquiry is on the board</h1><p>This is what owners and brokers see. Your name, company and email are not shown.</p></div></div>
+    <div class="list">${cargoRow(c)}</div>
+    <section class="block" style="margin-top:2rem"><h2>What happens next</h2><ol class="steps steps-v">
+      <li><h3>It is marked unverified</h3><p>Owners can see it and express interest, but most will wait until they know the cargo is real.</p></li>
+      <li><h3>Verify to get firm offers</h3><p>Create an account and start your passport. A verified enquiry with evidence of cargo is what owners price seriously.</p></li>
+      <li><h3>Compare and fix</h3><p>Offers arrive with a time limit, the ship and the offeror’s passport. Counter until terms agree.</p></li></ol>
+      <div class="row"><a class="btn btn-primary" href="#/join">Create an account and verify</a><a class="btn" href="#/cargoes">See the board</a><a class="btn btn-ghost" href="#/enquire">Leave another</a></div></section>
+    ${upsell()}</section>`;
+});
+
 ACT.roleGo = d => { S.role = d.role; save(); go(d.to); };
 function safeguardTable(rows) {
   return `<div class="tbl"><table><thead><tr><th>The problem</th><th>The safeguard</th><th>Where</th></tr></thead><tbody>${rows.map(r => `<tr><td><strong>${esc(r[0])}</strong></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>`;
@@ -131,7 +226,7 @@ function cargoRow(c) {
     <div class="l-main"><strong>${esc(c.cargo)}</strong><span>${c.type === 'time' ? esc(c.duration || 'Time charter') : num(c.qty) + ' t' + (c.tol ? ', ' + c.tol + '% more or less' : '')}</span></div>
     <div class="l-route"><strong>${esc(c.load)} to ${esc(c.disch)}</strong><span>Laycan ${laycan(c.from, c.to)}</span></div>
     <div class="l-rate"><strong>${c.idea ? rateStr({ rateType: c.rateType, rate: c.idea }) : 'No rate idea given'}</strong><span>${c.idea ? 'Charterer’s idea' : ''}</span></div>
-    <div class="l-meta">${tag(SEG[c.seg].short)}${c.status === 'review' ? tag('Awaiting desk review', 'warn') : c.status !== 'open' ? tag(c.status[0].toUpperCase() + c.status.slice(1), 'ok') : tag(VISIBILITY[c.vis][0], c.vis === 'open' ? '' : 'accent')}<span class="pp-mini">${marks(p.level)}</span>${c.status === 'open' ? `<span class="clock">Closes in ${until(c.deadline)}</span>` : ''}</div>
+    <div class="l-meta">${tag(SEG[c.seg].short)}${c.unverified ? tag('Unverified enquiry', 'warn') : ''}${c.status === 'review' ? tag('Awaiting desk review', 'warn') : c.status !== 'open' ? tag(c.status[0].toUpperCase() + c.status.slice(1), 'ok') : tag(VISIBILITY[c.vis][0], c.vis === 'open' ? '' : 'accent')}<span class="pp-mini">${marks(p.level)}</span>${c.status === 'open' ? `<span class="clock">Closes in ${until(c.deadline)}</span>` : ''}</div>
   </a>`;
 }
 function filterBar(kind, fields) {
@@ -146,8 +241,9 @@ route('cargoes', () => {
   if (f.sort === 'laycan') list.sort((a, b) => a.from.localeCompare(b.from)); else list.sort((a, b) => b.posted - a.posted);
   const hidden = S.cargoes.filter(c => !canSee(c)).length;
   return `<section class="page">
-    <div class="page-head"><div><h1>Cargoes</h1><p>Whole shiploads and whole-ship time charters open for offers.</p></div>${S.role === 'charterer' ? '<a class="btn btn-primary" href="#/post/cargo">Post a cargo</a>' : ''}</div>
+    <div class="page-head"><div><h1>Cargoes</h1><p>Whole shiploads and whole-ship time charters open for offers.</p></div>${S.role === 'charterer' ? '<a class="btn btn-primary" href="#/post/cargo">Post a cargo</a>' : S.role === 'guest' ? '<a class="btn btn-primary" href="#/enquire">Leave an enquiry</a>' : ''}</div>
     ${filterBar('cargo', [['seg', 'Vessel type', SEG_OPTS], ['region', 'Loading region', REGIONS], ['type', 'Charter', [['voyage', 'Voyage'], ['time', 'Time charter']]], ['sort', 'Sort', [['laycan', 'Earliest laycan']]]])}
+    ${S.role === 'guest' ? upsell() : ''}
     <div class="list">${list.length ? list.map(cargoRow).join('') : empty('No cargoes match those filters', 'Clear a filter, or post where your ship opens so cargo owners can find you.')}</div>
     ${hidden ? `<p class="fine">${hidden} more ${hidden === 1 ? 'listing is' : 'listings are'} restricted to a shortlist or awaiting desk review.</p>` : ''}
   </section>`;

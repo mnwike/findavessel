@@ -188,6 +188,11 @@ const PORTS = [
 ].map(p => ({ name: p[0], country: p[1], region: p[2], lat: p[3], lon: p[4] }));
 const PORT = Object.fromEntries(PORTS.map(p => [p.name, p]));
 const REGIONS = [...new Set(PORTS.map(p => p.region))];
+/* The wider port list (ports.js) feeds port pickers and rough distances. Curated ports above keep their regions. */
+if (typeof WORLD !== 'undefined') Object.keys(WORLD).forEach(cc => WORLD[cc][2].forEach(p => {
+  if (!PORT[p[0]]) { const o = { name: p[0], country: WORLD[cc][0], region: '', lat: p[1], lon: p[2], cc }; PORTS.push(o); PORT[p[0]] = o; }
+}));
+const RESTRICTED = ['Iran', 'North Korea', 'Syria'];
 
 /* Great-circle distance with a routing allowance. A placeholder for a proper sea-distance table. */
 function roughMiles(a, b) {

@@ -10,6 +10,7 @@ Prototype of a whole-ship chartering marketplace for cargo owners, vessel owners
 - Dark and light themes, following the system setting until the visitor switches.
 - Static, indexable guides, ship-size pages and calculators (laytime and demurrage, voyage estimate, class finder).
 - Paste an enquiry: free-text cargo orders are parsed into the listing form.
+- A world map of 1,591 ports in 185 countries, a page per country, and a guest enquiry form that puts shipments on the board without naming the sender.
 - Posting a cargo, with type-specific fields per vessel segment and three visibility modes: open to verified members, shortlist only, sealed tender.
 - Listing a vessel, with IMO check-digit validation and a class label suggested from type and size.
 - Matching on vessel type, size, steaming time to the load port, age and gear.
@@ -35,12 +36,20 @@ State is kept in the browser's local storage. "Reset the sample data" in the foo
     deal.js             deals, deal room, payments adapter, desk, in-app guide
     theme.js            dark and light theme, shared by every page
     styles.css          one stylesheet, two themes
-    build_pages.py      generates the static guide, ship-size and tool pages
+    build_map.js        builds ports.js and mapdata.json from the sea-ports and world-atlas npm packages (needs d3-geo, topojson-client, i18n-iso-countries)
+    ports.js            generated: port list and world map for the app
+    build_pages.py      generates the static guide, ship-size, tool and country port pages (reads mapdata.json)
+    photo-*.jpg         iStock photographs, licensed to the account holder under the standard licence; not for reuse
     *.html (others)     generated: do not edit by hand, edit build_pages.py and re-run it
     sitemap.xml, robots.txt
     geist-latin-wght-normal.woff2   Geist typeface, self-hosted (SIL Open Font License)
 
 Static pages are flat files so GitHub Pages serves them at `/<slug>`. The `barlow-*.woff2` files are left over from the first version and are unused.
+
+## Data sources
+
+- Ports: the `sea-ports` npm package (MIT). Positions are approximate and the list is not complete.
+- Country shapes: Natural Earth via `world-atlas` (public domain).
 
 ## Known limits
 
