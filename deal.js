@@ -205,6 +205,12 @@ route('desk', () => {
       <section class="block"><h2>Passports to clear</h2><div class="list">${crev.map(c => `<a class="lrow" href="#/company/${c.id}"><div class="l-main"><strong>${esc(c.name)}</strong><span>${ROLE_NAME[c.role]}, ${esc(c.country)}</span></div><div class="l-meta">${passportChip(c)}</div></a>`).join('')}${vrev.map(vesselRow).join('') || ''}${!crev.length && !vrev.length ? '<p class="fine">Nothing waiting.</p>' : ''}</div></section>
       <section class="block"><h2>Deal pipeline</h2><div class="list">${S.deals.map(dealRow).join('') || '<p class="fine">No deals yet.</p>'}</div></section></section>`;
   }
+  if (S.role === 'supplier') {
+    const c = me(), mine = requests().filter(r => r.slug === c.claim || c.claim === 'sample');
+    return `<section class="page"><div class="page-head"><div><h1>Requests</h1><p>${esc(c.name)}. Requests buyers have sent to your directory profile.</p></div><a class="btn" href="#/passport">Your profile checks</a></div>
+      <div class="list">${mine.length ? mine.slice().reverse().map(r => `<div class="lrow"><div class="l-main"><strong>${esc(r.company)}</strong><span>${esc(r.name)}, ${ago(r.at)}</span></div><div class="l-route"><strong>${esc(r.need)}</strong><span>${esc([r.port, r.date && 'by ' + dstr(r.date), r.vessel].filter(Boolean).join(', '))}</span></div><div class="l-rate"><span>For ${esc(r.supplier)}</span></div><div class="l-meta"><a class="btn btn-sm" href="mailto:${esc(r.email)}">Reply by email</a></div></div>`).join('') : empty('No requests yet', 'Requests appear here when a buyer uses the form on your directory profile. In this prototype only requests made in this browser are shown.', '<a class="btn" href="suppliers.html">Open the directory</a>')}</div>
+      <div class="upsell"><div><strong>Also own or manage vessels?</strong><span>List them to be matched with cargo enquiries.</span></div><a class="btn" data-act="roleGo" data-role="owner" data-to="post/vessel" href="#/post/vessel">List a vessel</a></div></section>`;
+  }
   const toAnswer = S.offers.filter(o => offerTo(o) === id && offerLive(o));
   const mineOut = S.offers.filter(o => o.by === id && o.status === 'firm');
   const myCargo = S.cargoes.filter(c => c.by === id), myShips = S.vessels.filter(v => v.owner === id);

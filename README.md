@@ -38,7 +38,11 @@ State is kept in the browser's local storage. "Reset the sample data" in the foo
     styles.css          one stylesheet, two themes
     build_map.js        builds ports.js and mapdata.json from the sea-ports and world-atlas npm packages (needs d3-geo, topojson-client, i18n-iso-countries)
     ports.js            generated: port list and world map for the app
-    build_pages.py      generates the static guide, ship-size, tool and country port pages (reads mapdata.json)
+    build_pages.py      generates every static page: guides, ship sizes, tools, country port pages and the supplier directory
+    mapdata-1.json, mapdata-2.json   country maps and port lists, split in two to stay under the web upload limit
+    providers.json      supplier directory data, no contact details
+    request.js          supplier request form (prototype: nothing is sent)
+    suppliers-data.js   generated: supplier counts per country for the app
     photo-*.jpg         iStock photographs, licensed to the account holder under the standard licence; not for reuse
     *.html (others)     generated: do not edit by hand, edit build_pages.py and re-run it
     sitemap.xml, robots.txt
@@ -46,7 +50,17 @@ State is kept in the browser's local storage. "Reset the sample data" in the foo
 
 Static pages are flat files so GitHub Pages serves them at `/<slug>`. The `barlow-*.woff2` files are left over from the first version and are unused.
 
+## Publishing
+
+`.github/workflows/pages.yml` runs `python3 build_pages.py` on every push to `main` and deploys the result to GitHub Pages. The 19,000 supplier profile pages under `providers/` are generated at that point and are not stored in the repository. Pages source must be set to "GitHub Actions" in the repository settings.
+
+## Supplier directory
+
+`providers.json` holds company name, city, country and suggested service groups for about 19,000 marine suppliers. It contains no email addresses or other contact details, and none must ever be added to this public repository. The mapping from profile to contact address lives outside the repo, for the notification backend. `request.js` records a request in the browser and shows the email that would be sent; nothing is sent.
+
 ## Data sources
+
+- Suppliers: a supplier list provided by the site owner. Check the right to republish it before promoting the directory.
 
 - Ports: the `sea-ports` npm package (MIT). Positions are approximate and the list is not complete.
 - Country shapes: Natural Earth via `world-atlas` (public domain).

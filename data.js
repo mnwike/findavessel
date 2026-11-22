@@ -243,6 +243,11 @@ const CHECKS = {
     { k: 'hm', l: 'Hull and machinery insurance', why: 'The ship itself is insured.', doc: 'Cover note' },
     { k: 'ism', l: 'Safety and security certificates', why: 'Document of compliance, safety management and ship security certificates are valid.', doc: 'DOC, SMC and ISSC' }
   ],
+  supplier: [
+    { k: 'profile', l: 'Directory profile claimed', why: 'Shows the listing is controlled by the company itself.', doc: 'Reply from an address at the company domain' },
+    { k: 'services', l: 'Services and ports covered', why: 'Buyers only send requests the supplier can actually fulfil.', doc: 'Entered on the profile' },
+    { k: 'certs', l: 'Certificates (optional)', why: 'ISO 9001, IMPA or ISSA membership, maker authorisations, class approvals.', doc: 'Copies of certificates' }
+  ],
   broker: [
     { k: 'pii', l: 'Professional indemnity insurance', why: 'Covers the broker’s errors and omissions.', doc: 'Insurance certificate' },
     { k: 'mandate', l: 'Mandate, per deal', why: 'Shows who the broker acts for and how many intermediaries sit between them and the principal.', doc: 'Declared on every offer' },

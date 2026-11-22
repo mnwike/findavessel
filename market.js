@@ -120,6 +120,12 @@ route('', () => {
     </div>
   </section>
 
+  <section class="band band-tint">
+    <div class="sec-head"><h2>Suppliers and services for the port call</h2><a href="suppliers.html">Open the supplier directory</a></div>
+    <p>Chandlers, spares, repairs, safety equipment and agents in ${typeof SUPPLIER_COUNTRIES !== 'undefined' ? Object.keys(SUPPLIER_COUNTRIES).length : 'many'} countries. Send a request and the supplier is notified by email.</p>
+    <div class="row"><a class="btn" href="suppliers.html">Find a supplier</a><a class="btn btn-ghost" href="#/join?role=supplier">Register as a supplier</a></div>
+  </section>
+
   <section class="band cta">
     <h2>Start with the passport.</h2>
     <p>It is useful on its own: one verified profile you can show any broker or counterparty, on this platform or off it.</p>
@@ -291,7 +297,7 @@ route('cargo/:id', id => {
           ['Loading', c.load + (PORT[c.load] ? ', ' + PORT[c.load].country : '')], ['Discharging', c.disch + (PORT[c.disch] ? ', ' + PORT[c.disch].country : '')],
           ['Laycan', dlong(c.from) + ' to ' + dlong(c.to)], ['Freight idea', c.idea ? rateStr({ rateType: c.rateType, rate: c.idea }) : 'Not given'],
           ['Freight terms', c.terms], ['Demurrage idea', c.dem ? usd(c.dem) + ' per day' : ''], ['Charter party form', c.cp],
-          ['Vessel type', s.label], ['Maximum age', c.maxAge ? c.maxAge + ' years' : ''], ['Rough distance', roughMiles(c.load, c.disch) ? num(roughMiles(c.load, c.disch)) + ' nautical miles (estimate)' : '']
+          ['Vessel type', s.label], ['Maximum age', c.maxAge ? c.maxAge + ' years' : ''], ['Services at the load port', supplierLink(c.load), true], ['Services at the discharge port', c.disch !== c.load ? supplierLink(c.disch) : '', true], ['Rough distance', roughMiles(c.load, c.disch) ? num(roughMiles(c.load, c.disch)) + ' nautical miles (estimate)' : '']
         ])}</section>
         <section class="block"><h2>Cargo details</h2>${kv(s.cargoFields.map(f => [f.l, (c.x || {})[f.k]]))}${c.note ? `<p class="note">${esc(c.note)}</p>` : ''}</section>
         <section class="block"><h2>Offers</h2>${offersHtml}</section>

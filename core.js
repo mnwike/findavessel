@@ -37,7 +37,18 @@ const myId = () => S.me[S.role];
 const me = () => co(myId());
 const vessel = id => S.vessels.find(v => v.id === id);
 const cargoById = id => S.cargoes.find(c => c.id === id);
-const ROLE_NAME = { guest: 'Visitor', charterer: 'Cargo owner', owner: 'Vessel owner', broker: 'Broker', desk: 'Desk' };
+const ROLE_NAME = { guest: 'Visitor', charterer: 'Cargo owner', owner: 'Vessel owner', broker: 'Broker', supplier: 'Supplier', desk: 'Desk' };
+/* Supplier accounts were added after the first release: give older saved states the sample one. */
+if (!S.me.supplier) {
+  S.me.supplier = 's-larkhill';
+  if (!S.companies.find(c => c.id === 's-larkhill')) S.companies.push({ id: 's-larkhill', name: 'Larkhill Marine Supply', role: 'supplier', country: 'United Kingdom', since: 2026, verified: 'review', level: 2, fixtures: 0, respH: 4, about: 'Sample ship chandler and deck stores supplier.', claim: 'sample' });
+}
+const slugify = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+function supplierLink(port) {
+  const c = PORT[port] && PORT[port].country, sl = slugify(c);
+  return c && typeof SUPPLIER_COUNTRIES !== 'undefined' && SUPPLIER_COUNTRIES[sl] ? `<a href="suppliers-${sl}.html">${SUPPLIER_COUNTRIES[sl].toLocaleString('en-GB')} marine suppliers in ${esc(c)}</a>` : '';
+}
+function requests() { try { return JSON.parse(localStorage.getItem('findavessel.requests') || '[]'); } catch (e) { return []; } }
 const sizeStr = v => num(v.size) + ' ' + SEG[v.seg].metric;
 const vclass = v => classify(v.seg, v.subtype, v.size);
 function rateStr(o) {
@@ -124,20 +135,20 @@ function shell(route) {
   <div class="demo-bar">Prototype with sample data. The companies, ships, cargoes and payments shown are invented and nothing here is a live offer.</div>
   <header class="top">
     <a class="brand" href="#/">${plimsoll(26)}<span>FindAVessel</span></a>
-    <nav class="nav" aria-label="Main">${NAV.map(n => `<a href="#/${n[0]}"${top === n[0] || (n[0] === 'cargoes' && top === 'cargo') || (n[0] === 'vessels' && top === 'vessel') || (n[0] === 'deals' && top === 'deal') ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}<a href="ports.html">Ports</a><a href="guides.html">Guides</a><a href="tools.html">Tools</a>${S.role === 'desk' ? `<a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a>` : ''}</nav>
+    <nav class="nav" aria-label="Main">${NAV.map(n => `<a href="#/${n[0]}"${top === n[0] || (n[0] === 'cargoes' && top === 'cargo') || (n[0] === 'vessels' && top === 'vessel') || (n[0] === 'deals' && top === 'deal') ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}<a href="ports.html">Ports</a><a href="suppliers.html">Suppliers</a><a href="guides.html">Guides</a><a href="tools.html">Tools</a>${S.role === 'desk' ? `<a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a>` : ''}</nav>
     <div class="top-right">
       ${THEME_BTN}
       <label class="role"><span>Viewing as</span>
         <select data-live="roleSelect" aria-label="Viewing as">${Object.keys(ROLE_NAME).map(r => `<option value="${r}"${S.role === r ? ' selected' : ''}>${ROLE_NAME[r]}</option>`).join('')}</select>
       </label>
-      ${S.role === 'guest' ? `<a class="btn btn-primary" href="#/enquire">Leave an enquiry</a>` : S.role === 'desk' ? '' : S.role === 'broker' ? `<a class="btn btn-primary" href="#/cargoes">Find cargoes</a>` : `<a class="btn btn-primary" href="${postHref}">${postLabel}</a>`}
+      ${S.role === 'guest' ? `<a class="btn btn-primary" href="#/enquire">Leave an enquiry</a>` : S.role === 'desk' ? '' : S.role === 'supplier' ? `<a class="btn btn-primary" href="#/desk">Requests</a>` : S.role === 'broker' ? `<a class="btn btn-primary" href="#/cargoes">Find cargoes</a>` : `<a class="btn btn-primary" href="${postHref}">${postLabel}</a>`}
     </div>
   </header>
   ${c ? `<div class="whoami"><span>${esc(c.name)}</span>${passportChip(c)}<span class="who-links"><a href="#/passport">Passport</a> <a href="#/desk">My desk</a></span></div>` : ''}
   <main id="main" tabindex="-1"></main>
   <footer class="foot">
     <div><strong>FindAVessel</strong><p>Whole-ship charters for owners, cargo interests and brokers who are new to each other.</p></div>
-    <div><strong>Platform</strong><a href="#/enquire">Leave an enquiry</a><a href="#/cargoes">Enquiry board</a><a href="#/vessels">Vessels</a><a href="ports.html">Ports by country</a><a href="#/guide/safeguards">Safeguards</a><a href="#/guide/payments">How payment works</a><a href="#/join">Create an account</a></div>
+    <div><strong>Platform</strong><a href="#/enquire">Leave an enquiry</a><a href="#/cargoes">Enquiry board</a><a href="#/vessels">Vessels</a><a href="ports.html">Ports by country</a><a href="suppliers.html">Supplier directory</a><a href="#/guide/safeguards">Safeguards</a><a href="#/guide/payments">How payment works</a><a href="#/join">Create an account</a></div>
     <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="what-is-demurrage.html">What is demurrage</a><a href="how-to-charter-a-ship.html">How to charter a ship</a></div>
     <div><p>Prototype build. No regulated service is offered here: payments, sanctions screening and document checks are simulated.</p><button class="link" data-act="reset">Reset the sample data</button></div>
   </footer>

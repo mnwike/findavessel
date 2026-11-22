@@ -32,9 +32,10 @@ route('vessel/:id', id => {
       ${S.role === 'charterer' && myCargoes.length ? `<button class="btn btn-primary" data-act="invite" data-c="${myCargoes[0].id}" data-v="${v.id}">Invite to offer on ${esc(myCargoes[0].cargo.toLowerCase())}</button>` : ''}</div>
     <div class="cols">
       <div>
-        <section class="block"><h2>Open position</h2>${kv([['Open at', v.open + (PORT[v.open] ? ', ' + PORT[v.open].country : '')], ['Open from', dlong(v.openDate)], ['Preferred trades', v.trades], ['Speed and fuel', v.speed + ' knots on about ' + v.cons + ' t per day']])}</section>
+        <section class="block"><h2>Open position</h2>${kv([['Open at', v.open + (PORT[v.open] ? ', ' + PORT[v.open].country : '')], ['Open from', dlong(v.openDate)], ['Preferred trades', v.trades], ['Speed and fuel', v.speed + ' knots on about ' + v.cons + ' t per day'], ['Stores, spares and repairs', supplierLink(v.open), true]])}</section>
+        ${(v.photos || []).length ? `<section class="block"><h2>Photographs</h2><div class="gallery">${v.photos.map((p, i) => `<img src="${p}" alt="${esc(v.name)}, photograph ${i + 1}">`).join('')}</div><p class="fine">Supplied by the owner.</p></section>` : ''}
         <section class="block"><h2>Particulars</h2>${kv([['IMO number', v.imo || 'Withheld in sample data'], ['Type', v.subtype], ['Class label', vclass(v) + (s.approx ? ' (platform band)' : '')], [s.metricLong, num(v.size)], ['Built', v.built], ['Flag', v.flag], ['Classification society', v.cls], ['P&I', v.pi],
-          ['Length overall', v.loa ? v.loa + ' m' : ''], ['Beam', v.beam ? v.beam + ' m' : ''], ['Summer draught', v.draft ? v.draft + ' m' : ''], ['Gross tonnage', v.gt ? num(v.gt) : '']])}</section>
+          ['Length overall', v.loa ? v.loa + ' m' : ''], ['Beam', v.beam ? v.beam + ' m' : ''], ['Summer draught', v.draft ? v.draft + ' m' : ''], ['Gross tonnage', v.gt ? num(v.gt) : ''], ['Technical manager', v.techManager], ['Commercial manager', v.commManager]])}</section>
         <section class="block"><h2>${esc(s.short)} details</h2>${kv(s.fields.map(f => [f.l, f.t === 'date' ? dlong((v.x || {})[f.k]) : (v.x || {})[f.k]]))}</section>
         <section class="block"><h2>Cargoes this ship fits</h2>${fits.length ? fits.map(([c, r]) => `<div class="fit"><a href="#/cargo/${c.id}"><strong>${esc(c.cargo)}, ${num(c.qty)} t</strong></a><span>${esc(c.load)} to ${esc(c.disch)}, laycan ${laycan(c.from, c.to)}</span><ul>${r.why.map(w => `<li>${esc(w)}</li>`).join('')}</ul>${mine ? `<a class="btn btn-sm" href="#/cargo/${c.id}/offer">Make a firm offer</a>` : ''}</div>`).join('') : '<p class="fine">No open cargo fits this ship on type, size, timing and age.</p>'}</section>
       </div>
@@ -53,6 +54,15 @@ ACT.verifyVessel = d => { vessel(d.id).verified = 'verified'; save(); render(); 
 
 /* ---------- List a vessel ---------- */
 LIVE.reseg = el => { const form = el.closest('form'); S.draft[form.dataset.form] = formData(form); save(); render(); };
+LIVE.vphotos = (el, evt) => {
+  if (evt !== 'change') return;
+  const files = [...el.files].slice(0, 4); S.draft.vphotos = [];
+  Promise.all(files.map(f => new Promise(res => {
+    const img = new Image(), url = URL.createObjectURL(f);
+    img.onload = () => { const k = Math.min(1, 640 / img.width), c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', 0.7)); };
+    img.onerror = () => res(null); img.src = url;
+  }))).then(list => { S.draft.vphotos = list.filter(Boolean); save(); const p = $('#photoPrev'); if (p) p.innerHTML = S.draft.vphotos.map(x => `<img src="${x}" alt="Selected photograph">`).join(''); });
+};
 LIVE.imo = el => {
   const h = $('#f_imo_hint'); if (!h) return;
   const v = el.value.trim();
@@ -76,6 +86,8 @@ route('post/vessel', () => {
       ${field({ k: 'size', l: s.metricLong, t: 'number', req: true, min: 1, live: 'vclass' }, d.size)}
       <div class="field"><span class="lbl">Class label</span><div class="classout" id="classOut" data-init="vclass"></div></div>
       ${field({ k: 'authority', l: 'Your authority over the ship', t: 'select', o: ['Registered owner', 'Disponent owner', 'Commercial manager with written authority'], req: true }, d.authority)}
+      ${field({ k: 'techManager', l: 'Technical manager', ph: 'Company that crews and maintains the ship', hint: 'Leave empty if you manage the ship yourself.' }, d.techManager)}
+      ${field({ k: 'commManager', l: 'Commercial manager', ph: 'Company that fixes the ship' }, d.commManager)}
     </div></fieldset>
     <fieldset><legend>2. Particulars</legend><div class="grid">
       ${field({ k: 'built', l: 'Year built', t: 'number', req: true, min: 1970 }, d.built)}${field({ k: 'flag', l: 'Flag', t: 'select', o: FLAGS, req: true }, d.flag)}
@@ -89,7 +101,11 @@ route('post/vessel', () => {
       ${field({ k: 'open', l: 'Open port', list: 'ports', req: true, ph: 'Start typing a port' }, d.open)}${field({ k: 'openDate', l: 'Open from', t: 'date', req: true }, d.openDate)}
       ${field({ k: 'trades', l: 'Preferred trades or exclusions', wide: true, ph: 'Worldwide, excluding war-risk areas' }, d.trades)}
     </div></fieldset>
-    <fieldset><legend>5. Certificates</legend><div class="grid">
+    <fieldset><legend>5. Photographs</legend>
+      <div class="field"><label for="f_photos">Up to four photographs of the ship <small>optional</small></label><input id="f_photos" type="file" accept="image/*" multiple data-live="vphotos"><p class="hint">Deck, holds or tanks, and a profile shot help most. Images are reduced in size and kept in this browser only.</p></div>
+      <div class="gallery" id="photoPrev">${(S.draft.vphotos || []).map(p => `<img src="${p}" alt="Selected photograph">`).join('')}</div>
+    </fieldset>
+    <fieldset><legend>6. Certificates</legend><div class="grid">
       <div class="field"><label for="f_classcert">Certificate of class <small>optional now, needed before a fixture</small></label><input id="f_classcert" type="file" name="classcert"></div>
       <div class="field"><label for="f_picert">P&amp;I certificate of entry <small>optional now, needed before a fixture</small></label><input id="f_picert" type="file" name="picert"></div>
       ${field({ k: 'certExpiry', l: 'Earliest certificate expiry', t: 'date', hint: 'You are reminded 60 days before, and so is any counterparty in a live deal.' }, d.certExpiry)}
@@ -101,8 +117,9 @@ FORM.vessel = d => {
   if (!imoValid(d.imo)) return toast('Check the IMO number: the check digit does not match');
   if (!PORT[d.open]) toast('Port not in the prototype list, so matching will skip steaming time');
   const v = { id: nid('v'), owner: myId(), name: d.name, imo: d.imo, seg: d.seg, subtype: d.subtype, size: Number(d.size), built: Number(d.built), flag: d.flag, cls: d.cls, pi: d.pi, loa: d.loa, beam: d.beam, draft: d.draft, gt: Number(d.gt || 0),
-    x: d.x, open: d.open, openDate: d.openDate, trades: d.trades, speed: Number(d.speed || 13), cons: Number(d.cons || 25), verified: 'review', certExpiry: d.certExpiry || inDays(365) };
-  S.vessels.push(v); delete S.draft.vessel; save(); go('vessel/' + v.id); toast('Vessel submitted for desk review');
+    x: d.x, open: d.open, openDate: d.openDate, trades: d.trades, speed: Number(d.speed || 13), cons: Number(d.cons || 25), verified: 'review', certExpiry: d.certExpiry || inDays(365),
+    techManager: d.techManager, commManager: d.commManager, photos: S.draft.vphotos || [] };
+  S.vessels.push(v); delete S.draft.vessel; delete S.draft.vphotos; save(); go('vessel/' + v.id); toast('Vessel submitted for desk review');
 };
 
 /* ---------- Post a cargo ---------- */
@@ -160,15 +177,18 @@ FORM.cargo = (d, form) => {
 
 /* ---------- Create an account ---------- */
 route('join', () => {
-  const jd = S.draft.join || {}, role = jd.role || 'charterer';
+  const q = render.q, claim = q.get('claim') || (S.draft.join || {}).claim || '';
+  const jd = Object.assign({ name: q.get('name') || '', country: q.get('country') || '' }, S.draft.join || {}), role = jd.role || (claim || q.get('role') === 'supplier' ? 'supplier' : 'charterer');
   const extra = {
     charterer: [{ k: 'commodities', l: 'What you ship', ph: 'Grain, fertiliser', req: true }, { k: 'volume', l: 'Rough annual volume', ph: '4 to 6 shiploads' }, { k: 'side', l: 'Your place in the trade', t: 'select', o: ['Seller', 'Buyer', 'Trader', 'Freight forwarder or logistics'] }],
     owner: [{ k: 'fleet', l: 'Vessels you control', t: 'number', min: 0, req: true }, { k: 'capacity', l: 'Your capacity', t: 'select', o: ['Registered owner', 'Disponent owner', 'Commercial manager'] }, { k: 'manager', l: 'Technical manager, if separate' }],
+    supplier: [{ k: 'services', l: 'What you supply or service', ph: 'Deck and engine stores, provisions, safety equipment', req: true }, { k: 'portsServed', l: 'Ports you cover', ph: 'Rotterdam, Antwerp, Amsterdam' }, { k: 'certs', l: 'Certificates and memberships', ph: 'ISO 9001, IMPA, ISSA' }],
     broker: [{ k: 'markets', l: 'Markets you cover', ph: 'Dry cargo, Black Sea and Mediterranean', req: true }, { k: 'pii', l: 'Professional indemnity insurance', t: 'select', o: ['In place', 'Being arranged', 'None'] }, { k: 'member', l: 'Trade body membership', ph: 'Baltic Exchange, ICS, national association' }]
   }[role];
   return `<section class="page narrow"><div class="page-head"><div><h1>Create an account</h1><p>An account starts your passport. You can look around straight away; listing and offering open up once the first checks are done.</p></div></div>
-    <form class="form" data-form="join">
-    <fieldset><legend>1. What you do</legend><div class="radios">${[['charterer', 'I have cargo to move', 'Post cargoes and receive firm offers.'], ['owner', 'I own or manage vessels', 'List ships, post open positions and bid on cargoes.'], ['broker', 'I am a broker', 'Offer on behalf of owners or charterers, with your mandate and commission on record.']].map(r => `<label><input type="radio" name="role" value="${r[0]}" data-live="reseg"${role === r[0] ? ' checked' : ''}><span><strong>${r[1]}</strong>${r[2]}</span></label>`).join('')}</div></fieldset>
+    ${claim ? `<div class="notice notice-ok"><p><strong>Claiming the profile for ${esc(jd.name || 'your company')}.</strong> To confirm you speak for the company, the desk replies to an address at the company’s own domain before the profile is released to you.</p></div>` : ''}
+    <form class="form" data-form="join"><input type="hidden" name="claim" value="${esc(claim)}">
+    <fieldset><legend>1. What you do</legend><div class="radios">${[['charterer', 'I have cargo to move', 'Post cargoes and receive firm offers.'], ['owner', 'I own or manage vessels', 'List ships, post open positions and bid on cargoes.'], ['broker', 'I am a broker', 'Offer on behalf of owners or charterers, with your mandate and commission on record.'], ['supplier', 'I supply or service ships', 'Claim your directory profile, list services and ports, and receive requests.']].map(r => `<label><input type="radio" name="role" value="${r[0]}" data-live="reseg"${role === r[0] ? ' checked' : ''}><span><strong>${r[1]}</strong>${r[2]}</span></label>`).join('')}</div></fieldset>
     <fieldset><legend>2. Your company</legend><div class="grid">
       ${field({ k: 'name', l: 'Registered company name', req: true }, jd.name)}${field({ k: 'country', l: 'Country of registration', req: true }, jd.country)}
       ${field({ k: 'regno', l: 'Registration number', req: true }, jd.regno)}${field({ k: 'website', l: 'Website', t: 'url' }, jd.website)}
@@ -183,7 +203,7 @@ route('join', () => {
 });
 FORM.join = d => {
   const id = nid(d.role[0] + '-');
-  S.companies.push({ id, name: d.name, role: d.role, country: d.country, since: new Date().getFullYear(), verified: 'unverified', level: 0, fixtures: 0, respH: 0, about: d.commodities || d.markets || (d.fleet ? d.fleet + ' vessels' : ''), isNew: true });
+  S.companies.push({ id, name: d.name, role: d.role, country: d.country, since: new Date().getFullYear(), verified: 'unverified', level: 0, fixtures: 0, respH: 0, about: d.commodities || d.markets || d.services || (d.fleet ? d.fleet + ' vessels' : ''), isNew: true, claim: d.claim || '', portsServed: d.portsServed });
   S.me[d.role] = id; S.role = d.role; delete S.draft.join; save(); go('passport'); toast('Account created. Your passport is open.');
 };
 

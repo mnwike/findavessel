@@ -2,7 +2,8 @@
 """Builds the static guide, ship-size and tool pages for FindAVessel.
 Run from the repository root:  python3 build_pages.py
 Each page is written next to index.html so it is served at /<slug> on GitHub Pages."""
-import html, json, math
+import collections, glob, html, json, math, os
+from urllib.parse import quote
 
 SITE = 'https://findavessel.com'
 DATE = '2026-11-22'
@@ -176,17 +177,17 @@ def shell(slug, title, desc, body, kind='Article', extra_head='', scripts=''):
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
   <a class="brand" href="index.html">{LOGO}<span>FindAVessel</span></a>
-  <nav class="nav" aria-label="Main"><a href="index.html#/cargoes">Board</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/deals">Deals</a><a href="index.html#/passport">Passport</a><a href="ports.html"{cur('ports')}>Ports</a><a href="guides.html"{cur('guides')}>Guides</a><a href="tools.html"{cur('tools')}>Tools</a></nav>
+  <nav class="nav" aria-label="Main"><a href="index.html#/cargoes">Board</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/deals">Deals</a><a href="index.html#/passport">Passport</a><a href="ports.html"{cur('ports')}>Ports</a><a href="suppliers.html"{cur('suppliers')}>Suppliers</a><a href="guides.html"{cur('guides')}>Guides</a><a href="tools.html"{cur('tools')}>Tools</a></nav>
   <div class="top-right">{THEME_BTN}<a class="btn btn-primary" href="index.html#/enquire">Leave an enquiry</a></div>
 </header>
 <main id="main">{body}</main>
 <footer class="foot">
   <div><strong>FindAVessel</strong><p>Whole-ship charters for owners, cargo interests and brokers who are new to each other.</p></div>
   <div><strong>Platform</strong><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/guide/safeguards">Safeguards</a><a href="index.html#/join">Create an account</a></div>
-  <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="ports.html">Ports by country</a></div>
+  <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="ports.html">Ports by country</a><a href="suppliers.html">Supplier directory</a></div>
   <div><p>Guides are general information, not legal advice. The wording of your charter party governs. FindAVessel is a prototype and offers no regulated service.</p></div>
 </footer>
-<nav class="tabbar" aria-label="Main, mobile"><a href="index.html#/cargoes">Board</a><a href="ports.html"{cur('ports')}>Ports</a><a href="guides.html"{cur('guides')}>Guides</a><a href="tools.html"{cur('tools')}>Tools</a><a href="index.html#/enquire">Enquire</a></nav>
+<nav class="tabbar" aria-label="Main, mobile"><a href="index.html#/cargoes">Board</a><a href="ports.html"{cur('ports')}>Ports</a><a href="suppliers.html"{cur('suppliers')}>Suppliers</a><a href="guides.html"{cur('guides')}>Guides</a><a href="index.html#/enquire">Enquire</a></nav>
 {scripts}
 </body>
 </html>
@@ -194,6 +195,10 @@ def shell(slug, title, desc, body, kind='Article', extra_head='', scripts=''):
 
 
 PAGES = {}  # slug -> (title, blurb, figure) for index tiles and related links
+PD = json.load(open('providers.json')) if os.path.exists('providers.json') else None
+SUP_CSLUGS = {PD['countries'][p[3]][1] for p in PD['providers']} if PD else set()
+SUP_COUNT = collections.Counter(PD['countries'][p[3]][1] for p in PD['providers']) if PD else {}
+
 import os
 P_TANKER = ('photo-tanker.jpg', 'Aerial view of an oil and chemical tanker under way near a wooded coast', 'An oil and chemical tanker under way.')
 P_BULK = ('photo-bulk-carrier.jpg', 'Aerial view of a bulk carrier with closed hatch covers and a tug alongside', 'A bulk carrier with a tug alongside.')
@@ -685,8 +690,13 @@ index('tools', 'Free chartering calculators and tools', 'Free tools for ship cha
 
 # Ports: a hub with the world map and one page per country (data from build_map.js)
 port_slugs = []
+MD = None
 if os.path.exists('mapdata.json'):
     MD = json.load(open('mapdata.json'))
+elif os.path.exists('mapdata-1.json'):
+    MD = json.load(open('mapdata-1.json'))
+    MD['countries'].update(json.load(open('mapdata-2.json'))['countries'])
+if MD:
     CS = sorted(MD['countries'].values(), key=lambda c: c['name'])
     RESTRICTED = {'IR': 'Iran', 'KP': 'North Korea', 'SY': 'Syria'}
     CAUTION = {'RU', 'BY', 'CU', 'VE', 'MM', 'SD', 'LY', 'YE'}
@@ -711,6 +721,7 @@ if os.path.exists('mapdata.json'):
 <div class="tbl"><table><thead><tr><th>Port</th><th>UN/LOCODE</th><th>Region</th><th>Position</th>{'' if blocked else '<th>Start an enquiry</th>'}</tr></thead><tbody>{rows}</tbody></table></div>
 {SOURCE}
 {'' if blocked else UPSELL}
+{f'<h2>Ship suppliers and services in {e(n)}</h2><p>Need stores, spares or repairs during a port call? See the <a href="suppliers-{c["slug"]}.html">{SUP_COUNT[c["slug"]]:,} marine suppliers listed in {e(n)}</a> and request a quote.</p>' if c['slug'] in SUP_CSLUGS else ''}
 <h2>Chartering a ship to or from {e(n)}</h2>
 <p>A whole-ship charter needs the cargo, the quantity, both ports and a window of loading dates. With those an owner can price the voyage. If this is your first, read <a href="how-to-charter-a-ship.html">how to charter a ship</a>, check which <a href="ship-sizes.html">size of ship</a> the cargo needs, and look up the terms you will meet: <a href="laycan.html">laycan</a>, <a href="laytime.html">laytime</a> and <a href="what-is-demurrage.html">demurrage</a>.</p>
 {'' if blocked else '<div class="row"><a class="btn btn-primary" href="index.html#/enquire">Leave an enquiry</a><a class="btn" href="index.html#/cargoes">See the enquiry board</a></div>'}
@@ -729,8 +740,127 @@ if os.path.exists('mapdata.json'):
     port_slugs.insert(0, 'ports')
     print('ports pages', len(port_slugs))
 
+if not port_slugs:
+    port_slugs = sorted(f[:-5] for f in glob.glob('ports*.html'))
+PORT_SLUGS = set(port_slugs)
+
+# ---------- Supplier directory (data from providers.json; no contact details are stored in it) ----------
+sup_slugs = []
+if PD:
+    import re as _re
+    CATL = dict(PD['cats'])
+    BLOCKED = {'IR', 'KP', 'SY'}
+    by_cc, by_cat = {}, {}
+    for p in PD['providers']:
+        by_cc.setdefault(p[3], []).append(p)
+        for c in p[4]:
+            by_cat.setdefault(c, []).append(p)
+    NPROV = len(PD['providers'])
+    rebase = lambda h: _re.sub(r'(href|src)="(?!https?:|#|data:|mailto:|/)', r'\1="../', h)
+    SUP_UPSELL = '<div class="upsell"><div><strong>Looking for a ship, not a supplier?</strong><span>Leave a chartering enquiry, or list your own vessels to be matched with cargoes.</span></div><span class="row"><a class="btn" href="index.html#/enquire">Leave an enquiry</a><a class="btn" href="index.html#/post/vessel">List a vessel</a></span></div>'
+    SUP_SOURCE = '<p class="fine">Listings are unclaimed unless marked otherwise. Names and locations come from a public supplier list and have not been confirmed by the companies. Service groups are suggested from the company name. FindAVessel is not affiliated with the companies listed. A company can correct or remove its listing by claiming the profile.</p>'
+    catlinks = lambda cats: ', '.join(f'<a href="suppliers-cat-{c}.html">{e(CATL[c])}</a>' for c in cats)
+    os.makedirs('providers', exist_ok=True)
+
+    def req_form(p, cname):
+        return f'''<form class="calc" data-request-form data-slug="{p[0]}" data-name="{e(p[1])}">
+<h3>Request a quote from {e(p[1])}</h3>
+<div class="grid">
+<div class="field wide"><label for="rq-need">What do you need?</label><textarea id="rq-need" name="need" rows="3" required placeholder="Items or service, quantities, part numbers, makes and models"></textarea></div>
+<div class="field"><label for="rq-port">Port where it is needed <small>optional</small></label><input id="rq-port" name="port" placeholder="{e(p[2] or cname)}"></div>
+<div class="field"><label for="rq-date">Needed by <small>optional</small></label><input id="rq-date" name="date" type="date"></div>
+<div class="field"><label for="rq-vessel">Vessel name or IMO number <small>optional</small></label><input id="rq-vessel" name="vessel"></div>
+<div class="field"><label for="rq-company">Your company</label><input id="rq-company" name="company" required></div>
+<div class="field"><label for="rq-name">Your name</label><input id="rq-name" name="name" required></div>
+<div class="field"><label for="rq-email">Work email</label><input id="rq-email" name="email" type="email" required></div>
+</div>
+<button class="btn btn-primary">Send request</button>
+<p class="fine">Your request goes to the supplier by email from FindAVessel. Their address is not shown to you and yours is shared only with them.</p>
+</form>'''
+
+    for p in PD['providers']:
+        s, name, city, cc, cats = p
+        cname, cslug = PD['countries'][cc]
+        where = f'{city}, {cname}' if city else cname
+        peers = [q for q in by_cc[cc] if q is not p and (not city or q[2] == city)][:8] or [q for q in by_cc[cc] if q is not p][:8]
+        peer_html = ''.join(f'<li><a href="providers/{q[0]}.html">{e(q[1])}</a></li>' for q in peers)
+        ports_link = f'<a href="ports-{cslug}.html">Ports in {e(cname)}</a>' if f'ports-{cslug}' in PORT_SLUGS else ''
+        blocked = cc in BLOCKED
+        form = '<div class="notice"><p><strong>Sanctions.</strong> Trade with this country is heavily restricted under UK, EU, US and UN measures. FindAVessel does not pass requests to suppliers there.</p></div>' if blocked else req_form(p, cname)
+        body = f'''<article class="article">
+<p class="crumbs"><a href="suppliers.html">Suppliers</a> / <a href="suppliers-{cslug}.html">{e(cname)}</a> / {e(name)}</p>
+<h1>{e(name)}</h1>
+<p class="standfirst">{e(name)} is listed as a marine supplier in {e(where)}. Send a request through FindAVessel and the company is notified by email.</p>
+{table(['', ''], [['<strong>Location</strong>', e(where)], ['<strong>Service group</strong>', catlinks(cats) + ' <span class="sub">Suggested from the company name</span>'], ['<strong>Listing</strong>', 'Unclaimed. Not yet confirmed by the company.'], ['<strong>Nearby</strong>', f'<a href="suppliers-{cslug}.html">{len(by_cc[cc]):,} suppliers in {e(cname)}</a>' + (', ' + ports_link if ports_link else '')]])}
+{form}
+<div class="article-cta"><h2>Is this your company?</h2><p>Claim this profile to confirm your details, list the services and ports you cover, and answer requests directly. It is free.</p>
+<a class="btn" href="index.html#/join?claim={s}&amp;name={quote(name)}&amp;country={quote(cname)}">Claim this profile</a></div>
+<h2>Other marine suppliers in {e(city or cname)}</h2><ul>{peer_html}</ul>
+{SUP_UPSELL}
+<figure class="photo"><img src="photo-port.jpg" alt="A cargo port at dusk with ships alongside under cranes" width="1200" height="675" loading="lazy"><figcaption>Photo: iStock.</figcaption></figure>
+{SUP_SOURCE}
+</article>'''
+        title = f'{name}, {where}: request a quote'
+        desc = f'{name} is a marine supplier in {where}. Request a quote for {CATL[cats[0]].lower()} through FindAVessel.'
+        html_out = shell('providers/' + s, title[:70], desc[:158], body, 'suppliers', scripts='<script src="request.js"></script>')
+        open(f'providers/{s}.html', 'w').write(rebase(html_out))
+
+    FILTER_JS = '''<script>(function(){var q=document.getElementById('sf'),c=document.getElementById('sc'),rows=[].slice.call(document.querySelectorAll('#st tbody tr')),n=document.getElementById('sn');
+function go(){var t=q.value.toLowerCase(),k=c.value,shown=0;rows.forEach(function(r){var ok=(!t||r.textContent.toLowerCase().indexOf(t)>=0)&&(!k||(' '+r.getAttribute('data-c')+' ').indexOf(' '+k+' ')>=0);r.hidden=!ok;if(ok)shown++});n.textContent=shown.toLocaleString()+' shown'}
+if(location.hash.length>1){c.value=location.hash.slice(1)}q.oninput=go;c.onchange=go;go()})();</script>'''
+    for cc, plist in sorted(by_cc.items(), key=lambda kv: PD['countries'][kv[0]][0]):
+        cname, cslug = PD['countries'][cc]
+        plist = sorted(plist, key=lambda p: p[1].lower())
+        present = [k for k, _ in PD['cats'] if any(k in p[4] for p in plist)]
+        rows_html = ''.join(f'<tr data-c="{" ".join(p[4])}"><td><a href="providers/{p[0]}.html"><strong>{e(p[1])}</strong></a></td><td>{e(p[2])}</td><td>{e(", ".join(CATL[c] for c in p[4]))}</td></tr>' for p in plist)
+        ports_link = f' See also <a href="ports-{cslug}.html">ports in {e(cname)}</a>.' if f'ports-{cslug}' in PORT_SLUGS else ''
+        n = len(plist)
+        body = f'''<section class="page"><p class="crumbs"><a href="suppliers.html">Suppliers</a> / {e(cname)}</p>
+<div class="page-head"><div><h1>Marine suppliers in {e(cname)}</h1><p>{n:,} ship {"supplier" if n == 1 else "suppliers"} and service {"company" if n == 1 else "companies"} in {e(cname)}. Open a profile to request a quote.{ports_link}</p></div></div>
+<div class="filters"><label><span>Search this list</span><input id="sf" type="search" placeholder="Company or city"></label><label><span>Service group</span><select id="sc"><option value="">All</option>{"".join(f'<option value="{k}">{e(CATL[k])}</option>' for k in present)}</select></label><span class="fine" id="sn"></span></div>
+<div class="tbl"><table id="st"><thead><tr><th>Company</th><th>City</th><th>Service group</th></tr></thead><tbody>{rows_html}</tbody></table></div>
+{SUP_UPSELL}{SUP_SOURCE}</section>'''
+        open(f'suppliers-{cslug}.html', 'w').write(shell(f'suppliers-{cslug}', f'Marine suppliers in {cname}: {n:,} ship suppliers and services', f'Directory of {n:,} marine suppliers and ship service companies in {cname}. Request a quote from any of them.', body, 'suppliers', scripts=FILTER_JS))
+        sup_slugs.append(f'suppliers-{cslug}')
+
+    for k, label in PD['cats']:
+        plist = by_cat.get(k, [])
+        cnt = collections.Counter(p[3] for p in plist)
+        rows_c = [[f'<a href="suppliers-{PD["countries"][cc][1]}.html#{k}"><strong>{e(PD["countries"][cc][0])}</strong></a>', f'{n:,}'] for cc, n in cnt.most_common()]
+        body = f'''<section class="page narrow"><p class="crumbs"><a href="suppliers.html">Suppliers</a> / {e(label)}</p>
+<div class="page-head"><div><h1>{e(label)}</h1><p>{len(plist):,} companies in {len(cnt)} countries. Choose a country to see them.</p></div></div>
+{table(['Country', 'Companies'], rows_c)}{SUP_UPSELL}{SUP_SOURCE}</section>'''
+        open(f'suppliers-cat-{k}.html', 'w').write(shell(f'suppliers-cat-{k}', f'{label}: marine suppliers by country', f'{len(plist):,} marine suppliers for {label.lower()} in {len(cnt)} countries. Request a quote through FindAVessel.', body, 'suppliers'))
+        sup_slugs.append(f'suppliers-cat-{k}')
+
+    json.dump([[p[1], p[0], p[2], PD['countries'][p[3]][0]] for p in PD['providers']], open('suppliers-index.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+    open('suppliers-data.js', 'w').write('/* Generated by build_pages.py. Country page slug -> number of suppliers. */\nconst SUPPLIER_COUNTRIES = ' + json.dumps({PD['countries'][cc][1]: len(v) for cc, v in by_cc.items()}) + ';\n')
+    clist = ''.join(f'<li><a href="suppliers-{PD["countries"][cc][1]}.html">{e(PD["countries"][cc][0])}</a><span>{len(v):,}</span></li>' for cc, v in sorted(by_cc.items(), key=lambda kv: PD['countries'][kv[0]][0]))
+    cat_rows = [[f'<a href="suppliers-cat-{k}.html"><strong>{e(l)}</strong></a>', f'{len(by_cat.get(k, [])):,}'] for k, l in PD['cats']]
+    SEARCH_JS = '''<script>(function(){var q=document.getElementById('ss'),o=document.getElementById('so'),D=null,busy=false;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function show(){var t=q.value.trim().toLowerCase();if(t.length<2){o.innerHTML='';return}if(!D){o.innerHTML='<p class="fine">Loading the directory…</p>';return}
+var hits=[],i=0;for(;i<D.length&&hits.length<40;i++){var r=D[i];if((r[0]+' '+r[2]+' '+r[3]).toLowerCase().indexOf(t)>=0)hits.push(r)}
+o.innerHTML=hits.length?'<div class="list">'+hits.map(function(r){return '<a class="lrow" href="providers/'+r[1]+'.html"><div class="l-main"><strong>'+esc(r[0])+'</strong></div><div class="l-route"><span>'+esc((r[2]?r[2]+', ':'')+r[3])+'</span></div></a>'}).join('')+'</div>':'<p class="fine">No company or place matches that. Try fewer letters.</p>'}
+function load(){if(D||busy)return;busy=true;fetch('suppliers-index.json').then(function(r){return r.json()}).then(function(d){D=d;show()}).catch(function(){o.innerHTML='<p class="fine">The directory could not be loaded. Browse by country below.</p>'})}
+q.addEventListener('focus',load);q.addEventListener('input',function(){load();show()})})();</script>'''
+    hub = f'''<section class="page"><div class="page-head"><div><h1>Marine supplier directory</h1><p>{NPROV:,} ship suppliers and service companies in {len(by_cc)} countries. Find one, send a request, and the company is notified by email.</p></div></div>
+<div class="calc"><label for="ss">Search by company, city or country</label><input id="ss" type="search" placeholder="e.g. chandler Singapore, pump Rotterdam" autocomplete="off"><div id="so" style="margin-top:.75rem"></div></div>
+{photo('ports', True)}
+<div class="sec-head"><h2>How it works</h2></div>
+<ol class="steps" style="grid-template-columns:repeat(3,1fr);margin-bottom:2.5rem"><li><h3>Find a supplier</h3><p>Search, or browse by country and service group.</p></li><li><h3>Send a request</h3><p>Say what you need, where and by when. No account needed.</p></li><li><h3>The supplier is notified</h3><p>They get your request by email and can claim their profile to reply and keep it up to date.</p></li></ol>
+<div class="upsell"><div><strong>Do you supply or service ships?</strong><span>Find your company and claim the profile, or register a new one. It is free.</span></div><a class="btn" href="index.html#/join?role=supplier">Register as a supplier</a></div>
+<div class="sec-head"><h2>By service group</h2></div>{table(['Service group', 'Companies'], cat_rows)}
+<p class="fine">Groups are suggested from company names, so two in three companies sit under general marine supplies until they claim their profile and say what they do.</p>
+<div class="sec-head" style="margin-top:2rem"><h2>By country</h2></div><ul class="countries">{clist}</ul>
+{SUP_UPSELL}{SUP_SOURCE}</section>'''
+    open('suppliers.html', 'w').write(shell('suppliers', 'Marine supplier directory: ship suppliers and services by country', f'Directory of {NPROV:,} marine suppliers and ship service companies in {len(by_cc)} countries. Search, then request a quote.', hub, 'suppliers', scripts=SEARCH_JS))
+    sup_slugs.insert(0, 'suppliers')
+    sup_slugs += ['providers/' + p[0] for p in PD['providers']]
+    print('supplier pages', len(sup_slugs))
+
 # Sitemap and robots
-slugs = ['', 'guides', 'tools', 'ship-sizes', 'laytime-demurrage-calculator', 'voyage-estimator'] + [g['slug'] for g in GUIDES] + list(CLASSES) + [t['slug'] for t in TYPES] + port_slugs
+slugs = ['', 'guides', 'tools', 'ship-sizes', 'laytime-demurrage-calculator', 'voyage-estimator'] + [g['slug'] for g in GUIDES] + list(CLASSES) + [t['slug'] for t in TYPES] + port_slugs + sup_slugs
 open('sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'  <url><loc>{SITE}/{s}</loc><lastmod>{DATE}</lastmod></url>\n' for s in slugs) + '</urlset>\n')
 open('robots.txt', 'w').write(f'User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n')
 print('built', len(slugs) - 1, 'pages')
