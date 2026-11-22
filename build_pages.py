@@ -150,28 +150,83 @@ def fig_route(a, b, label):
 
 
 # ---------- Page shell ----------
-def shell(slug, title, desc, body, kind='Article', extra_head='', scripts=''):
+BRAND = 'FindAVessel'
+ORG = {'@type': 'Organization', '@id': SITE + '/#org', 'name': BRAND, 'url': SITE + '/',
+       'description': 'Whole-ship chartering marketplace for cargo owners, vessel owners and shipbrokers, with a directory of ports and marine suppliers.'}
+WEBSITE = {'@type': 'WebSite', '@id': SITE + '/#website', 'url': SITE + '/', 'name': BRAND, 'publisher': {'@id': SITE + '/#org'}, 'inLanguage': 'en'}
+HUBS = {'guides': ('Guides', 'guides'), 'tools': ('Calculators', 'tools'), 'ports': ('Ports', 'ports'), 'suppliers': ('Suppliers', 'suppliers')}
+ROBOTS = 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
+
+
+def url(slug):
+    """One canonical address per page: the .html address every internal link uses."""
+    return SITE + '/' + (slug + '.html' if slug else '')
+
+
+def clip(text, limit):
+    """Shorten to a limit on a word boundary, never mid-word."""
+    text = ' '.join(text.split())
+    if len(text) <= limit:
+        return text
+    cut = text[:limit + 1].rsplit(' ', 1)[0].rstrip(' ,;:-(')
+    return cut if len(cut) > limit * .5 else text[:limit]
+
+
+def fit_title(title):
+    """Title tag formula: '<page title> | FindAVessel' when it fits in 60 characters, else the page title alone, clipped."""
+    title = ' '.join(title.split())
+    if len(title) + len(BRAND) + 3 <= 60:
+        return f'{title} | {BRAND}'
+    words = clip(title, 60).split(' ') if len(title) > 60 else title.split(' ')
+    while len(title) > 60 and words[-1].lower().strip(',:;') in STOP:
+        words.pop()
+    return ' '.join(words).rstrip(' ,:;-')
+
+
+STOP = set('a an the and or how to of it its with by from why what who is in on get for as at that which are'.split())
+
+
+def fit_desc(desc):
+    d = clip(desc, 154)
+    return d if d.endswith(('.', '?', '!')) or d == ' '.join(desc.split()) else d + '.'
+
+
+def shell(slug, title, desc, body, kind='Article', extra_head='', scripts='', crumbs=None, ld_extra=None, robots=ROBOTS, name=None):
     cur = lambda s: ' aria-current="page"' if s == kind else ''
-    ld = {'@context': 'https://schema.org', '@type': 'Article' if kind == 'guides' else 'WebPage', 'headline': title, 'description': desc,
-          'datePublished': DATE, 'dateModified': DATE, 'author': {'@type': 'Organization', 'name': 'FindAVessel'},
-          'publisher': {'@type': 'Organization', 'name': 'FindAVessel'}, 'mainEntityOfPage': f'{SITE}/{slug}'}
+    tag_title, desc, page = fit_title(title), fit_desc(desc), url(slug)
+    name = name or title.split(':')[0]
+    if crumbs is None:
+        crumbs = [HUBS[kind]] if kind in HUBS and HUBS[kind][1] != slug else []
+    trail = [('Home', '')] + list(crumbs) + [(name, slug)]
+    image = PHOTOS[slug][0] if slug in globals().get('PHOTOS', {}) else 'photo-port.jpg'
+    node = {'@type': 'Article' if kind == 'guides' and slug != 'guides' else 'WebPage', '@id': page + '#page', 'url': page, 'name': title, 'headline': clip(title, 110),
+            'description': desc, 'inLanguage': 'en', 'isPartOf': {'@id': SITE + '/#website'}, 'datePublished': DATE, 'dateModified': DATE,
+            'author': {'@id': SITE + '/#org'}, 'publisher': {'@id': SITE + '/#org'}, 'image': f'{SITE}/{image}', 'mainEntityOfPage': page,
+            'breadcrumb': {'@id': page + '#crumbs'}}
+    crumb_ld = {'@type': 'BreadcrumbList', '@id': page + '#crumbs', 'itemListElement': [
+        {'@type': 'ListItem', 'position': i + 1, 'name': n, 'item': url(sl)} for i, (n, sl) in enumerate(trail)]}
+    ld = {'@context': 'https://schema.org', '@graph': [ORG, WEBSITE, node, crumb_ld] + list(ld_extra or [])}
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{e(title)} | FindAVessel</title>
+<title>{e(tag_title)}</title>
 <meta name="description" content="{e(desc)}">
+<meta name="robots" content="{robots}">
 <meta name="theme-color" content="#0A1C2E">
-<link rel="canonical" href="{SITE}/{slug}">
-<meta property="og:title" content="{e(title)}">
+<link rel="canonical" href="{page}">
+<meta property="og:site_name" content="{BRAND}">
+<meta property="og:title" content="{e(clip(title, 90))}">
 <meta property="og:description" content="{e(desc)}">
-<meta property="og:type" content="article">
-<meta property="og:url" content="{SITE}/{slug}">
+<meta property="og:type" content="{'article' if node['@type'] == 'Article' else 'website'}">
+<meta property="og:url" content="{page}">
+<meta property="og:image" content="{SITE}/{image}">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='7' fill='%230A1C2E'/%3E%3Cg transform='translate(5 5) scale(.75)' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 20h30l-3.5 10h-23zM20 20v10M13 20v-8h14v8M20 12V5'/%3E%3Cpath d='M4 36q4-3 8 0t8 0 8 0 8 0'/%3E%3C/g%3E%3C/svg%3E">
 <script src="theme.js"></script>
 <link rel="stylesheet" href="styles.css">
-<script type="application/ld+json">{json.dumps(ld)}</script>{extra_head}
+<script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>{extra_head}
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -184,11 +239,12 @@ def shell(slug, title, desc, body, kind='Article', extra_head='', scripts=''):
 <footer class="foot">
   <div><strong>FindAVessel</strong><p>Whole-ship charters for owners, cargo interests and brokers who are new to each other.</p></div>
   <div><strong>Platform</strong><a href="index.html#/cargoes">Cargoes</a><a href="index.html#/vessels">Vessels</a><a href="index.html#/guide/safeguards">Safeguards</a><a href="index.html#/join">Create an account</a></div>
-  <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="ports.html">Ports by country</a><a href="suppliers.html">Supplier directory</a></div>
+  <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="ports.html">Ports by country</a><a href="suppliers.html">Supplier directory</a><a href="faq.html">Questions and answers</a></div>
   <div><p>Guides are general information, not legal advice. The wording of your charter party governs. FindAVessel is a prototype and offers no regulated service.</p><p>© 2026 FindAVessel. All rights reserved. No part of this site may be copied or reused without written permission.</p></div>
 </footer>
 <nav class="tabbar" aria-label="Main, mobile"><a href="index.html#/cargoes">Board</a><a href="ports.html"{cur('ports')}>Ports</a><a href="suppliers.html"{cur('suppliers')}>Suppliers</a><a href="guides.html"{cur('guides')}>Guides</a><a href="index.html#/enquire">Enquire</a></nav>
 {scripts}
+<script src="quick-enquiry.js" defer></script>
 </body>
 </html>
 '''
@@ -237,7 +293,9 @@ def article(slug, title, desc, h1, standfirst, fig, caption, body, related, kind
 <div class="related"><h2>Keep reading</h2><ul>{rel}</ul></div>
 <p class="fine">Published {DATE[8:]} November {DATE[:4]}. General information for people new to chartering, not legal advice.</p>
 </article>'''
-    open(f'{slug}.html', 'w').write(shell(slug, title, desc, body_html, kind, scripts=scripts))
+    extra = [{'@type': 'WebApplication', 'name': h1, 'url': url(slug), 'applicationCategory': 'BusinessApplication', 'operatingSystem': 'Any',
+              'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'USD'}, 'publisher': {'@id': SITE + '/#org'}}] if kind == 'tools' else None
+    open(f'{slug}.html', 'w').write(shell(slug, title, desc, body_html, kind, scripts=scripts, name=h1, ld_extra=extra))
 
 
 def table(head, rows, hl=None):
@@ -638,7 +696,10 @@ for k, c in CLASSES.items():
         f'<h2>{c["name"]} among the other classes</h2>' + table(['Class', 'Capacity (cubic metres)' if c.get('unit') else 'Deadweight (tonnes)'], [[f'<strong>{e(n)}</strong>', (f'Under {b + 1:,}' if not a else f'{a:,} and above' if b > 9e8 else f'{a:,} to {b:,}')] for a, b, n in c['bands']], c['i']) + \
         '<p>Class names are market shorthand, not regulation, and sources differ at the edges. When you list or charter a ship, the measured ' + ('tank capacity' if c.get('unit') else 'deadweight') + ' is what counts. See <a href="ship-sizes.html">all ship sizes</a>.</p>'
     others = [x for x in CLASSES if x != k][:3]
-    article(k, f'{c["kw"]}: size, capacity and trades of a {c["full"]}', c['stand'][:155], f'{c["name"]}: size, capacity and trades', c['stand'],
+    full = c['full'] if any(ch.isupper() for ch in c['full'][1:]) else c['full'].lower()
+    full = '' if full.lower().startswith(c['name'].lower()) else full
+    ctitle = next(t for t in ((f'{c["name"]} ({full}): size, capacity and trades' if full else 'x' * 99), f'{c["name"]}: size, ' + ('tank capacity' if c.get('unit') else 'deadweight') + ', cargoes and trades', f'{c["name"]}: size, capacity and trades') if len(t) <= 60)
+    article(k, ctitle, c['stand'], f'{c["name"]}: size, capacity and trades', c['stand'],
             PAGES[k][2], f'{c["name"]} against the other size classes of its type, on a logarithmic scale.', body, ['ship-sizes'] + others + ['how-to-charter-a-ship'], crumb='Ship sizes', crumb_href='ship-sizes.html')
 
 # Ship sizes hub with class finder
@@ -756,7 +817,7 @@ for t in TYPES:
         '<h2>What an owner needs from you to quote</h2><ul>' + ''.join(f'<li>{e(x)}</li>' for x in t['need']) + '</ul><p>An enquiry with all of this can be priced without a phone call. One without it usually goes unanswered.</p>' + \
         f'<div class="row"><a class="btn btn-primary" href="index.html#/enquire?seg={t["seg"]}">Leave a {t["name"]} enquiry</a><a class="btn" href="index.html#/vessels">See vessels listed</a></div>' + \
         '<div class="upsell"><div><strong>Own, manage or broker ' + t['name'] + 's?</strong><span>Register to be sent enquiries that fit your ships.</span></div><a class="btn" href="index.html#/join">Register a fleet</a></div>'
-    article(t['slug'], f'{t["h1"]}: cargoes, sizes and how to get a quote', t['stand'][:155], t['h1'], t['stand'], PAGES[t['slug']][2], cap, body,
+    article(t['slug'], f'{t["h1"]}: cargoes, sizes and how to get a quote', t['stand'], t['h1'], t['stand'], PAGES[t['slug']][2], cap, body,
             ['how-to-charter-a-ship'] + t['links'][:3] + ['ship-sizes', 'what-does-a-shipbroker-do'], cta=False)
 
 # Index pages
@@ -894,9 +955,22 @@ if PD:
 <figure class="photo"><img src="photo-port.jpg" alt="A cargo port at dusk with ships alongside under cranes" width="1200" height="675" loading="lazy"><figcaption>Photo: iStock.</figcaption></figure>
 {SUP_SOURCE}
 </article>'''
-        title = f'{name}, {where}: request a quote'
-        desc = f'{name} is a marine supplier in {where}. Request a quote for {CATL[cats[0]].lower()} through FindAVessel.'
-        html_out = shell('providers/' + s, title[:70], desc[:158], body, 'suppliers', scripts='<script src="request.js"></script>')
+        svc = 'Marine supplier' if cats[0] == 'general' or CATL[cats[0]].lower().startswith('general') else CATL[cats[0]]
+        # Title formula: company name first, then service and place; fall back to shorter forms until it fits 60 characters.
+        short = svc.split(',')[0].split(' and ')[0]
+        place = cname if city and (city.lower() in name.lower() or city == cname) else where
+        title = next((t for t in (f'{name}: {svc} in {place}', f'{name}: {short} in {place}', f'{name}: {svc}, {cname}', f'{name}: {short}, {cname}',
+                                  f'{name}: {short}', f'{name}, {place}', f'{name}, {cname}') if len(t) <= 60), name)
+        desc = next((d for d in (
+            f'Request a quote from {name}, {svc.lower()} in {where}. Send your requirement through FindAVessel and the company is notified by email.',
+            f'Request a quote from {name}, {svc.lower()} in {where}, through FindAVessel. The company is notified by email.',
+            f'Request a quote from {name} in {where} through FindAVessel.') if len(d) <= 155), f'Request a quote from {name} through FindAVessel.')
+        org = {'@type': 'Organization', '@id': url('providers/' + s) + '#company', 'name': name,
+               'address': dict({'@type': 'PostalAddress', 'addressCountry': cname}, **({'addressLocality': city} if city else {})),
+               'knowsAbout': [CATL[c] for c in cats]}
+        html_out = shell('providers/' + s, title, desc, body, 'suppliers', scripts='<script src="request.js"></script>', name=name,
+                         crumbs=[('Suppliers', 'suppliers'), (cname, f'suppliers-{cslug}')], ld_extra=[org],
+                         robots='noindex, follow' if blocked else ROBOTS)
         open(f'providers/{s}.html', 'w').write(rebase(html_out))
 
     FILTER_JS = '''<script>(function(){var q=document.getElementById('sf'),c=document.getElementById('sc'),rows=[].slice.call(document.querySelectorAll('#st tbody tr')),n=document.getElementById('sn');
@@ -953,8 +1027,50 @@ q.addEventListener('focus',load);q.addEventListener('input',function(){load();sh
     sup_slugs += ['providers/' + p[0] for p in PD['providers']]
     print('supplier pages', len(sup_slugs))
 
+# ---------- FAQ ----------
+FAQ = [
+    ('Using FindAVessel', [
+        ('What is FindAVessel?', 'FindAVessel is a marketplace for chartering whole ships. Cargo owners post a full shipload, vessel owners and shipbrokers answer with firm offers, and the deal is recorded step by step in one place. It also has a directory of ports and marine suppliers and a set of plain-language chartering guides.'),
+        ('Who is it for?', 'Three groups: cargo owners who need a whole ship, vessel owners and managers who want cargo for their ships, and shipbrokers who arrange deals between them. It is built for people who are new to each other, including companies chartering for the first time.'),
+        ('Is the site live for real deals?', 'Not yet. The marketplace is a prototype with invented sample companies, ships and cargoes. Nothing shown on the boards is a live offer, and payments, sanctions screening and document checks are simulated. The guides, calculators, port lists and supplier directory are real reference material.'),
+        ('What does it cost?', 'Reading the guides, using the calculators, leaving an enquiry and claiming a supplier profile are free. Charges for completed charters have not been set while the marketplace is a prototype.'),
+        ('Can I ship part of a load or a few containers?', 'No. FindAVessel deals only in whole-ship charters: one cargo, or one charterer, taking the entire vessel. For part loads and containers you need a freight forwarder or a liner service.'),
+    ]),
+    ('Cargo owners', [
+        ('How do I charter a ship?', 'Describe the cargo, the quantity, the load and discharge ports and the dates you can load. Owners and brokers reply with firm offers. You negotiate the main terms, agree any conditions, sign a charter party and the ship is then fixed. Our guide to <a href="how-to-charter-a-ship.html">chartering a ship</a> walks through each step.'),
+        ('What information does an owner need to quote?', 'The cargo and how it is packed or stowed, the quantity with a tolerance, the load and discharge ports, the dates the cargo is ready (the <a href="laycan.html">laycan</a>), how fast it can be loaded and discharged, and any restrictions at the ports. An enquiry with all of these can be priced without a phone call.'),
+        ('Will my company name be shown on the board?', 'Not unless you choose. An enquiry appears with the cargo, quantity, ports and dates, and without the name of the company that posted it. You decide when to reveal who you are to someone who has made an offer.'),
+        ('How much does it cost to charter a ship?', 'It depends on the size of ship, the route, the dates and the state of the market. A voyage charter is priced in US dollars per tonne of cargo or as a lump sum; a time charter in US dollars per day. The <a href="voyage-estimator.html">voyage estimator</a> shows how an owner works out the figure.'),
+        ('What is demurrage and will I have to pay it?', 'Demurrage is a daily charge you pay the owner if loading or discharging takes longer than the time allowed in the charter. You avoid it by agreeing realistic loading rates and having the cargo and berth ready. See <a href="what-is-demurrage.html">what demurrage is</a> and the <a href="laytime-demurrage-calculator.html">calculator</a>.'),
+    ]),
+    ('Vessel owners and brokers', [
+        ('How do I list a vessel?', 'Create an owner account, enter the ship’s name and IMO number, its type and size, where and when it comes open, and add photographs and the names of the technical and commercial managers. The site checks the IMO number and suggests the size class.'),
+        ('What ship types can be listed?', 'Tankers, bulk carriers, gas carriers, container ships, multipurpose and heavy-lift ships, and vehicle carriers. See <a href="ship-sizes.html">ship sizes and classes</a> for the named size bands.'),
+        ('Can a shipbroker use the site?', 'Yes. A broker can offer a ship on behalf of an owner or answer for a charterer. The broker states who they act for and the commission, so both sides can see it.'),
+        ('How are companies checked?', 'Each company has a passport showing which checks it has passed, such as company registration, ownership of the ship, class and insurance certificates. In the prototype these checks are simulated; unverified accounts are labelled as unverified.'),
+    ]),
+    ('Ports and suppliers', [
+        ('How do I find ports in a country?', 'Open the <a href="ports.html">ports page</a>, pick a country on the map or in the list, and you get its seaports with their UN/LOCODE. From any port you can start an enquiry with that port as the loading or discharge port.'),
+        ('How do I request a service from a marine supplier?', 'Find the company in the <a href="suppliers.html">supplier directory</a>, open its page and fill in the request form: what you need, where and by when. The request goes to the supplier by email from FindAVessel.'),
+        ('Why can I not see a supplier’s email address?', 'Supplier email addresses are not published. Requests are passed on by FindAVessel, which keeps the addresses away from scraping and bulk mail. A supplier is emailed only when someone asks for its services.'),
+        ('How do I claim or correct my company’s listing?', 'Open your company’s page and choose "Claim this profile". Claiming is free and lets you confirm your details, list the services and ports you cover, or have the listing removed.'),
+    ]),
+    ('Trust and payment', [
+        ('How is payment protected?', 'The design holds freight with an independent escrow or banking partner and releases it at agreed points in the voyage. No such partner is connected yet, so the payment steps shown in the prototype are a simulation and no money moves.'),
+        ('Which countries are restricted?', 'Enquiries for ports in Iran, North Korea and Syria are refused, and suppliers there cannot be sent requests. Several other countries carry a sanctions notice. This is a cautious default and not legal advice; you remain responsible for your own sanctions checks.'),
+        ('Is FindAVessel connected to the Baltic Exchange?', 'No. FindAVessel is independent and publishes no Baltic Exchange data. Our guide explains <a href="baltic-exchange.html">what the Baltic Exchange does</a>.'),
+    ]),
+]
+_strip = lambda h: re.sub(r'<[^>]+>', '', h)
+faq_body = '<article class="article"><p class="crumbs"><a href="index.html">Home</a> / Questions and answers</p><h1>Questions and answers</h1><p class="standfirst">How FindAVessel works for cargo owners, vessel owners, brokers and suppliers, and what is and is not live yet.</p>' + \
+    ''.join(f'<h2>{e(sec)}</h2>' + ''.join(f'<h3>{e(q)}</h3><p>{a}</p>' for q, a in qa) for sec, qa in FAQ) + \
+    '<div class="article-cta"><h2>Still unsure?</h2><p>Leave an enquiry with what you need to move and we will take it from there.</p><div class="row"><a class="btn btn-primary" href="index.html#/enquire">Leave an enquiry</a><a class="btn" href="guides.html">Read the guides</a></div></div></article>'
+faq_ld = {'@type': 'FAQPage', '@id': url('faq') + '#faq', 'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': _strip(a)}} for _, qa in FAQ for q, a in qa]}
+open('faq.html', 'w').write(shell('faq', 'Ship chartering questions and answers', 'Answers on chartering a whole ship, listing a vessel, leaving an enquiry, requesting marine suppliers and what is live on FindAVessel today.', faq_body, 'faq', ld_extra=[faq_ld], name='Questions and answers'))
+open('404.html', 'w').write(shell('404', 'Page not found', 'That address does not match a page on FindAVessel.', '<article class="article"><h1>Page not found</h1><p class="standfirst">That address does not match anything here.</p><div class="row"><a class="btn btn-primary" href="/">Go to the start</a><a class="btn" href="/guides.html">Guides</a><a class="btn" href="/suppliers.html">Suppliers</a></div></article>', 'none', robots='noindex, follow').replace('href="styles.css"', 'href="/styles.css"').replace('src="theme.js"', 'src="/theme.js"').replace('src="quick-enquiry.js"', 'src="/quick-enquiry.js"'))
+
 # Sitemap and robots
-slugs = ['', 'guides', 'tools', 'ship-sizes', 'laytime-demurrage-calculator', 'voyage-estimator'] + [g['slug'] for g in GUIDES] + list(CLASSES) + [t['slug'] for t in TYPES] + port_slugs + sup_slugs
-open('sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'  <url><loc>{SITE}/{s}</loc><lastmod>{DATE}</lastmod></url>\n' for s in slugs) + '</urlset>\n')
+slugs = ['', 'faq', 'guides', 'tools', 'ship-sizes', 'laytime-demurrage-calculator', 'voyage-estimator'] + [g['slug'] for g in GUIDES] + list(CLASSES) + [t['slug'] for t in TYPES] + port_slugs + sup_slugs
+open('sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'  <url><loc>{url(s)}</loc><lastmod>{DATE}</lastmod></url>\n' for s in slugs) + '</urlset>\n')
 open('robots.txt', 'w').write(f'User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n')
 print('built', len(slugs) - 1, 'pages')
