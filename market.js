@@ -72,7 +72,7 @@ route('', () => {
           <div class="field"><label for="hs-to">To</label><input id="hs-to" name="disch" list="ports" placeholder="Discharge port"></div>
         </div>
         <button class="btn btn-primary btn-lg">Find a ship</button>
-        <p class="fine">Next: quantity and dates. Free, and no account needed.</p>
+        <p class="fine">Next: quantity and dates, then a free account so owners can answer you.</p>
       </form>
       <div id="hs-ship" role="tabpanel" aria-labelledby="hs-tab-ship" class="hs-panel" hidden>
         <p>List your vessel once with its type, size and where it comes open. You are matched with cargo enquiries that fit, and you can answer any enquiry on the board with a firm offer.</p>
@@ -98,9 +98,9 @@ route('', () => {
   <section class="band band-tint">
     <h2>Three ways in</h2>
     <div class="three">
-      <article><h3>You have cargo to move</h3><p>Describe it once: grade, quantity, ports, laycan, the ship you need. Choose who may see it. Compare firm offers side by side, each with a time limit and the offeror’s passport.</p><a class="btn" href="#/post/cargo" data-act="roleGo" data-role="charterer" data-to="post/cargo">Post a cargo</a></article>
-      <article><h3>You own or manage a vessel</h3><p>Enter the IMO number and particulars. The class is suggested from type and size. Post where and when the ship comes open, then bid on cargoes that fit.</p><a class="btn" href="#/post/vessel" data-act="roleGo" data-role="owner" data-to="post/vessel">List a vessel</a></article>
-      <article><h3>You are a broker</h3><p>Offer on behalf of a principal. State who you act for and your commission, and it is written into the recap and paid when freight is released.</p><a class="btn" href="#/cargoes" data-act="roleGo" data-role="broker" data-to="cargoes">Find cargoes</a></article>
+      <article><h3>You have cargo to move</h3><p>Describe it once: grade, quantity, ports, laycan, the ship you need. Choose who may see it. Compare firm offers side by side, each with a time limit and the offeror’s passport.</p><a class="btn" href="#/post/cargo">Post a cargo</a></article>
+      <article><h3>You own or manage a vessel</h3><p>Enter the IMO number and particulars. The class is suggested from type and size. Post where and when the ship comes open, then bid on cargoes that fit.</p><a class="btn" href="#/post/vessel">List a vessel</a></article>
+      <article><h3>You are a broker</h3><p>Offer on behalf of a principal. State who you act for and your commission, and it is written into the recap and paid when freight is released.</p><a class="btn" href="#/cargoes">Find cargoes</a></article>
     </div>
   </section>
 
@@ -162,6 +162,15 @@ LIVE.countryPick = el => ACT.country({ cc: el.value });
 route('enquire', () => {
   const q = render.q, d = S.draft.enq || {};
   const v = k => q.get(k) || d[k] || '';
+  if (S.role === 'guest') {   // carry what was typed through sign-up
+    const keep = {}; ['cargo', 'qty', 'seg', 'load', 'disch', 'from', 'to'].forEach(k => { if (v(k)) keep[k] = v(k); });
+    if (Object.keys(keep).length) { S.draft.enq = keep; } S.draft.next = 'enquire'; save();
+    const what = keep.cargo ? esc(keep.cargo) + (keep.load ? ', ' + esc(keep.load) : '') + (keep.disch ? ' to ' + esc(keep.disch) : '') : '';
+    return `<section class="page narrow"><div class="page-head"><div><h1>Create an account to post your enquiry</h1><p>${what ? 'We have kept what you entered: ' + what + '. ' : ''}An account lets owners and brokers answer you, and keeps your company name private until you choose to share it.</p></div></div>
+      <div class="row"><a class="btn btn-primary btn-lg" href="#/join?role=charterer">Create an account</a><a class="btn btn-lg" href="#/signin">Sign in</a></div>
+      <p class="fine">Not ready to register? <button class="link" onclick="quickEnquiry()">Send us a quick message</button> and we will reply by email.</p></section>`;
+  }
+  if (S.role !== 'charterer') return `<section class="page narrow">${needRole(['charterer'], 'Posting a cargo enquiry')}</section>`;
   return `<section class="page narrow"><div class="page-head"><div><h1>Leave an enquiry</h1><p>Say what has to move. It goes on the board without your name, and owners and brokers with a ship that fits can respond.</p></div></div>
     <div class="cols cols-even"><form class="form" data-form="enquiry">${portList()}
     <fieldset><legend>The shipment</legend><div class="grid">
@@ -173,12 +182,10 @@ route('enquire', () => {
       ${field({ k: 'from', l: 'Earliest loading date', t: 'date', req: true }, v('from'))}${field({ k: 'to', l: 'Latest loading date', t: 'date', req: true }, v('to'))}
       ${field({ k: 'note', l: 'Anything else', t: 'textarea', wide: true, ph: 'Packing, loading rates, restrictions at either port' }, v('note'))}
     </div></fieldset>
-    <fieldset><legend>Where to reach you</legend><div class="grid">
-      ${field({ k: 'name', l: 'Your name', req: true }, v('name'))}${field({ k: 'company', l: 'Company', req: true }, v('company'))}
-      ${field({ k: 'email', l: 'Work email', t: 'email', req: true, wide: true, hint: 'Never shown on the board. Used only to tell you when someone responds.' }, v('email'))}
+    <fieldset><legend>Before it goes on the board</legend><div class="grid">
       <div class="field wide"><label class="check"><input type="checkbox" name="decl" required> The cargo and the parties to the sale are not subject to UK, EU, US or UN sanctions.</label></div>
     </div></fieldset>
-    <div class="form-end"><button class="btn btn-primary btn-lg">Put it on the board</button><p class="fine">Prototype: nothing is sent anywhere and the enquiry stays in this browser.</p></div></form>
+    <div class="form-end"><button class="btn btn-primary btn-lg">Put it on the board</button><p class="fine">Your company name is not shown on the board. Owners and brokers see the cargo, ports and dates.</p></div></form>
     <aside><div class="card" id="enqOut" data-init="enq"></div>${upsell()}</aside></div></section>`;
 });
 LIVE.enq = () => {
@@ -213,10 +220,10 @@ FORM.enquiry = d => {
   if (d.to < d.from) return toast('The latest date is before the earliest');
   const bad = [d.load, d.disch].find(p => PORT[p] && RESTRICTED.includes(PORT[p].country));
   if (bad) return toast('Enquiries are not accepted for ports in ' + PORT[bad].country);
-  const seg = d.seg || guessSeg(d.cargo, Number(d.qty)) || 'bulk', gid = nid('q-');
-  S.companies.push({ id: gid, name: d.company, role: 'charterer', country: (PORT[d.load] || {}).country || '', since: new Date().getFullYear(), verified: 'unverified', level: 0, fixtures: 0, respH: 0, about: '', contact: d.name, email: d.email });
+  const seg = d.seg || guessSeg(d.cargo, Number(d.qty)) || 'bulk', gid = myId();
+  if (S.role !== 'charterer' || !gid) return toast('Sign in with a cargo owner account to post an enquiry');
   const c = { id: nid('g'), by: gid, seg, type: 'voyage', cargo: d.cargo, qty: Number(d.qty), tol: 0, load: d.load, disch: d.disch, from: d.from, to: d.to, x: {}, terms: 'To be agreed', cp: SEG[seg].cp.voyage[0], idea: 0, rateType: SEG[seg].rateTypes[0], dem: 0, maxAge: 0,
-    vis: 'open', deadline: Date.now() + 7 * DAY, evidence: 'None: unverified enquiry', posted: Date.now(), status: 'open', note: d.note, unverified: true };
+    vis: 'open', deadline: Date.now() + 7 * DAY, evidence: 'None: account not yet verified', posted: Date.now(), status: 'open', note: d.note, unverified: true };
   S.cargoes.push(c); delete S.draft.enq; save(); go('enquiry/' + c.id);
 };
 route('enquiry/:id', id => {
@@ -231,7 +238,6 @@ route('enquiry/:id', id => {
     ${upsell()}</section>`;
 });
 
-ACT.roleGo = d => { S.role = d.role; save(); go(d.to); };
 function safeguardTable(rows) {
   return `<div class="tbl"><table><thead><tr><th>The problem</th><th>The safeguard</th><th>Where</th></tr></thead><tbody>${rows.map(r => `<tr><td><strong>${esc(r[0])}</strong></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>`;
 }
@@ -428,6 +434,7 @@ route('offer/:id/counter', id => {
     ${offerTo(o) !== myId() ? `<div class="notice"><p>Only ${esc(co(offerTo(o)).name)} can counter this offer.</p></div>` : offerForm(c, o, o.id)}</section>`;
 });
 FORM.offer = (d, form) => {
+  if (isExample(cargoById(form.dataset.cargo))) return toast('This is an example listing. Offers cannot be sent on it.');
   const c = cargoById(form.dataset.cargo), prev = form.dataset.counter ? S.offers.find(o => o.id === form.dataset.counter) : null;
   if (d.to < d.from) return toast('The laycan ends before it starts');
   if (!d.vessel && !d.vesselName && !prev) return toast('Name a vessel or describe the ship to be nominated');

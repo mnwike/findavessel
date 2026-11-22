@@ -7,7 +7,7 @@ from urllib.parse import quote
 
 SITE = 'https://findavessel.com'
 DATE = '2026-11-22'
-VER = '20261122h'  # change on each release so browsers fetch fresh styles and scripts
+VER = '20261122i'  # change on each release so browsers fetch fresh styles and scripts
 THEME_BTN = ('<button class="theme-btn" data-theme-toggle aria-label="Switch between dark and light theme">'
              '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>'
              '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span>Theme</span></button>')
@@ -1034,8 +1034,8 @@ FAQ = [
     ('Using FindAVessel', [
         ('What is FindAVessel?', 'FindAVessel is a marketplace for chartering whole ships. Cargo owners post a full shipload, vessel owners and shipbrokers answer with firm offers, and the deal is recorded step by step in one place. It also has a directory of ports and marine suppliers and a set of plain-language chartering guides.'),
         ('Who is it for?', 'Three groups: cargo owners who need a whole ship, vessel owners and managers who want cargo for their ships, and shipbrokers who arrange deals between them. It is built for people who are new to each other, including companies chartering for the first time.'),
-        ('Is the site live for real deals?', 'Not yet. The marketplace is a prototype with invented sample companies, ships and cargoes. Nothing shown on the boards is a live offer, and payments, sanctions screening and document checks are simulated. The guides, calculators, port lists and supplier directory are real reference material.'),
-        ('What does it cost?', 'Reading the guides, using the calculators, leaving an enquiry and claiming a supplier profile are free. Charges for completed charters have not been set while the marketplace is a prototype.'),
+        ('Is the site live?', 'Accounts, cargo enquiries, vessel listings and offers are live: what you post is seen by other registered users. A few listings marked "Example listing" are there to show how the boards work and are not real offers. Payment protection, sanctions screening and document checks are not yet connected, so each party must carry out its own checks before committing.'),
+        ('What does it cost?', 'Reading the guides, using the calculators, leaving an enquiry and claiming a supplier profile are free. Charges for completed charters have not been set.'),
         ('Can I ship part of a load or a few containers?', 'No. FindAVessel deals only in whole-ship charters: one cargo, or one charterer, taking the entire vessel. For part loads and containers you need a freight forwarder or a liner service.'),
     ]),
     ('Cargo owners', [
@@ -1049,7 +1049,7 @@ FAQ = [
         ('How do I list a vessel?', 'Create an owner account, enter the ship’s name and IMO number, its type and size, where and when it comes open, and add photographs and the names of the technical and commercial managers. The site checks the IMO number and suggests the size class.'),
         ('What ship types can be listed?', 'Tankers, bulk carriers, gas carriers, container ships, multipurpose and heavy-lift ships, and vehicle carriers. See <a href="ship-sizes.html">ship sizes and classes</a> for the named size bands.'),
         ('Can a shipbroker use the site?', 'Yes. A broker can offer a ship on behalf of an owner or answer for a charterer. The broker states who they act for and the commission, so both sides can see it.'),
-        ('How are companies checked?', 'Each company has a passport showing which checks it has passed, such as company registration, ownership of the ship, class and insurance certificates. In the prototype these checks are simulated; unverified accounts are labelled as unverified.'),
+        ('How are companies checked?', 'Each company has a passport showing which checks it has passed, such as company registration, ownership of the ship, class and insurance certificates. These checks are not yet carried out for new accounts, which are labelled as unverified until they are.'),
     ]),
     ('Ports and suppliers', [
         ('How do I find ports in a country?', 'Open the <a href="ports.html">ports page</a>, pick a country on the map or in the list, and you get its seaports with their UN/LOCODE. From any port you can start an enquiry with that port as the loading or discharge port.'),
@@ -1058,7 +1058,7 @@ FAQ = [
         ('How do I claim or correct my company’s listing?', 'Open your company’s page and choose "Claim this profile". Claiming is free and lets you confirm your details, list the services and ports you cover, or have the listing removed.'),
     ]),
     ('Trust and payment', [
-        ('How is payment protected?', 'The design holds freight with an independent escrow or banking partner and releases it at agreed points in the voyage. No such partner is connected yet, so the payment steps shown in the prototype are a simulation and no money moves.'),
+        ('How is payment protected?', 'The design holds freight with an independent escrow or banking partner and releases it at agreed points in the voyage. No such partner is connected yet, so the payment steps shown in a deal are a record only and no money moves through FindAVessel.'),
         ('Which countries are restricted?', 'Enquiries for ports in Iran, North Korea and Syria are refused, and suppliers there cannot be sent requests. Several other countries carry a sanctions notice. This is a cautious default and not legal advice; you remain responsible for your own sanctions checks.'),
         ('Is FindAVessel connected to the Baltic Exchange?', 'No. FindAVessel is independent and publishes no Baltic Exchange data. Our guide explains <a href="baltic-exchange.html">what the Baltic Exchange does</a>.'),
     ]),
@@ -1076,7 +1076,7 @@ priv_body = '''<article class="article"><p class="crumbs"><a href="index.html">H
 <p class="standfirst">What FindAVessel collects when you use this site, why, and the choices you have.</p>
 <h2>What you send us</h2><p>When you send an enquiry, a supplier request or a sign-up, we receive what you type: your name, email address, phone number if you give one, your company and the details of what you need. We use it to answer you and, for a supplier request, to pass your request to that supplier. We do not add you to a mailing list.</p>
 <p>The quick enquiry form is delivered to us by email through a form-to-email service, FormSubmit, which processes the message on its way to our inbox.</p>
-<h2>What stays in your browser</h2><p>The marketplace part of the site keeps your account choices, listings and theme setting in your own browser storage. They are not sent to a server.</p>
+<h2>Your account</h2><p>Accounts are held with Google Firebase, with the database in the European Union. We store your email address, your name, your company and role, and what you post: cargo enquiries, vessel listings, offers and deal records. Your password is handled by Firebase and we never see it. Cargo enquiries are shown on the board without your company name. Offers and deals are visible only to the parties to them. Your theme choice is kept in your own browser.</p>
 <h2>Analytics</h2><p>We use Google Analytics to understand how the site is used: which pages are read, what people search for in the directories, which tools and buttons are used, and whether forms are completed. We record which form fields were filled in, not what was typed in them. Names, email addresses, phone numbers and messages are never sent to Google Analytics.</p>
 <p>Analytics cookies are set only if you choose "Allow". If you decline, Google receives anonymous, cookieless counts only. To change your choice, clear this site's data in your browser and the question will be asked again.</p>
 <h2>Suppliers listed in the directory</h2><p>Company names and locations in the supplier directory come from a supplier list. Email addresses are not published. A supplier is contacted only when a visitor asks for its services, and can correct or remove its listing by claiming the profile.</p>

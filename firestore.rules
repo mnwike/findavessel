@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function small() { return request.resource.data.j is string && request.resource.data.j.size() < 900000; }
+
+    // Private account profile: only its owner.
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+    // Public company card for vessel owners, brokers and suppliers.
+    match /companies/{uid} {
+      allow read: if true;
+      allow write: if signedIn() && request.auth.uid == uid && request.resource.data.uid == uid && small();
+    }
+    // Board listings: anyone can read, only the account that posted can change.
+    match /cargoes/{id} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && small();
+      allow update: if signedIn() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid && small();
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+    match /vessels/{id} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && small();
+      allow update: if signedIn() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid && small();
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+    // Offers and deals: only the parties named on them.
+    match /offers/{id} {
+      allow read: if signedIn() && request.auth.uid in resource.data.parties;
+      allow create: if signedIn() && request.auth.uid in request.resource.data.parties && small();
+      allow update: if signedIn() && request.auth.uid in resource.data.parties && request.resource.data.parties == resource.data.parties && small();
+    }
+    match /deals/{id} {
+      allow read: if signedIn() && request.auth.uid in resource.data.parties;
+      allow create: if signedIn() && request.auth.uid in request.resource.data.parties && small();
+      allow update: if signedIn() && request.auth.uid in resource.data.parties && request.resource.data.parties == resource.data.parties && small();
+    }
+  }
+}

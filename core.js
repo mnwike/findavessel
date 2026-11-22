@@ -14,7 +14,7 @@ function seed() {
 function load() { try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage unavailable: state lives in memory */ } }
 S = load() || seed();
-const nid = p => p + (++S.seq);
+const nid = p => p + (typeof NET !== 'undefined' && NET.uid ? Date.now().toString(36) + Math.random().toString(36).slice(2, 6) : ++S.seq);
 
 /* ---------- Helpers ---------- */
 const $ = (q, el = document) => el.querySelector(q);
@@ -122,8 +122,10 @@ function kv(rows) { return `<dl class="kv">${rows.filter(r => r && r[1] !== '' &
 function empty(title, text, cta) { return `<div class="empty"><h3>${esc(title)}</h3><p>${esc(text)}</p>${cta || ''}</div>`; }
 function needRole(roles, what) {
   if (roles.includes(S.role)) return '';
-  return `<div class="notice"><p><strong>${esc(what)}</strong> is for ${roles.map(r => ROLE_NAME[r].toLowerCase() + 's').join(' and ')}. You are viewing as ${ROLE_NAME[S.role].toLowerCase()}.</p>
-    <div class="row">${roles.map(r => `<button class="btn" data-act="role" data-role="${r}">View as ${ROLE_NAME[r].toLowerCase()}</button>`).join('')}</div></div>`;
+  const who = roles.map(r => ROLE_NAME[r].toLowerCase() + 's').join(' and ');
+  if (S.role === 'guest') return `<div class="notice"><p><strong>${esc(what)}</strong> needs an account. It is free and takes a couple of minutes.</p>
+    <div class="row"><a class="btn btn-primary" href="#/join?role=${roles[0]}">Create an account</a><a class="btn" href="#/signin">Sign in</a></div></div>`;
+  return `<div class="notice"><p><strong>${esc(what)}</strong> is for ${who}. Your account is registered as a ${ROLE_NAME[S.role].toLowerCase()}.</p></div>`;
 }
 
 /* ---------- Shell ---------- */
@@ -140,19 +142,16 @@ function shell(route) {
     <nav class="nav" aria-label="Main">${NAV.map(n => `<a href="#/${n[0]}"${top === n[0] || (n[0] === 'cargoes' && top === 'cargo') || (n[0] === 'vessels' && top === 'vessel') || (n[0] === 'deals' && top === 'deal') ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}<a href="ports.html">Ports</a><a href="suppliers.html">Suppliers</a><a href="guides.html">Guides</a><a href="tools.html">Tools</a>${S.role === 'desk' ? `<a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a>` : ''}</nav>
     <div class="top-right">
       ${THEME_BTN}
-      <label class="role"><span>Viewing as</span>
-        <select data-live="roleSelect" aria-label="Viewing as">${Object.keys(ROLE_NAME).map(r => `<option value="${r}"${S.role === r ? ' selected' : ''}>${ROLE_NAME[r]}</option>`).join('')}</select>
-      </label>
-      ${S.role === 'guest' ? `<a class="btn btn-primary" href="#/enquire">Leave an enquiry</a>` : S.role === 'desk' ? '' : S.role === 'supplier' ? `<a class="btn btn-primary" href="#/desk">Requests</a>` : S.role === 'broker' ? `<a class="btn btn-primary" href="#/cargoes">Find cargoes</a>` : `<a class="btn btn-primary" href="${postHref}">${postLabel}</a>`}
+      ${S.role === 'guest' ? `<a class="btn btn-quiet" href="#/signin">Sign in</a><a class="btn btn-primary" href="#/join">Create account</a>` : S.role === 'desk' ? '' : S.role === 'supplier' ? `<a class="btn btn-primary" href="#/desk">Requests</a>` : S.role === 'broker' ? `<a class="btn btn-primary" href="#/cargoes">Find cargoes</a>` : `<a class="btn btn-primary" href="${postHref}">${postLabel}</a>`}
     </div>
   </header>
-  ${c ? `<div class="whoami"><span>${esc(c.name)}</span>${passportChip(c)}<span class="who-links"><a href="#/passport">Passport</a> <a href="#/desk">My desk</a></span></div>` : ''}
+  ${c ? `<div class="whoami"><span>${esc(c.name)}</span>${passportChip(c)}<span class="who-tag">${ROLE_NAME[S.role]}</span><span class="who-links"><a href="#/desk">My desk</a> <a href="#/passport">Passport</a> <button class="link" data-act="signOut">Sign out</button></span></div>${typeof NET !== 'undefined' && NET.uid && NET.verified === false ? `<div class="whoami who-warn"><span>Confirm your email address: we sent a link to ${esc(NET.email)}.</span><span class="who-links"><button class="link" data-act="resendVerify">Send it again</button></span></div>` : ''}` : ''}
   <main id="main" tabindex="-1"></main>
   <footer class="foot">
     <div><strong>FindAVessel</strong><p>Whole-ship charters for owners, cargo interests and brokers who are new to each other.</p></div>
     <div><strong>Platform</strong><a href="#/enquire">Leave an enquiry</a><a href="#/cargoes">Enquiry board</a><a href="#/vessels">Vessels</a><a href="ports.html">Ports by country</a><a href="suppliers.html">Supplier directory</a><a href="#/guide/safeguards">Safeguards</a><a href="#/guide/payments">How payment works</a><a href="#/join">Create an account</a></div>
     <div><strong>Learn</strong><a href="guides.html">Chartering guides</a><a href="ship-sizes.html">Ship sizes</a><a href="tools.html">Calculators</a><a href="what-is-demurrage.html">What is demurrage</a><a href="how-to-charter-a-ship.html">How to charter a ship</a><a href="faq.html">Questions and answers</a><a href="privacy.html">Privacy and cookies</a></div>
-    <div><p>Prototype build. No regulated service is offered here: payments, sanctions screening and document checks are simulated.</p><p>© 2026 FindAVessel. All rights reserved.</p><button class="link" data-act="reset">Reset the sample data</button></div>
+    <div><p>No regulated service is offered here. Payments, sanctions screening and document checks are not yet connected: parties must carry out their own.</p><p>© 2026 FindAVessel. All rights reserved.</p></div>
   </footer>
   <nav class="tabbar" aria-label="Main, mobile">${NAV.slice(0, 3).map(n => `<a href="#/${n[0]}"${top === n[0] ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}<a href="guides.html">Guides</a><a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a></nav>
   <div id="toast" role="status" hidden></div>`;
@@ -250,7 +249,4 @@ document.addEventListener('submit', e => {
   const fn = LIVE[el.dataset.live]; if (fn) fn(el, evt);
 }));
 
-ACT.role = d => { S.role = d.role; save(); render(); toast('Viewing as ' + ROLE_NAME[S.role].toLowerCase()); };
-LIVE.roleSelect = el => ACT.role({ role: el.value });
-ACT.reset = () => { try { localStorage.removeItem(KEY); } catch (e) { /* nothing stored */ } S = seed(); go(''); toast('Sample data reset'); };
 ACT.go = d => go(d.to);

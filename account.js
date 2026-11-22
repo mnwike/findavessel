@@ -53,7 +53,7 @@ route('vessel/:id', id => {
 ACT.verifyVessel = d => { vessel(d.id).verified = 'verified'; save(); render(); toast('Vessel verified'); };
 
 /* ---------- List a vessel ---------- */
-LIVE.reseg = el => { const form = el.closest('form'); S.draft[form.dataset.form] = formData(form); save(); render(); };
+LIVE.reseg = el => { const form = el.closest('form'), d = formData(form); delete d.password; delete d.password2; S.draft[form.dataset.form] = d; save(); render(); };
 LIVE.vphotos = (el, evt) => {
   if (evt !== 'change') return;
   const files = [...el.files].slice(0, 4); S.draft.vphotos = [];
@@ -185,27 +185,26 @@ route('join', () => {
     supplier: [{ k: 'services', l: 'What you supply or service', ph: 'Deck and engine stores, provisions, safety equipment', req: true }, { k: 'portsServed', l: 'Ports you cover', ph: 'Rotterdam, Antwerp, Amsterdam' }, { k: 'certs', l: 'Certificates and memberships', ph: 'ISO 9001, IMPA, ISSA' }],
     broker: [{ k: 'markets', l: 'Markets you cover', ph: 'Dry cargo, Black Sea and Mediterranean', req: true }, { k: 'pii', l: 'Professional indemnity insurance', t: 'select', o: ['In place', 'Being arranged', 'None'] }, { k: 'member', l: 'Trade body membership', ph: 'Baltic Exchange, ICS, national association' }]
   }[role];
-  return `<section class="page narrow"><div class="page-head"><div><h1>Create an account</h1><p>An account starts your passport. You can look around straight away; listing and offering open up once the first checks are done.</p></div></div>
-    ${claim ? `<div class="notice notice-ok"><p><strong>Claiming the profile for ${esc(jd.name || 'your company')}.</strong> To confirm you speak for the company, the desk replies to an address at the company’s own domain before the profile is released to you.</p></div>` : ''}
+  if (typeof NET !== 'undefined' && NET.uid && NET.profile) return `<section class="page narrow">${empty('You already have an account', NET.profile.company + ', registered as a ' + ROLE_NAME[NET.profile.role].toLowerCase() + '.', '<div class="row"><a class="btn btn-primary" href="#/desk">Go to my desk</a><button class="btn" data-act="signOut">Sign out</button></div>')}</section>`;
+  return `<section class="page narrow"><div class="page-head"><div><h1>Create an account</h1><p>Free. One account per company role: choose what you do and you get the desk that fits it.</p></div></div>
+    ${claim ? `<div class="notice notice-ok"><p><strong>Claiming the profile for ${esc(jd.name || 'your company')}.</strong> To confirm you speak for the company, we reply to an address at the company’s own domain before the profile is released to you.</p></div>` : ''}
     <form class="form" data-form="join"><input type="hidden" name="claim" value="${esc(claim)}">
-    <fieldset><legend>1. What you do</legend><div class="radios">${[['charterer', 'I have cargo to move', 'Post cargoes and receive firm offers.'], ['owner', 'I own or manage vessels', 'List ships, post open positions and bid on cargoes.'], ['broker', 'I am a broker', 'Offer on behalf of owners or charterers, with your mandate and commission on record.'], ['supplier', 'I supply or service ships', 'Claim your directory profile, list services and ports, and receive requests.']].map(r => `<label><input type="radio" name="role" value="${r[0]}" data-live="reseg"${role === r[0] ? ' checked' : ''}><span><strong>${r[1]}</strong>${r[2]}</span></label>`).join('')}</div></fieldset>
+    <fieldset><legend>1. What you do</legend><div class="radios">${[['charterer', 'I have cargo to move', 'Post cargo enquiries and receive firm offers.'], ['owner', 'I own or manage vessels', 'List ships, post open positions and offer on cargoes.'], ['broker', 'I am a broker', 'Offer on behalf of owners or charterers, with your mandate and commission on record.'], ['supplier', 'I supply or service ships', 'Claim your directory profile, list services and ports, and receive requests.']].map(r => `<label><input type="radio" name="role" value="${r[0]}"${role === r[0] ? ' checked' : ''} data-live="reseg"><span><strong>${r[1]}</strong><small>${r[2]}</small></span></label>`).join('')}</div></fieldset>
     <fieldset><legend>2. Your company</legend><div class="grid">
       ${field({ k: 'name', l: 'Registered company name', req: true }, jd.name)}${field({ k: 'country', l: 'Country of registration', req: true }, jd.country)}
-      ${field({ k: 'regno', l: 'Registration number', req: true }, jd.regno)}${field({ k: 'website', l: 'Website', t: 'url' }, jd.website)}
-      ${extra.map(f => field(f, jd[f.k])).join('')}
+      ${field({ k: 'regno', l: 'Registration number' }, jd.regno)}${field({ k: 'website', l: 'Website', t: 'url' }, jd.website)}
+      ${extra.map(f => field(Object.assign({}, f, { req: false }), jd[f.k])).join('')}
     </div></fieldset>
     <fieldset><legend>3. You</legend><div class="grid">
       ${field({ k: 'contact', l: 'Your name', req: true }, jd.contact)}${field({ k: 'title', l: 'Position' }, jd.title)}
-      ${field({ k: 'email', l: 'Work email', t: 'email', req: true }, jd.email)}${field({ k: 'phone', l: 'Phone, with country code', t: 'tel' }, jd.phone)}
+      ${field({ k: 'phone', l: 'Phone, with country code', t: 'tel' }, jd.phone)}
+      <div class="field"><label for="j-email">Work email</label><input id="j-email" name="email" type="email" autocomplete="username" value="${esc(jd.email || '')}" required></div>
+      <div class="field"><label for="j-pass">Password <small>at least 8 characters</small></label><input id="j-pass" name="password" type="password" autocomplete="new-password" minlength="8" required></div>
+      <div class="field"><label for="j-pass2">Password again</label><input id="j-pass2" name="password2" type="password" autocomplete="new-password" minlength="8" required></div>
       <div class="field wide"><label class="check"><input type="checkbox" name="decl" required> I am authorised to act for this company, and neither it nor its owners are subject to sanctions.</label></div>
     </div></fieldset>
-    <div class="form-end"><button class="btn btn-primary btn-lg">Create account and open my passport</button><p class="fine">Sign-in is not built in this prototype, so nothing you type leaves your browser.</p></div></form></section>`;
+    <div class="form-end"><button class="btn btn-primary btn-lg">Create account</button><p class="fine">Already registered? <a href="#/signin">Sign in</a>. See how we use your details in the <a href="privacy.html">privacy notice</a>.</p></div></form></section>`;
 });
-FORM.join = d => {
-  const id = nid(d.role[0] + '-');
-  S.companies.push({ id, name: d.name, role: d.role, country: d.country, since: new Date().getFullYear(), verified: 'unverified', level: 0, fixtures: 0, respH: 0, about: d.commodities || d.markets || d.services || (d.fleet ? d.fleet + ' vessels' : ''), isNew: true, claim: d.claim || '', portsServed: d.portsServed });
-  S.me[d.role] = id; S.role = d.role; delete S.draft.join; save(); go('passport'); toast('Account created. Your passport is open.');
-};
 
 /* ---------- Passport and company profile ---------- */
 function checksFor(c) { return CHECKS.all.concat(CHECKS[c.role] || []); }

@@ -50,7 +50,7 @@ function dealRow(d) {
 route('deals', () => {
   const list = S.deals.filter(inDeal).sort((a, b) => b.created - a.created);
   return `<section class="page"><div class="page-head"><div><h1>Deals</h1><p>${S.role === 'desk' ? 'Every deal on the platform.' : 'Deals you are a party to, from subjects to settlement.'}</p></div></div>
-    <div class="list">${list.length ? list.map(dealRow).join('') : empty('No deals yet', S.role === 'guest' ? 'Choose a role at the top to see the sample deal.' : 'A deal appears here when an offer is accepted on subjects.', '<a class="btn" href="#/cargoes">Go to cargoes</a>')}</div></section>`;
+    <div class="list">${list.length ? list.map(dealRow).join('') : empty('No deals yet', S.role === 'guest' ? 'Sign in to see your deals.' : 'A deal appears here when an offer is accepted on subjects.', '<a class="btn" href="#/cargoes">Go to cargoes</a>')}</div></section>`;
 });
 
 /* ---------- Deal room ---------- */
@@ -90,7 +90,7 @@ route('deal/:id/:tab', (id, tab) => dealRoom(id, tab));
 function dealRoom(id, tab) {
   const d = S.deals.find(x => x.id === id);
   if (!d) return null;
-  if (!inDeal(d)) return `<section class="page narrow"><div class="notice"><p><strong>This deal is private to its parties.</strong> View as the cargo owner, the vessel owner or the desk to open the sample deal.</p><div class="row"><button class="btn" data-act="role" data-role="charterer">View as cargo owner</button><button class="btn" data-act="role" data-role="owner">View as vessel owner</button></div></div></section>`;
+  if (!inDeal(d)) return `<section class="page narrow"><div class="notice"><p><strong>This deal is private to its parties.</strong> Sign in as one of the parties to open it.</p><div class="row"><a class="btn" href="#/signin">Sign in</a></div></div></section>`;
   const t = d.terms, side = myId() === d.owner ? 'o' : myId() === d.charterer ? 'c' : null, desk = S.role === 'desk';
   let body = '';
   if (tab === 'recap') {
@@ -194,7 +194,7 @@ ACT.copyRecap = d => { const txt = recapText(dealBy(d.id)); (navigator.clipboard
 
 /* ---------- Desk ---------- */
 route('desk', () => {
-  if (S.role === 'guest') return `<section class="page narrow">${empty('Choose who you are', 'Your desk shows your listings, offers and deals. Pick a role to see the sample data from that side.', `<div class="row"><button class="btn" data-act="role" data-role="charterer">Cargo owner</button><button class="btn" data-act="role" data-role="owner">Vessel owner</button><button class="btn" data-act="role" data-role="broker">Broker</button></div>`)}</section>`;
+  if (S.role === 'guest') return `<section class="page narrow">${empty('Sign in to see your desk', 'Your desk holds your listings, offers and deals.', '<div class="row"><a class="btn btn-primary" href="#/signin">Sign in</a><a class="btn" href="#/join">Create an account</a></div>')}</section>`;
   const id = myId(), deals = S.deals.filter(inDeal);
   if (S.role === 'desk') {
     const review = S.cargoes.filter(c => c.status === 'review'), vrev = S.vessels.filter(v => v.verified !== 'verified'), crev = S.companies.filter(c => c.verified !== 'verified' && c.role !== 'desk');
@@ -209,7 +209,7 @@ route('desk', () => {
     const c = me(), mine = requests().filter(r => r.slug === c.claim || c.claim === 'sample');
     return `<section class="page"><div class="page-head"><div><h1>Requests</h1><p>${esc(c.name)}. Requests buyers have sent to your directory profile.</p></div><a class="btn" href="#/passport">Your profile checks</a></div>
       <div class="list">${mine.length ? mine.slice().reverse().map(r => `<div class="lrow"><div class="l-main"><strong>${esc(r.company)}</strong><span>${esc(r.name)}, ${ago(r.at)}</span></div><div class="l-route"><strong>${esc(r.need)}</strong><span>${esc([r.port, r.date && 'by ' + dstr(r.date), r.vessel].filter(Boolean).join(', '))}</span></div><div class="l-rate"><span>For ${esc(r.supplier)}</span></div><div class="l-meta"><a class="btn btn-sm" href="mailto:${esc(r.email)}">Reply by email</a></div></div>`).join('') : empty('No requests yet', 'Requests appear here when a buyer uses the form on your directory profile. In this prototype only requests made in this browser are shown.', '<a class="btn" href="suppliers.html">Open the directory</a>')}</div>
-      <div class="upsell"><div><strong>Also own or manage vessels?</strong><span>List them to be matched with cargo enquiries.</span></div><a class="btn" data-act="roleGo" data-role="owner" data-to="post/vessel" href="#/post/vessel">List a vessel</a></div></section>`;
+      <div class="upsell"><div><strong>Also own or manage vessels?</strong><span>List them to be matched with cargo enquiries.</span></div><a class="btn" href="#/vessels">List a vessel</a></div></section>`;
   }
   const toAnswer = S.offers.filter(o => offerTo(o) === id && offerLive(o));
   const mineOut = S.offers.filter(o => o.by === id && o.status === 'firm');
