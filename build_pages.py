@@ -205,6 +205,9 @@ P_DOC = ('photo-contract.jpg', 'A hand signing a printed contract with a pen', '
 PHOTOS = {'what-is-demurrage': P_ANCH, 'laytime': P_PORT, 'laycan': P_BULK, 'voyage-charter-vs-time-charter': P_BRIDGE, 'charter-party': P_DOC, 'what-does-a-shipbroker-do': P_DESK,
           'how-to-charter-a-ship': P_PORT, 'vlcc': P_TANKER, 'suezmax': P_TANKER, 'aframax': P_TANKER, 'panamax': P_BULK, 'capesize': P_BULK, 'supramax': P_BULK, 'handysize': P_BULK,
           'ship-sizes': P_TANKER, 'laytime-demurrage-calculator': P_ANCH, 'voyage-estimator': P_BRIDGE, 'ports': P_PORT}
+PHOTOS.update({'kamsarmax': P_BULK, 'ultramax': P_BULK, 'handymax': P_BULK, 'newcastlemax': P_BULK, 'mr-tanker': P_TANKER, 'lr1': P_TANKER, 'lr2': P_TANKER, 'notice-of-readiness': P_ANCH, 'deadweight-tonnage': P_BULK,
+               'worldscale': P_TANKER, 'disponent-owner': P_DESK, 'statement-of-facts': P_PORT, 'bareboat-charter': P_DOC, 'bulk-carrier-chartering': P_BULK, 'tanker-chartering': P_TANKER,
+               'gas-carrier-chartering': P_TANKER, 'container-ship-chartering': P_PORT, 'multipurpose-ship-chartering': P_PORT, 'car-carrier-chartering': P_PORT})
 PHOTOS = {k: v for k, v in PHOTOS.items() if os.path.exists(v[0])}
 
 
@@ -403,6 +406,124 @@ GUIDES = [
         rel=['what-does-a-shipbroker-do', 'voyage-charter-vs-time-charter', 'laycan', 'ship-sizes']),
 ]
 
+
+# ---------- Second batch: more classes, more terms ----------
+CLASSES.update({
+    'kamsarmax': dict(name='Kamsarmax', full='Kamsarmax bulk carrier', bands=BULK, i=6, kw='Kamsarmax',
+        stand='A Kamsarmax is a bulk carrier of about 82,000 deadweight tonnes, built to the longest hull that can berth at Port Kamsar in Guinea: 229 metres.',
+        facts=[('Deadweight', '80,000 to 87,000 tonnes, typically about 82,000'), ('Length and beam', '229 m by 32.26 m'), ('Holds and gear', 'Seven holds, gearless'), ('Named after', 'Port Kamsar, Guinea, a major bauxite port'), ('Next size down', 'Panamax'), ('Next size up', 'Post-Panamax')],
+        body='''<h2>A Panamax, stretched</h2><p>The Kamsarmax keeps the 32.26 m beam of a Panamax, so it still fits the original Panama Canal locks, but uses every metre of length the bauxite berth at Kamsar allows. The result carries several thousand tonnes more than a standard Panamax for much the same voyage costs.</p>
+<h2>What Kamsarmaxes carry</h2><p>Bauxite from Guinea, grain from the Americas and the Black Sea, and coal from Indonesia, Australia and Colombia. Because they are gearless they trade between ports with shore loaders and unloaders.</p>
+<h2>How they are chartered</h2><p>Voyage charters per tonne on GENCON or a grain or coal form, and time charters on NYPE. Many modern "Panamax" fixtures are in fact Kamsarmaxes.</p>'''),
+    'ultramax': dict(name='Ultramax', full='Ultramax bulk carrier', bands=BULK, i=4, kw='Ultramax',
+        stand='An Ultramax is a geared bulk carrier of roughly 60,000 to 67,000 deadweight tonnes: the larger, more fuel-efficient successor to the Supramax.',
+        facts=[('Deadweight', '60,000 to 67,000 tonnes'), ('Holds and gear', 'Five holds, four cranes of 30 to 36 tonnes, usually with grabs'), ('Typical length and beam', 'About 200 m by 32.26 m'), ('Next size down', 'Supramax'), ('Next size up', 'Panamax')],
+        body='''<h2>Why the class appeared</h2><p>Shipyards found they could add several thousand tonnes of capacity to a Supramax design for little extra fuel. Charterers get more cargo per voyage and the ship can still work its own cargo with its cranes.</p>
+<h2>What Ultramaxes carry</h2><p>The same wide mix as a Supramax: grain, coal, fertiliser, cement and clinker, bauxite, nickel ore, steel and other minor bulks. The extra capacity matters most on long hauls.</p>
+<h2>Chartering one</h2><p>Cargoes of 55,000 to 63,000 tonnes are a natural fit. State whether you need the ship’s cranes and grabs at either port, because a geared ship costs more than a gearless one of the same size and you should not pay for gear you will not use.</p>'''),
+    'handymax': dict(name='Handymax', full='Handymax bulk carrier', bands=BULK, i=2, kw='Handymax',
+        stand='A Handymax is a geared bulk carrier of roughly 40,000 to 50,000 deadweight tonnes, between the Handysize and the Supramax.',
+        facts=[('Deadweight', '40,000 to 50,000 tonnes'), ('Holds and gear', 'Five holds, four cranes of about 30 tonnes'), ('Typical length and beam', 'About 180 to 190 m by 30 to 32 m'), ('Next size down', 'Handysize'), ('Next size up', 'Supramax')],
+        body='''<h2>An older name still in use</h2><p>Few ships are built to this size today; Supramax and Ultramax designs replaced it. But many Handymaxes still trade, and the word is often used loosely for any geared bulk carrier from 40,000 to 65,000 tonnes.</p>
+<h2>What Handymaxes carry</h2><p>Grain, fertiliser, cement, steel, logs and minor bulks, on the same routes as Supramaxes but with slightly smaller parcels and shallower draught.</p>
+<h2>What to check</h2><p>Age. Much of the Handymax fleet is past 15 years old, and many charterers, receivers and insurers set an age limit. Put your limit in the enquiry.</p>'''),
+    'newcastlemax': dict(name='Newcastlemax', full='Newcastlemax bulk carrier', bands=BULK, i=9, kw='Newcastlemax',
+        stand='A Newcastlemax is a bulk carrier of about 200,000 to 210,000 deadweight tonnes, the largest that can enter the coal port of Newcastle in Australia.',
+        facts=[('Deadweight', '200,000 to 210,000 tonnes'), ('Port limits', 'About 300 m long and 50 m beam'), ('Cargoes', 'Coal and iron ore'), ('Named after', 'Port of Newcastle, New South Wales'), ('Next size down', 'Capesize'), ('Next size up', 'Very large ore carrier')],
+        body='''<h2>A bigger Capesize</h2><p>The Newcastlemax carries around 15% more than a standard 180,000-tonne Capesize. It trades on the same routes and is usually counted with the Capesize fleet in market reports.</p>
+<h2>Where they trade</h2><p>Coal from Newcastle and iron ore from Western Australia and Brazil to China, Japan and Korea. Only a limited number of terminals can take them fully laden.</p>
+<h2>How they are chartered</h2><p>Largely on long-term contracts and time charters to miners, steel mills and large operators, with spot voyages priced per tonne.</p>'''),
+    'mr-tanker': dict(name='MR tanker', full='medium range product tanker', bands=TANKER, i=3, kw='MR tanker',
+        stand='An MR, or medium range, tanker is a product tanker of roughly 35,000 to 55,000 deadweight tonnes. It is the most common ship for moving petrol, diesel and jet fuel by sea.',
+        facts=[('Deadweight', 'MR1: 35,000 to 45,000 tonnes. MR2: 45,000 to 55,000 tonnes'), ('Typical cargo', 'About 300,000 to 350,000 barrels of refined products'), ('Typical length and beam', 'About 183 m by 32.2 m'), ('Tanks', 'Coated, often rated IMO 2 or 3 for chemicals and vegetable oils'), ('Next size down', 'Handysize tanker'), ('Next size up', 'LR1')],
+        body='''<h2>What MRs carry</h2><p>Clean petroleum products: petrol, diesel, jet fuel and naphtha. Many are also certified to carry vegetable oils and easy chemicals, which lets an owner find a return cargo instead of sailing back empty.</p>
+<h2>Where they trade</h2><p>Everywhere refined products move: across the Atlantic, around Europe and the Mediterranean, within Asia, and into West Africa and Latin America. Their size fits most product terminals.</p>
+<h2>What a charterer will be asked, and will ask</h2><p>The last three cargoes, the tank coating and whether the ship has passed recent oil company inspections. A ship that last carried a dirty cargo cannot load jet fuel without extensive cleaning.</p>'''),
+    'lr1': dict(name='LR1', full='Long Range 1 product tanker', bands=TANKER, i=4, kw='LR1 tanker',
+        stand='An LR1, or Long Range 1, is a product tanker of roughly 55,000 to 80,000 deadweight tonnes. It is a Panamax-sized tanker with coated tanks for refined products.',
+        facts=[('Deadweight', '55,000 to 80,000 tonnes'), ('Typical cargo', 'Roughly half a million barrels of refined products'), ('Beam', '32.2 m, the original Panama Canal limit'), ('Crude-trading name', 'Panamax tanker'), ('Next size down', 'MR'), ('Next size up', 'LR2')],
+        body='''<h2>Where LR1s trade</h2><p>Long hauls of naphtha, jet fuel and diesel from the big export refineries of the Middle East and India to Europe and the Far East, and from the US Gulf to Latin America.</p>
+<h2>LR1 or Panamax tanker</h2><p>Same hull. With coated tanks and clean last cargoes it is an LR1. Trading crude or fuel oil it is called a Panamax tanker. Moving a ship from dirty to clean trading takes several cargoes and thorough tank cleaning.</p>'''),
+    'lr2': dict(name='LR2', full='Long Range 2 product tanker', bands=TANKER, i=5, kw='LR2 tanker',
+        stand='An LR2, or Long Range 2, is a product tanker of roughly 80,000 to 120,000 deadweight tonnes. It is an Aframax-sized tanker with coated tanks for refined products.',
+        facts=[('Deadweight', '80,000 to 120,000 tonnes'), ('Typical cargo', '600,000 to 750,000 barrels of refined products'), ('Typical length and beam', 'About 245 m by 44 m'), ('Crude-trading name', 'Aframax'), ('Next size down', 'LR1'), ('Next size up', 'Suezmax')],
+        body='''<h2>Where LR2s trade</h2><p>The longest product routes: naphtha from the Middle East to Japan and Korea, and diesel and jet fuel from the Middle East and India to Europe. The economics are the same as for crude: the longer the voyage, the more a large ship saves per barrel.</p>
+<h2>LR2 or Aframax</h2><p>Same hull. Owners switch between clean and dirty trading depending on which market pays more, but switching back to clean is slow and costly. See the <a href="aframax.html">Aframax</a> page for the crude side.</p>'''),
+})
+SLUG_FOR = {'Kamsarmax': 'kamsarmax', 'Ultramax': 'ultramax', 'Handymax': 'handymax', 'Newcastlemax': 'newcastlemax', 'MR1': 'mr-tanker', 'MR2': 'mr-tanker', 'VLCC': 'vlcc', 'Suezmax': 'suezmax',
+            'Aframax / LR2': 'aframax', 'Panamax / LR1': 'lr1', 'Panamax': 'panamax', 'Capesize': 'capesize', 'Supramax': 'supramax', 'Handysize': 'handysize'}
+
+GUIDES += [
+    dict(slug='notice-of-readiness', title='Notice of readiness (NOR) in shipping: what makes it valid', h1='Notice of readiness',
+        desc='Notice of readiness is the master’s notice that a ship has arrived and is ready to load or discharge. When it is valid and why it starts the laytime clock.',
+        stand='Notice of readiness, or NOR, is the notice a ship’s master gives the charterer that the ship has arrived and is ready to load or discharge. It is what starts the laytime clock.',
+        fig=fig_timeline([('Waiting', .2, 'f-track'), ('Turn time', .15, 'f-track'), ('Laytime counting', .65, 'f-done')], [(0, 'Ship arrives'), (.2, 'NOR tendered'), (.35, 'Laytime starts'), (1, 'Cargo work ends')], 'Timeline from arrival to notice of readiness to the start of laytime'),
+        cap='Laytime starts after a valid notice and any turn time in the charter party, not on arrival.',
+        body='''<h2>Three conditions for a valid notice</h2><ol><li><strong>The ship has arrived</strong> at the place the charter party names. Under a berth charter that is the berth; under a port charter, the usual waiting area within the port.</li><li><strong>The ship is ready</strong> in every way that matters for the cargo: holds or tanks clean and passed, equipment working, health and customs clearance where required.</li><li><strong>The notice is given as the contract requires:</strong> to the right party, by the agreed method, and within any office hours the charter party sets.</li></ol>
+<div class="keyfact"><p>A notice given before the ship is actually ready is generally invalid, and it does not become valid later. A fresh notice is needed.</p></div>
+<h2>Why it causes so many disputes</h2><p>Days of <a href="laytime.html">laytime</a> and tens of thousands of dollars of <a href="what-is-demurrage.html">demurrage</a> can turn on whether a notice was valid. Typical arguments: holds failed inspection after the notice was given, the ship was waiting outside port limits, or the notice was sent outside permitted hours.</p>
+<h2>Terms that modify the rule</h2><p>Charter parties often let notice be given "whether in berth or not" or "whether in port or not", so the owner is not penalised when the port is congested. Tanker charters usually give six hours after notice before laytime runs.</p>
+<h2>Good practice</h2><ul><li>Owners: tender on arrival, and tender again if anything about readiness changes.</li><li>Charterers: if you think a notice is invalid, say so in writing at once.</li><li>Both: make sure the time of the notice is in the <a href="statement-of-facts.html">statement of facts</a>.</li></ul>''',
+        rel=['laytime', 'what-is-demurrage', 'statement-of-facts', 'laycan']),
+    dict(slug='deadweight-tonnage', title='Deadweight tonnage (DWT) explained, and how it differs from gross tonnage', h1='Deadweight tonnage (DWT)',
+        desc='Deadweight tonnage is the weight a ship can carry: cargo, fuel, water and stores. How DWT differs from gross tonnage, displacement and cargo capacity.',
+        stand='Deadweight tonnage, or DWT, is the total weight a ship can carry when loaded to its summer load line: cargo plus fuel, fresh water, stores and crew. It is the main measure of size for tankers and bulk carriers.',
+        fig=fig_timeline([('Lightweight: the ship itself', .32, 'f-track'), ('Deadweight: everything it carries', .68, 'f-done')], [(0, 'Empty'), (.32, 'Ready for cargo'), (1, 'Loaded to the summer load line')], 'Bar showing displacement split into lightweight and deadweight', 'Displacement is the two added together.'),
+        cap='A ship’s loaded displacement is its own weight plus its deadweight.',
+        body='''<h2>Deadweight is not cargo capacity</h2><p>Fuel, water and stores come out of the deadweight before cargo does. A 58,000 DWT bulk carrier will typically load about 55,000 to 56,000 tonnes of cargo, less if it bunkers heavily for a long voyage or if a port restricts its draught.</p>
+<h2>The measures people confuse</h2>''' + table(['Measure', 'What it is', 'Used for'], [
+            ['<strong>Deadweight (DWT)</strong>', 'Weight the ship can carry, in tonnes', 'Size of tankers and bulk carriers; chartering'],
+            ['<strong>Gross tonnage (GT)</strong>', 'Internal volume of the whole ship. Not a weight.', 'Port dues, regulations, crew rules'],
+            ['<strong>Net tonnage (NT)</strong>', 'Volume of the cargo spaces', 'Canal tolls and some port charges'],
+            ['<strong>Displacement</strong>', 'Weight of water the ship displaces: its own weight plus what it carries', 'Naval architecture; warships'],
+            ['<strong>Lightweight</strong>', 'Weight of the empty ship', 'Scrap value']]) + '''
+<h2>Why "summer" deadweight</h2><p>A ship may load deeper in some seasons and zones than others. The quoted figure is normally the summer deadweight, at the summer load line marked on the hull. In winter zones or fresh water the permitted draught, and so the cargo, changes.</p>
+<h2>Volume matters too</h2><p>Light cargoes fill the holds before they reach the weight limit. That is why bulk carrier listings also give grain and bale capacity in cubic metres, and why a cargo enquiry should state the stowage factor. See <a href="ship-sizes.html">ship sizes</a> for the classes built on deadweight.</p>''',
+        rel=['ship-sizes', 'supramax', 'how-to-charter-a-ship', 'voyage-estimator']),
+    dict(slug='worldscale', title='Worldscale explained: how tanker freight is quoted', h1='Worldscale',
+        desc='Worldscale is the reference schedule used to quote tanker freight. What WS100 and the flat rate mean, with a worked example.',
+        stand='Worldscale is a published schedule of reference freight rates for tanker voyages. Tanker freight is negotiated as a percentage of that reference, quoted as "WS" points.',
+        fig=fig_chain([('Flat rate', 'USD per tonne, by route'), ('WS points', 'Negotiated, e.g. WS 80'), ('Freight', '80% of the flat rate')], ['multiplied by', 'gives'], 'Flat rate multiplied by Worldscale points gives the freight per tonne'),
+        cap='WS 100 means the flat rate. WS 80 means 80% of it.',
+        body='''<h2>How it works</h2><p>For each pair of loading and discharging ports, Worldscale publishes a <strong>flat rate</strong> in US dollars per tonne. It is calculated for a standard ship on a round voyage and reissued each year to reflect fuel prices and port costs. The flat rate is called WS 100.</p>
+<p>Owners and charterers then negotiate only the percentage. If the flat rate for a route is USD 20 per tonne and the fixture is done at WS 80, freight is USD 16 per tonne. On an 80,000-tonne cargo that is USD 1.28 million.</p>
+<h2>Why tankers use it</h2><p>Tanker charters often give the charterer a range of loading and discharging ports, decided after the ship is fixed. One WS number covers every permitted combination, because each has its own flat rate. Both sides can also compare very different routes on one scale.</p>
+<h2>What moves the WS level</h2><p>Supply and demand for that size of tanker in that region. Larger ships fix at lower WS numbers than smaller ones on the same route, because their cost per tonne is lower.</p>
+<h2>Where it is not used</h2><p>Dry bulk freight is quoted directly in dollars per tonne. Some tanker fixtures, especially on short or unusual routes, are done as a lump sum. Time charters are quoted in dollars per day. To compare a WS fixture with a daily rate, convert it with a <a href="voyage-estimator.html">voyage estimate</a>.</p>
+<p class="fine">The schedule is published by the Worldscale Association and available by subscription. The figures in the example are illustrative.</p>''',
+        rel=['vlcc', 'aframax', 'voyage-estimator', 'voyage-charter-vs-time-charter']),
+    dict(slug='disponent-owner', title='Disponent owner: meaning and why it matters to a charterer', h1='Disponent owner',
+        desc='A disponent owner controls a ship under a charter and lets it out again as if they owned it. What that means for the charterer and what to check.',
+        stand='A disponent owner is a company that does not own a ship but controls it under a time or bareboat charter, and charters it out to someone else. To the next charterer, they stand in the owner’s place.',
+        fig=fig_chain([('Registered owner', 'Holds title'), ('Disponent owner', 'Has the ship on charter'), ('Charterer', 'Has the cargo')], ['time charter', 'voyage charter'], 'Chain from registered owner to disponent owner to charterer'),
+        cap='Two contracts, back to back. The charterer’s contract is with the disponent owner only.',
+        body='''<h2>How it arises</h2><p>An operator takes a ship on time charter for a year at a daily rate, then uses it to carry other companies’ cargoes on voyage terms. In each of those voyage charters the operator signs as "disponent owner". Much of the dry bulk market works this way.</p>
+<h2>What it means if you are the charterer</h2><ul><li><strong>Your contract is with the disponent owner,</strong> not the registered owner. Claims for non-performance go to them.</li><li><strong>Their performance depends on a contract you cannot see.</strong> If they stop paying hire, the registered owner can withdraw the ship.</li><li><strong>Bills of lading are often still the registered owner’s,</strong> which can give the cargo owner a direct claim for loss or damage to the goods.</li></ul>
+<h2>What to check</h2><ul><li>Who the registered owner is, and that the disponent owner really has the ship on charter for long enough to perform your voyage.</li><li>The disponent owner’s financial standing: they may have few assets of their own.</li><li>That the ship’s P&amp;I cover and class are in order, exactly as you would for an owner.</li></ul>
+<p>On FindAVessel a vessel listing states whether it is posted by the registered owner, a disponent owner or a manager, and the authority behind it is checked before the listing goes live.</p>''',
+        rel=['voyage-charter-vs-time-charter', 'charter-party', 'what-does-a-shipbroker-do', 'how-to-charter-a-ship']),
+    dict(slug='statement-of-facts', title='Statement of facts in shipping: what it records and why it matters', h1='Statement of facts',
+        desc='A statement of facts is the port agent’s timed record of a ship’s call: arrival, notice of readiness, cargo work, stoppages and sailing. It is the basis of the laytime calculation.',
+        stand='A statement of facts is the timed record of everything that happened during a ship’s port call. The laytime and demurrage calculation is built from it.',
+        fig=fig_steps(['Arrival|At the port', 'NOR|Notice tendered', 'Berthed|All fast', 'Start|Cargo work begins', 'Stoppages|Rain, breakdowns', 'Complete|Cargo work ends', 'Sailed|Documents on board'], 'The sequence of events recorded in a statement of facts'),
+        cap='Each event is recorded with its date and time. Stoppages are recorded with their cause.',
+        body='''<h2>Who prepares it</h2><p>Normally the port agent, from the ship’s log and the terminal’s records. It is signed by the master and the agent, and often by the shipper or receiver as well.</p>
+<h2>What it should contain</h2><ul><li>Arrival at the port or anchorage, and when <a href="notice-of-readiness.html">notice of readiness</a> was tendered and accepted</li><li>Time of berthing and of any shifting between berths</li><li>Start and finish of loading or discharging, with every interruption and its cause</li><li>Weather stoppages, holidays and shifts not worked</li><li>Draught surveys, hold or tank inspections, and the quantity loaded or discharged</li><li>Completion, documents on board and sailing</li></ul>
+<h2>Why to read it before signing</h2><p>Whether a stoppage counts against <a href="laytime.html">laytime</a> depends on its cause and on who was responsible. "Stopped 4 hours" is useless; "stopped 4 hours, rain" or "shore conveyor breakdown" decides who pays. If you disagree with an entry, sign "under protest" and note why.</p>
+<h2>A shared record avoids the argument</h2><p>Disputes start when each side has its own version. On FindAVessel, voyage events go into one time log that the owner and charterer each confirm as they happen, so the laytime statement starts from agreed facts.</p>''',
+        rel=['laytime', 'notice-of-readiness', 'what-is-demurrage', 'laytime-demurrage-calculator']),
+    dict(slug='bareboat-charter', title='Bareboat charter explained: ships, not yacht holidays', h1='Bareboat charter',
+        desc='A bareboat or demise charter hands a ship to the charterer without crew, to operate as if they owned it. How it differs from a time charter and when it is used.',
+        stand='Under a bareboat charter, also called a demise charter, the owner hands over the ship with no crew. The charterer mans, maintains, insures and operates it as if it were theirs, usually for several years.',
+        fig=fig_matrix(['Voyage', 'Time', 'Bareboat'], [('Crew, maintenance, insurance', 'OOC'), ('Fuel', 'OCC'), ('Port and canal costs', 'OCC'), ('Where the ship trades', 'OCC')], 'Matrix showing the charterer takes on every operating cost under a bareboat charter'),
+        cap='Under a bareboat charter the owner supplies only the ship and receives hire.',
+        body='''<h2>What each side does</h2><p>The owner provides the vessel and collects hire, typically monthly. The charterer appoints the master and crew, pays for maintenance, dry-docking and insurance, and bears every running cost. The standard form is BIMCO’s BARECON.</p>
+<h2>Why it is used</h2><ul><li><strong>Finance.</strong> A bank or leasing company owns the ship and bareboats it to the operator, often with an option or obligation to buy at the end. It is a lease in all but name.</li><li><strong>Flag.</strong> A bareboat charterer can sometimes register the ship under a second flag for the charter period.</li><li><strong>Control.</strong> An operator gets a ship for years without buying it.</li></ul>
+<h2>How it differs from a time charter</h2><p>On a <a href="voyage-charter-vs-time-charter.html">time charter</a> the owner still employs the crew and is responsible for the ship’s condition; the charterer only directs where it goes. On a bareboat charter that responsibility moves to the charterer, who becomes a <a href="disponent-owner.html">disponent owner</a> when they charter the ship out again.</p>
+<h2>If you were looking for yachts</h2><p>In leisure sailing, "bareboat charter" just means hiring a yacht without a skipper for a holiday. That is a different market, and not what this page or FindAVessel covers.</p>''',
+        rel=['voyage-charter-vs-time-charter', 'disponent-owner', 'charter-party', 'how-to-charter-a-ship']),
+]
+
 # Register titles first so pages can cross-link
 for g in GUIDES:
     PAGES[g['slug']] = (g['h1'], g['stand'].split('. ')[0] + '.', g['fig'])
@@ -432,7 +553,7 @@ Object.keys(B).forEach(function(k){var op=document.createElement('option');op.te
 function go(){var d=B[t.value],v=Number(s.value);u.textContent='in '+d[0];if(!v){o.textContent='Enter a size';r.textContent='';return}
 var b=d[1].filter(function(x){return v>=x[0]&&v<=x[1]})[0];o.textContent=b?b[2]:'No class';r.textContent=b?(b[1]>9e8?b[0].toLocaleString()+' '+d[0]+' and above':(b[0]?b[0].toLocaleString():'0')+' to '+b[1].toLocaleString()+' '+d[0]):''}
 t.onchange=go;s.oninput=go;go()})();</script>'''
-rows = lambda bands, unit: [[(f'<a href="{n.split(" / ")[0].lower()}.html"><strong>{e(n)}</strong></a>' if n.split(' / ')[0].lower() in CLASSES else f'<strong>{e(n)}</strong>'), (f'Under {b + 1:,}' if not a else f'{a:,} and above' if b > 9e8 else f'{a:,} to {b:,}')] for a, b, n in bands]
+rows = lambda bands, unit: [[(f'<a href="{SLUG_FOR[n]}.html"><strong>{e(n)}</strong></a>' if n in SLUG_FOR and unit == 'DWT' else f'<strong>{e(n)}</strong>'), (f'Under {b + 1:,}' if not a else f'{a:,} and above' if b > 9e8 else f'{a:,} to {b:,}')] for a, b, n in bands]
 sizes_body = '<h2>Class finder</h2><p>Pick a ship type and enter its size.</p>' + finder + \
     '<h2>What deadweight tonnage means</h2><p>Deadweight tonnage, or DWT, is the weight a ship can carry when loaded to its summer load line: cargo plus fuel, fresh water, stores and crew. It is not the weight of the ship itself. Tankers and bulk carriers are classed by DWT. Container ships are classed by TEU, the number of twenty-foot containers they hold, and gas carriers by tank volume in cubic metres.</p>' + \
     '<h2>Oil tankers</h2>' + table(['Class', 'Deadweight (tonnes)'], rows(TANKER, 'DWT')) + '<p>Panamax and Aframax tankers with coated tanks, carrying refined products, are called LR1 and LR2. MR stands for medium range.</p>' + \
@@ -484,6 +605,64 @@ article('voyage-estimator', 'Voyage estimator: time charter equivalent (TCE) cal
         ['voyage-charter-vs-time-charter', 'laytime-demurrage-calculator', 'how-to-charter-a-ship', 'ship-sizes'], kind='tools', crumb='Tools', crumb_href='tools.html', scripts=voy_js)
 
 
+
+# ---------- Chartering by vessel type ----------
+TYPES = [
+    dict(slug='bulk-carrier-chartering', seg='bulk', name='bulk carrier', h1='Bulk carrier chartering', bands=BULK, unit='DWT',
+        stand='Bulk carriers move dry cargo loose in their holds: grain, coal, ore, fertiliser, cement and steel. Here is what they carry, the sizes available and what an owner needs to quote.',
+        carry='Grain and oilseeds, coal, iron ore, bauxite, fertilisers, cement and clinker, steel products, sugar, salt, sulphur, petcoke and bagged goods.',
+        forms='GENCON for voyages, with NORGRAIN or SYNACOMEX for grain and AMWELSH for coal. NYPE for time charters. Freight is quoted in US dollars per tonne, or per day on time charter.',
+        need=['Cargo and its stowage factor', 'Quantity and tolerance, for example 30,000 tonnes 10% more or less', 'Load and discharge ports, and any draught limits', 'Laycan', 'Loading and discharging rates per day, and whether Sundays and holidays count', 'Whether the ship’s own cranes and grabs are needed', 'Any hazards under the IMSBC Code, such as cargoes that may liquefy'],
+        links=['handysize', 'supramax', 'panamax', 'capesize']),
+    dict(slug='tanker-chartering', seg='tanker', name='tanker', h1='Tanker chartering', bands=TANKER, unit='DWT',
+        stand='Tankers carry liquids in bulk: crude oil, refined products, chemicals and vegetable oils. Here is what they carry, the sizes available and what an owner needs to quote.',
+        carry='Crude oil and fuel oil on "dirty" tankers. Petrol, diesel, jet fuel and naphtha on "clean" product tankers. Chemicals, methanol, caustic soda and vegetable oils on chemical tankers with coated or stainless steel tanks.',
+        forms='ASBATANKVOY, SHELLVOY or BPVOY for voyages; SHELLTIME for time charters. Freight is quoted in <a href="worldscale.html">Worldscale</a> points, as a lump sum or in dollars per tonne.',
+        need=['Cargo, grade and specification', 'Quantity and tolerance', 'Load and discharge ports or ranges', 'Laycan', 'Heating requirements, if any', 'Restrictions on the ship’s last three cargoes', 'Vetting requirements: recent inspections and terminal acceptance'],
+        links=['mr-tanker', 'lr1', 'aframax', 'suezmax', 'vlcc']),
+    dict(slug='gas-carrier-chartering', seg='gas', name='gas carrier', h1='Gas carrier chartering', bands=LPG, unit='cubic metres',
+        stand='Gas carriers move liquefied gases under pressure, refrigeration or both: LPG, ammonia, petrochemical gases and LNG. Here is what they carry, the sizes available and what an owner needs to quote.',
+        carry='Propane and butane (LPG), ammonia, ethylene, ethane, propylene and other petrochemical gases, and LNG on dedicated carriers.',
+        forms='ASBAGASVOY or GASVOY for voyages; SHELLTIME and SHELLLNGTIME for time charters. LPG freight is quoted in dollars per tonne; LNG carriers are mostly hired by the day.',
+        need=['Cargo grade and specification', 'Quantity in tonnes', 'Load and discharge ports', 'Laycan', 'Required condition of the tanks on arrival, for example under vapours of the same cargo', 'Vetting requirements'],
+        links=[]),
+    dict(slug='container-ship-chartering', seg='container', name='container ship', h1='Container ship chartering', bands=CONTAINER, unit='TEU',
+        stand='Whole container ships are chartered by liner operators and regional carriers, almost always by the day. This is not the same as booking a container on someone else’s service.',
+        carry='Containers of every kind, including refrigerated boxes where the ship has reefer plugs. The charterer runs the service and fills the ship.',
+        forms='NYPE or BOXTIME time charters, for periods from a few months to several years. Hire is quoted in US dollars per day.',
+        need=['Capacity needed in TEU, and at 14 tonnes per container', 'Number of reefer plugs', 'Whether cranes are needed for ports without gantries', 'Speed and fuel consumption required', 'Delivery and redelivery places and dates', 'The intended service or trading area'],
+        links=[]),
+    dict(slug='multipurpose-ship-chartering', seg='mpp', name='multipurpose ship', h1='Multipurpose and heavy-lift ship chartering', bands=None, unit='DWT',
+        stand='Multipurpose and heavy-lift ships carry what does not fit a bulk carrier or a container: project cargo, machinery, wind turbine parts, steel, timber and bagged goods.',
+        carry='Project cargo and heavy lifts, steel products and pipes, wind turbine components, timber and logs, bagged cargo, vehicles and small bulk parcels.',
+        forms='GENCON for general cargo and HEAVYLIFTVOY for heavy lifts; NYPE or BALTIME for time charters. Freight is usually a lump sum, sometimes per tonne or per cubic metre.',
+        need=['A packing list: each piece with its weight and dimensions', 'The heaviest and largest single piece', 'Whether cargo may be carried on deck', 'Lifting gear needed, if the ports have none', 'Load and discharge ports', 'Laycan'],
+        links=[]),
+    dict(slug='car-carrier-chartering', seg='roro', name='vehicle carrier', h1='Vehicle carrier and ro-ro chartering', bands=None, unit='CEU',
+        stand='Vehicle carriers and ro-ro ships load cargo on wheels over a ramp: cars, trucks, trailers and heavy machinery. Whole ships are mostly hired on time charter.',
+        carry='New and used cars, trucks, buses, trailers, construction and farm machinery, and other rolling or towable cargo.',
+        forms='NYPE or BALTIME time charters, with lump-sum voyage charters for single shipments. Capacity is measured in car equivalent units (CEU) and lane metres.',
+        need=['The mix of units: how many cars, how many high and heavy', 'The heaviest and tallest unit, for ramp and deck limits', 'Load and discharge ports', 'Dates or period', 'Whether units are new or used, which affects handling and insurance'],
+        links=[]),
+]
+STEPS7 = ['Enquiry|Define the cargo', 'Market|Circulate it', 'Offers|Firm, time-limited', 'Subjects|Conditional deal', 'Fixture|Subjects lifted', 'Voyage|Load and carry', 'Settle|Freight, demurrage']
+for t in TYPES:
+    PAGES[t['slug']] = (t['h1'], t['stand'].split('. ')[0] + '.', fig_ladder(t['bands'], -1, t['unit'] if t['unit'] != 'cubic metres' else 'm3', t['h1']) if t['bands'] else fig_steps(STEPS7, 'Seven steps from enquiry to settlement'))
+for t in TYPES:
+    if t['bands']:
+        size_rows = [[(f'<a href="{SLUG_FOR[n]}.html"><strong>{e(n)}</strong></a>' if n in SLUG_FOR and t['unit'] == 'DWT' else f'<strong>{e(n)}</strong>'), (f'Under {b + 1:,}' if not a else f'{a:,} and above' if b > 9e8 else f'{a:,} to {b:,}')] for a, b, n in t['bands']]
+        size_tbl = '<h2>Sizes</h2>' + table(['Class', f'Size ({t["unit"]})'], size_rows) + '<p>See <a href="ship-sizes.html">all ship sizes</a> and the class finder.</p>'
+        cap = 'Size classes by ' + t['unit'] + ', on a logarithmic scale.'
+    else:
+        size_tbl = '<h2>Sizes</h2><p>There are no settled class names for these ships. What matters is deadweight, hold and deck dimensions, and above all the lifting or ramp capacity.</p>'
+        cap = 'The steps every charter follows.'
+    body = f'<h2>What a {t["name"]} carries</h2><p>{t["carry"]}</p>' + size_tbl + f'<h2>How they are chartered</h2><p>{t["forms"]} For the difference between the two, see <a href="voyage-charter-vs-time-charter.html">voyage and time charters</a>.</p>' + \
+        '<h2>What an owner needs from you to quote</h2><ul>' + ''.join(f'<li>{e(x)}</li>' for x in t['need']) + '</ul><p>An enquiry with all of this can be priced without a phone call. One without it usually goes unanswered.</p>' + \
+        f'<div class="row"><a class="btn btn-primary" href="index.html#/enquire?seg={t["seg"]}">Leave a {t["name"]} enquiry</a><a class="btn" href="index.html#/vessels">See vessels listed</a></div>' + \
+        '<div class="upsell"><div><strong>Own, manage or broker ' + t['name'] + 's?</strong><span>Register to be sent enquiries that fit your ships.</span></div><a class="btn" href="index.html#/join">Register a fleet</a></div>'
+    article(t['slug'], f'{t["h1"]}: cargoes, sizes and how to get a quote', t['stand'][:155], t['h1'], t['stand'], PAGES[t['slug']][2], cap, body,
+            ['how-to-charter-a-ship'] + t['links'][:3] + ['ship-sizes', 'what-does-a-shipbroker-do'], cta=False)
+
 # Index pages
 def tile(slug, href=None):
     t = PAGES[slug]
@@ -498,7 +677,7 @@ def index(slug, title, desc, h1, lede, sections, kind):
 
 index('guides', 'Chartering guides for newcomers', 'Plain-language guides to ship chartering: demurrage, laytime, laycan, charter parties, shipbrokers and ship sizes.', 'Guides',
       'Plain-language explanations for people fixing their first ships. No sign-up needed.',
-      [('How chartering works', [tile(g['slug']) for g in GUIDES]), ('Ship sizes', [tile('ship-sizes')] + [tile(k) for k in CLASSES]), ('Calculators', [tile('laytime-demurrage-calculator'), tile('voyage-estimator')])], 'guides')
+      [('How chartering works', [tile(g['slug']) for g in GUIDES]), ('Chartering by ship type', [tile(t['slug']) for t in TYPES]), ('Ship sizes', [tile('ship-sizes')] + [tile(k) for k in CLASSES]), ('Calculators', [tile('laytime-demurrage-calculator'), tile('voyage-estimator')])], 'guides')
 PAGES['paste'] = ('Paste an enquiry', 'Paste a cargo order as you would email it and the listing form fills itself. Inside the platform.', fig_chain([('Email text', 'Free wording'), ('Parser', 'Picks out terms'), ('Listing form', 'You check it')], ['reads', 'fills'], 'Text to form'))
 index('tools', 'Free chartering calculators and tools', 'Free tools for ship chartering: laytime and demurrage calculator, voyage estimator, ship class finder.', 'Tools',
       'Free calculators for the sums that come up on every fixture.',
@@ -551,7 +730,7 @@ if os.path.exists('mapdata.json'):
     print('ports pages', len(port_slugs))
 
 # Sitemap and robots
-slugs = ['', 'guides', 'tools', 'ship-sizes', 'laytime-demurrage-calculator', 'voyage-estimator'] + [g['slug'] for g in GUIDES] + list(CLASSES) + port_slugs
+slugs = ['', 'guides', 'tools', 'ship-sizes', 'laytime-demurrage-calculator', 'voyage-estimator'] + [g['slug'] for g in GUIDES] + list(CLASSES) + [t['slug'] for t in TYPES] + port_slugs
 open('sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'  <url><loc>{SITE}/{s}</loc><lastmod>{DATE}</lastmod></url>\n' for s in slugs) + '</urlset>\n')
 open('robots.txt', 'w').write(f'User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n')
 print('built', len(slugs) - 1, 'pages')
