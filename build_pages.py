@@ -2,7 +2,7 @@
 """Builds the static guide, ship-size and tool pages for FindAVessel.
 Run from the repository root:  python3 build_pages.py
 Each page is written next to index.html so it is served at /<slug> on GitHub Pages."""
-import collections, glob, html, json, math, os
+import collections, glob, html, json, math, os, re
 from urllib.parse import quote
 
 SITE = 'https://findavessel.com'
@@ -456,7 +456,7 @@ CLASSES.update({
 <h2>LR2 or Aframax</h2><p>Same hull. Owners switch between clean and dirty trading depending on which market pays more, but switching back to clean is slow and costly. See the <a href="aframax.html">Aframax</a> page for the crude side.</p>'''),
 })
 SLUG_FOR = {'Kamsarmax': 'kamsarmax', 'Ultramax': 'ultramax', 'Handymax': 'handymax', 'Newcastlemax': 'newcastlemax', 'MR1': 'mr-tanker', 'MR2': 'mr-tanker', 'VLCC': 'vlcc', 'Suezmax': 'suezmax',
-            'Aframax / LR2': 'aframax', 'Panamax / LR1': 'lr1', 'Panamax': 'panamax', 'Capesize': 'capesize', 'Supramax': 'supramax', 'Handysize': 'handysize'}
+            'Very large gas carrier': 'vlgc', 'Aframax / LR2': 'aframax', 'Panamax / LR1': 'lr1', 'Panamax': 'panamax', 'Capesize': 'capesize', 'Supramax': 'supramax', 'Handysize': 'handysize'}
 
 GUIDES += [
     dict(slug='notice-of-readiness', title='Notice of readiness (NOR) in shipping: what makes it valid', h1='Notice of readiness',
@@ -529,11 +529,72 @@ GUIDES += [
         rel=['voyage-charter-vs-time-charter', 'disponent-owner', 'charter-party', 'how-to-charter-a-ship']),
 ]
 
+
+# ---------- Third batch: gas carrier classes, despatch, P&I clubs ----------
+CLASSES.update({
+    'vlgc': dict(name='VLGC', full='very large gas carrier', bands=LPG, i=5, kw='VLGC', unit='cubic metres',
+        stand='A VLGC, or very large gas carrier, is the largest type of LPG carrier. Most hold about 80,000 to 90,000 cubic metres, enough for roughly 45,000 to 50,000 tonnes of propane and butane.',
+        facts=[('Tank capacity', 'Above about 60,000 cubic metres; most are 80,000 to 90,000'), ('Typical cargo', 'About 45,000 to 50,000 tonnes of LPG'), ('How the cargo is carried', 'Fully refrigerated, at about minus 42°C for propane'), ('Cargoes', 'Propane, butane and, on some ships, ammonia'), ('Next size down', 'Large gas carrier')],
+        body='''<h2>Where VLGCs trade</h2><p>Long hauls from the two big export regions, the US Gulf and the Middle East, to Japan, Korea, China and India, where LPG is used for petrochemicals, heating and cooking. Ships sailing from the US Gulf to Asia choose between the Panama Canal and the longer route round the Cape of Good Hope, depending on canal waiting times and cost.</p>
+<h2>How VLGCs are chartered</h2><p>On time charters to traders, producers and importers, and on voyage charters priced in US dollars per tonne. Voyage forms include ASBAGASVOY. Charterers vet ships much as they do oil tankers.</p>
+<h2>Where the size bands disagree</h2><p>Sources draw the lower limit of the class anywhere from 50,000 to 75,000 cubic metres. What matters in a charter is the tank capacity in cubic metres and the cargo grades the ship is certified to carry.</p>'''),
+    'lng-carrier': dict(name='LNG carrier', full='LNG carrier', bands=LNG, i=3, kw='LNG carrier sizes', unit='cubic metres',
+        stand='An LNG carrier moves natural gas as a liquid at about minus 162°C. A conventional ship today holds around 174,000 cubic metres; the largest, the Q-Max, holds about 265,000.',
+        facts=[('Conventional size', 'About 125,000 to 180,000 cubic metres; newer ships around 174,000'), ('Q-Flex', 'About 210,000 to 217,000 cubic metres'), ('Q-Max', 'About 263,000 to 266,000 cubic metres'), ('Cargo temperature', 'About minus 162°C'), ('Containment', 'Membrane tanks, or spherical Moss tanks on older ships')],
+        body='''<h2>Why size is measured in cubic metres</h2><p>LNG is light, less than half the density of water, so tank volume fills up long before weight becomes the limit. Deadweight is rarely quoted for these ships.</p>
+<h2>Q-Flex and Q-Max</h2><p>Both classes were built for Qatar’s export projects. The Q stands for Qatar and "Max" for the largest ship able to berth at the Ras Laffan terminal. Not every import terminal can take them.</p>
+<h2>Boil-off</h2><p>A small fraction of the cargo evaporates every day. Most LNG carriers burn that gas as fuel, which is why their engines and their charter terms differ from those of other tankers.</p>
+<h2>How LNG carriers are chartered</h2><p>Mostly on long time charters tied to gas supply contracts, with a smaller market for single voyages and short periods. Hire is quoted in US dollars per day. This is not a market a newcomer enters with one ship.</p>'''),
+})
+
+GUIDES += [
+    dict(slug='despatch', title='Despatch in shipping: meaning, rate and how it is calculated', h1='Despatch',
+        desc='Despatch is money the shipowner pays the charterer when loading or discharging finishes before laytime runs out. How it is calculated and when it applies.',
+        stand='Despatch is the reverse of demurrage. When the charterer loads or discharges faster than the laytime allowed, the shipowner pays the charterer for the time saved, usually at half the demurrage rate.',
+        fig=fig_timeline([('Time used: 5 days', .62, 'f-done'), ('Saved: 3 days', .38, 'f-ok')], [(0, 'Laytime starts'), (.62, 'Cargo work ends'), (1, 'Laytime would have expired')], 'Timeline of 8 days of laytime with cargo work finishing after 5', 'At a despatch rate of USD 6,000 a day, three days saved earns the charterer USD 18,000.'),
+        cap='Eight days allowed, five used. The three days saved are paid for at the despatch rate.',
+        body='''<div class="keyfact"><p><strong>In one line:</strong> time allowed minus time used, multiplied by the daily despatch rate.</p></div>
+<h2>Why owners pay it</h2><p>A ship released early can start earning on its next voyage sooner. Despatch shares part of that gain with the charterer and gives them a reason to work the cargo quickly.</p>
+<h2>The rate</h2><p>Most dry cargo charter parties set despatch at half the <a href="what-is-demurrage.html">demurrage</a> rate, often written "DHD": despatch half demurrage. If demurrage is USD 12,000 a day, despatch is USD 6,000. Some charters say "free despatch", meaning none is paid.</p>
+<h2>Which time counts as saved</h2><p>Two wordings give different answers:</p><ul><li><strong>All time saved:</strong> every hour from completion until laytime would have expired, including Sundays and holidays that would not have counted as <a href="laytime.html">laytime</a>.</li><li><strong>Working time saved</strong> or <strong>laytime saved:</strong> only the hours that would have counted as laytime.</li></ul><p>On a slow-loading cargo over a holiday period the difference can be several days, so check which your charter party says.</p>
+<h2>Where it does not apply</h2><p>Tanker charters normally have no despatch. Neither do time charters, where the charterer is already paying for the ship by the day and benefits directly from any time saved.</p>
+<h2>Working it out</h2><p>Use the same record as for demurrage: the <a href="statement-of-facts.html">statement of facts</a>. The <a href="laytime-demurrage-calculator.html">laytime and demurrage calculator</a> shows despatch when time used is less than time allowed.</p>''',
+        rel=['what-is-demurrage', 'laytime', 'laytime-demurrage-calculator', 'statement-of-facts']),
+    dict(slug='p-and-i-club', title='P&I clubs explained: what protection and indemnity insurance covers', h1='P&I clubs',
+        desc='A P&I club is a mutual insurer that covers a shipowner’s liabilities to others: cargo claims, crew injury, pollution and wreck removal. What it covers and why a charterer should check it.',
+        stand='A P&I club is a mutual insurance association owned by its shipowner members. It covers the liabilities a ship incurs to other people: cargo owners, crew, ports and coastal states. P&I stands for protection and indemnity.',
+        fig=fig_steps(['Member|Pays calls', 'Club|Pays the claim', 'Pool|Clubs share large claims', 'Reinsurance|Above the pool'], 'Four layers that pay a P&I claim, from the member to the reinsurance market'),
+        cap='Who pays as a claim grows: the club first, then the pool shared between clubs, then reinsurers.',
+        body='''<h2>What P&I covers</h2><ul><li>Loss of or damage to cargo carried on the ship</li><li>Injury, illness and death of crew, passengers and others on board</li><li>Pollution from oil or other substances</li><li>Damage to docks, buoys and other fixed objects</li><li>The part of collision liability that hull insurance leaves out</li><li>Removing the wreck if the ship is lost</li><li>Fines, stowaways and the costs of defending claims</li></ul>
+<h2>How a club works</h2><p>Members pay "calls" into a pool that pays their claims. The club is run for its members and not for profit. Very large claims are shared between clubs and then reinsured. Twelve clubs make up the International Group of P&I Clubs, which between them insure the great majority of the world’s ocean-going tonnage. Some smaller ships are insured with commercial "fixed premium" P&I providers instead.</p>
+<h2>Why a charterer should check it</h2><p>If cargo is damaged or the ship pollutes, the claim is only worth what the owner can pay. Good P&I cover means there is a solvent insurer behind the owner. Ports and terminals may also refuse a ship without it. Ask for the <strong>certificate of entry</strong>, which names the ship, the club and the period of cover, and check that it runs past the end of your voyage.</p>
+<h2>Cover for charterers</h2><p>Charterers carry liabilities too: damage to the ship caused by an unsafe port or by the cargo, for example. Clubs and other insurers sell charterers’ liability cover for this.</p>
+<h2>What P&I does not replace</h2><p>It is not cargo insurance. The cargo owner still needs their own policy on the goods, because the carrier’s liability is limited by law and by the contract.</p>
+<p>On FindAVessel a vessel listing names the club or insurer, and the certificate of entry is held on file with its expiry date.</p>''',
+        rel=['how-to-charter-a-ship', 'charter-party', 'disponent-owner', 'what-is-demurrage']),
+]
+
+# Researched notes on well-known groups, shown on every profile that carries the group's name.
+# Each is written from the source linked beside it and dated; keep them short and factual.
+BRANDS = [
+    (r'\balfa laval', 'Alfa Laval', 'Alfa Laval is a Swedish engineering company founded in 1883. Its work centres on heat transfer, separation and fluid handling. For ships it supplies separators for cleaning fuel and lubricating oil, boilers and heaters, cooling and fresh-water equipment and environmental systems.', 'https://www.alfalaval.com/industries/marine-transportation/marine/'),
+    (r'w[aä]rtsil[aä]', 'Wärtsilä', 'Wärtsilä is a Finnish company headquartered in Helsinki, with roots going back to 1834. It makes and services engines, propulsion and other equipment for the marine and energy markets.', 'https://en.wikipedia.org/wiki/W%C3%A4rtsil%C3%A4'),
+    (r'kongsberg', 'Kongsberg Maritime', 'Kongsberg Maritime is part of the Norwegian technology group Kongsberg Gruppen and is based in Kongsberg, Norway. It supplies automation, navigation, dynamic positioning, propulsion and deck systems for merchant, offshore and naval vessels.', 'https://www.kongsberg.com/maritime/about-us'),
+    (r'\bconsilium', 'Consilium Safety Group', 'Consilium Safety Group is a Swedish company that makes fire, flame and gas detection and safety management systems for ships, as well as for rail and buildings. It acquired the Danish oil mist detection specialist Daspos in 2024.', 'https://www.consiliumsafety.com/marine'),
+    (r'viking life.?saving', 'VIKING Life-Saving Equipment', 'VIKING Life-Saving Equipment is a privately held Danish company founded in 1960 and headquartered in Esbjerg. It makes and services liferafts, lifeboats, evacuation systems, lifejackets and firefighting equipment for shipping and offshore.', 'https://www.viking-life.com/about/about-viking/'),
+    (r'\bjotun', 'Jotun', 'Jotun is a Norwegian paints and coatings company founded in 1926 and headquartered in Sandefjord. Marine coatings for hulls, tanks and decks are one of its four segments, alongside protective, powder and decorative paints.', 'https://www.jotun.com/in-en/about-jotun/our-history'),
+    (r'\bdesmi', 'DESMI', 'DESMI is a Danish pump manufacturer founded in 1834, with its head office in Nørresundby. It makes pumps and pumping systems for ships and industry, ballast water management systems and oil spill response equipment.', 'https://www.desmi.com/about-desmi/history/short-version/'),
+    (r'\bfuruno', 'Furuno', 'Furuno Electric is a Japanese marine electronics maker headquartered in Nishinomiya. It brought the first practical fish finder to market in 1948 and today makes radar, navigation and communication equipment for commercial and fishing vessels.', 'https://furuno.co.jp/en/corporate/history'),
+    (r'survitec', 'Survitec', 'Survitec is a British survival technology group. It makes and services liferafts, marine evacuation systems, lifejackets, immersion suits and fire systems for the maritime, defence, energy and aerospace sectors.', 'https://survitecgroup.com/about-us/'),
+    (r'\bdamen\b', 'Damen', 'Damen Shipyards Group is a family-owned Dutch shipbuilder founded in 1927 and headquartered in Gorinchem. It builds workboats, naval and commercial vessels to standard designs and runs ship repair yards in several countries.', 'https://damen.com/about'),
+]
+
+
 # Register titles first so pages can cross-link
 for g in GUIDES:
     PAGES[g['slug']] = (g['h1'], g['stand'].split('. ')[0] + '.', g['fig'])
 for k, c in CLASSES.items():
-    PAGES[k] = (c['name'], c['stand'].split('. ')[0] + '.', fig_ladder(c['bands'], c['i'], 'DWT', f'{c["name"]} size compared with other classes'))
+    PAGES[k] = (c['name'], c['stand'].split('. ')[0] + '.', fig_ladder(c['bands'], c['i'], 'm3' if c.get('unit') else 'DWT', f'{c["name"]} size compared with other classes'))
 PAGES['ship-sizes'] = ('Ship sizes and classes', 'Every size class of tanker, bulk carrier, gas carrier and container ship.', fig_ladder(BULK, -1, 'DWT', 'Bulk carrier size classes'))
 PAGES['laytime-demurrage-calculator'] = ('Laytime and demurrage calculator', 'Work out time allowed, time used and what is owed.', fig_timeline([('Allowed', .6, 'f-done'), ('Over', .4, 'f-accent')], [(0, 'Start'), (.6, 'Expires'), (1, 'End')], 'Laytime bar'))
 PAGES['voyage-estimator'] = ('Voyage estimator', 'Turn a freight rate into a daily time charter equivalent.', fig_route('Load port', 'Discharge port', 'Days, fuel and port costs'))
@@ -544,8 +605,8 @@ for g in GUIDES:
 for k, c in CLASSES.items():
     unit = 'DWT'
     body = '<h2>Key facts</h2>' + table(['', c['name']], [[f'<strong>{e(a)}</strong>', e(b)] for a, b in c['facts']]) + c['body'] + \
-        f'<h2>{c["name"]} among the other classes</h2>' + table(['Class', 'Deadweight (tonnes)'], [[f'<strong>{e(n)}</strong>', (f'Under {b + 1:,}' if not a else f'{a:,} and above' if b > 9e8 else f'{a:,} to {b:,}')] for a, b, n in c['bands']], c['i']) + \
-        '<p>Class names are market shorthand, not regulation, and sources differ at the edges. When you list or charter a ship, the measured deadweight is what counts. See <a href="ship-sizes.html">all ship sizes</a>.</p>'
+        f'<h2>{c["name"]} among the other classes</h2>' + table(['Class', 'Capacity (cubic metres)' if c.get('unit') else 'Deadweight (tonnes)'], [[f'<strong>{e(n)}</strong>', (f'Under {b + 1:,}' if not a else f'{a:,} and above' if b > 9e8 else f'{a:,} to {b:,}')] for a, b, n in c['bands']], c['i']) + \
+        '<p>Class names are market shorthand, not regulation, and sources differ at the edges. When you list or charter a ship, the measured ' + ('tank capacity' if c.get('unit') else 'deadweight') + ' is what counts. See <a href="ship-sizes.html">all ship sizes</a>.</p>'
     others = [x for x in CLASSES if x != k][:3]
     article(k, f'{c["kw"]}: size, capacity and trades of a {c["full"]}', c['stand'][:155], f'{c["name"]}: size, capacity and trades', c['stand'],
             PAGES[k][2], f'{c["name"]} against the other size classes of its type, on a logarithmic scale.', body, ['ship-sizes'] + others + ['how-to-charter-a-ship'], crumb='Ship sizes', crumb_href='ship-sizes.html')
@@ -558,13 +619,13 @@ Object.keys(B).forEach(function(k){var op=document.createElement('option');op.te
 function go(){var d=B[t.value],v=Number(s.value);u.textContent='in '+d[0];if(!v){o.textContent='Enter a size';r.textContent='';return}
 var b=d[1].filter(function(x){return v>=x[0]&&v<=x[1]})[0];o.textContent=b?b[2]:'No class';r.textContent=b?(b[1]>9e8?b[0].toLocaleString()+' '+d[0]+' and above':(b[0]?b[0].toLocaleString():'0')+' to '+b[1].toLocaleString()+' '+d[0]):''}
 t.onchange=go;s.oninput=go;go()})();</script>'''
-rows = lambda bands, unit: [[(f'<a href="{SLUG_FOR[n]}.html"><strong>{e(n)}</strong></a>' if n in SLUG_FOR and unit == 'DWT' else f'<strong>{e(n)}</strong>'), (f'Under {b + 1:,}' if not a else f'{a:,} and above' if b > 9e8 else f'{a:,} to {b:,}')] for a, b, n in bands]
+rows = lambda bands, unit: [[(f'<a href="{SLUG_FOR[n]}.html"><strong>{e(n)}</strong></a>' if n in SLUG_FOR and (unit == 'DWT' or n == 'Very large gas carrier') else f'<strong>{e(n)}</strong>'), (f'Under {b + 1:,}' if not a else f'{a:,} and above' if b > 9e8 else f'{a:,} to {b:,}')] for a, b, n in bands]
 sizes_body = '<h2>Class finder</h2><p>Pick a ship type and enter its size.</p>' + finder + \
     '<h2>What deadweight tonnage means</h2><p>Deadweight tonnage, or DWT, is the weight a ship can carry when loaded to its summer load line: cargo plus fuel, fresh water, stores and crew. It is not the weight of the ship itself. Tankers and bulk carriers are classed by DWT. Container ships are classed by TEU, the number of twenty-foot containers they hold, and gas carriers by tank volume in cubic metres.</p>' + \
     '<h2>Oil tankers</h2>' + table(['Class', 'Deadweight (tonnes)'], rows(TANKER, 'DWT')) + '<p>Panamax and Aframax tankers with coated tanks, carrying refined products, are called LR1 and LR2. MR stands for medium range.</p>' + \
     '<h2>Bulk carriers</h2>' + table(['Class', 'Deadweight (tonnes)'], rows(BULK, 'DWT')) + '<p>Ships up to Ultramax usually carry their own cranes. Panamax and larger are gearless and rely on shore equipment.</p>' + \
     '<h2>Container ships</h2>' + table(['Class', 'Capacity (TEU)'], rows(CONTAINER, 'TEU')) + \
-    '<h2>LPG carriers</h2>' + table(['Class', 'Capacity (cubic metres)'], rows(LPG, 'm3')) + '<h2>LNG carriers</h2>' + table(['Class', 'Capacity (cubic metres)'], rows(LNG, 'm3')) + \
+    '<h2>LPG carriers</h2>' + table(['Class', 'Capacity (cubic metres)'], rows(LPG, 'm3')) + '<h2>LNG carriers</h2>' + table(['Class', 'Capacity (cubic metres)'], rows(LNG, 'm3')) + '<p>See the <a href="lng-carrier.html">LNG carrier</a> page for Q-Flex, Q-Max and how these ships are chartered.</p>' + \
     '<h2>Why the bands are not exact</h2><p>These names grew out of trade practice. Some come from canals (Panamax, Suezmax), some from ports (Kamsarmax, Newcastlemax), one from a freight scale (Aframax). Brokers, exchanges and shipyards draw the lines in slightly different places. A contract should state the actual deadweight, not just the class name.</p>'
 article('ship-sizes', 'Ship sizes and classes: Handysize to VLCC, with a class finder', 'Size classes for tankers, bulk carriers, container ships and gas carriers, with deadweight ranges and a tool that tells you the class from the size.',
         'Ship sizes and classes', 'Ships are grouped into named size classes: Handysize, Supramax, Panamax, Aframax, Suezmax, VLCC and more. Here is every band, and a finder that names the class from the size.',
@@ -655,7 +716,7 @@ for t in TYPES:
     PAGES[t['slug']] = (t['h1'], t['stand'].split('. ')[0] + '.', fig_ladder(t['bands'], -1, t['unit'] if t['unit'] != 'cubic metres' else 'm3', t['h1']) if t['bands'] else fig_steps(STEPS7, 'Seven steps from enquiry to settlement'))
 for t in TYPES:
     if t['bands']:
-        size_rows = [[(f'<a href="{SLUG_FOR[n]}.html"><strong>{e(n)}</strong></a>' if n in SLUG_FOR and t['unit'] == 'DWT' else f'<strong>{e(n)}</strong>'), (f'Under {b + 1:,}' if not a else f'{a:,} and above' if b > 9e8 else f'{a:,} to {b:,}')] for a, b, n in t['bands']]
+        size_rows = [[(f'<a href="{SLUG_FOR[n]}.html"><strong>{e(n)}</strong></a>' if n in SLUG_FOR and (t['unit'] == 'DWT' or n == 'Very large gas carrier') else f'<strong>{e(n)}</strong>'), (f'Under {b + 1:,}' if not a else f'{a:,} and above' if b > 9e8 else f'{a:,} to {b:,}')] for a, b, n in t['bands']]
         size_tbl = '<h2>Sizes</h2>' + table(['Class', f'Size ({t["unit"]})'], size_rows) + '<p>See <a href="ship-sizes.html">all ship sizes</a> and the class finder.</p>'
         cap = 'Size classes by ' + t['unit'] + ', on a logarithmic scale.'
     else:
@@ -786,12 +847,15 @@ if PD:
         peer_html = ''.join(f'<li><a href="providers/{q[0]}.html">{e(q[1])}</a></li>' for q in peers)
         ports_link = f'<a href="ports-{cslug}.html">Ports in {e(cname)}</a>' if f'ports-{cslug}' in PORT_SLUGS else ''
         blocked = cc in BLOCKED
+        br = next((b for b in BRANDS if re.search(b[0], name, re.I)), None)
+        about = f'<h2>About {e(br[1])}</h2><p>{e(br[2])}</p><p class="fine">This describes the wider group whose name this listing carries. The company listed here may be a branch, a subsidiary or an independent agent. Source: <a href="{br[3]}" rel="nofollow noopener">{e(br[3].split("/")[2])}</a>, read 22 November 2026.</p>' if br else ''
         form = '<div class="notice"><p><strong>Sanctions.</strong> Trade with this country is heavily restricted under UK, EU, US and UN measures. FindAVessel does not pass requests to suppliers there.</p></div>' if blocked else req_form(p, cname)
         body = f'''<article class="article">
 <p class="crumbs"><a href="suppliers.html">Suppliers</a> / <a href="suppliers-{cslug}.html">{e(cname)}</a> / {e(name)}</p>
 <h1>{e(name)}</h1>
 <p class="standfirst">{e(name)} is listed as a marine supplier in {e(where)}. Send a request through FindAVessel and the company is notified by email.</p>
 {table(['', ''], [['<strong>Location</strong>', e(where)], ['<strong>Service group</strong>', catlinks(cats) + ' <span class="sub">Suggested from the company name</span>'], ['<strong>Listing</strong>', 'Unclaimed. Not yet confirmed by the company.'], ['<strong>Nearby</strong>', f'<a href="suppliers-{cslug}.html">{len(by_cc[cc]):,} suppliers in {e(cname)}</a>' + (', ' + ports_link if ports_link else '')]])}
+{about}
 {form}
 <div class="article-cta"><h2>Is this your company?</h2><p>Claim this profile to confirm your details, list the services and ports you cover, and answer requests directly. It is free.</p>
 <a class="btn" href="index.html#/join?claim={s}&amp;name={quote(name)}&amp;country={quote(cname)}">Claim this profile</a></div>
