@@ -7,6 +7,7 @@ from urllib.parse import quote
 
 SITE = 'https://findavessel.com'
 DATE = '2026-11-22'
+VER = '20261122d'  # change on each release so browsers fetch fresh styles and scripts
 THEME_BTN = ('<button class="theme-btn" data-theme-toggle aria-label="Switch between dark and light theme">'
              '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>'
              '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span>Theme</span></button>')
@@ -225,7 +226,7 @@ def shell(slug, title, desc, body, kind='Article', extra_head='', scripts='', cr
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='7' fill='%230A1C2E'/%3E%3Cg transform='translate(5 5) scale(.75)' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 20h30l-3.5 10h-23zM20 20v10M13 20v-8h14v8M20 12V5'/%3E%3Cpath d='M4 36q4-3 8 0t8 0 8 0 8 0'/%3E%3C/g%3E%3C/svg%3E">
 <script src="theme.js"></script>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v={VER}">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>{extra_head}
 </head>
 <body>
@@ -244,7 +245,7 @@ def shell(slug, title, desc, body, kind='Article', extra_head='', scripts='', cr
 </footer>
 <nav class="tabbar" aria-label="Main, mobile"><a href="index.html#/cargoes">Board</a><a href="ports.html"{cur('ports')}>Ports</a><a href="suppliers.html"{cur('suppliers')}>Suppliers</a><a href="guides.html"{cur('guides')}>Guides</a><a href="index.html#/enquire">Enquire</a></nav>
 {scripts}
-<script src="quick-enquiry.js" defer></script>
+<script src="quick-enquiry.js?v={VER}" defer></script>
 </body>
 </html>
 '''
@@ -1067,7 +1068,7 @@ faq_body = '<article class="article"><p class="crumbs"><a href="index.html">Home
     '<div class="article-cta"><h2>Still unsure?</h2><p>Leave an enquiry with what you need to move and we will take it from there.</p><div class="row"><a class="btn btn-primary" href="index.html#/enquire">Leave an enquiry</a><a class="btn" href="guides.html">Read the guides</a></div></div></article>'
 faq_ld = {'@type': 'FAQPage', '@id': url('faq') + '#faq', 'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': _strip(a)}} for _, qa in FAQ for q, a in qa]}
 open('faq.html', 'w').write(shell('faq', 'Ship chartering questions and answers', 'Answers on chartering a whole ship, listing a vessel, leaving an enquiry, requesting marine suppliers and what is live on FindAVessel today.', faq_body, 'faq', ld_extra=[faq_ld], name='Questions and answers'))
-open('404.html', 'w').write(shell('404', 'Page not found', 'That address does not match a page on FindAVessel.', '<article class="article"><h1>Page not found</h1><p class="standfirst">That address does not match anything here.</p><div class="row"><a class="btn btn-primary" href="/">Go to the start</a><a class="btn" href="/guides.html">Guides</a><a class="btn" href="/suppliers.html">Suppliers</a></div></article>', 'none', robots='noindex, follow').replace('href="styles.css"', 'href="/styles.css"').replace('src="theme.js"', 'src="/theme.js"').replace('src="quick-enquiry.js"', 'src="/quick-enquiry.js"'))
+open('404.html', 'w').write(shell('404', 'Page not found', 'That address does not match a page on FindAVessel.', '<article class="article"><h1>Page not found</h1><p class="standfirst">That address does not match anything here.</p><div class="row"><a class="btn btn-primary" href="/">Go to the start</a><a class="btn" href="/guides.html">Guides</a><a class="btn" href="/suppliers.html">Suppliers</a></div></article>', 'none', robots='noindex, follow').replace('href="styles.css', 'href="/styles.css').replace('src="theme.js"', 'src="/theme.js"').replace('src="quick-enquiry.js', 'src="/quick-enquiry.js'))
 
 # Sitemap and robots
 slugs = ['', 'faq', 'guides', 'tools', 'ship-sizes', 'laytime-demurrage-calculator', 'voyage-estimator'] + [g['slug'] for g in GUIDES] + list(CLASSES) + [t['slug'] for t in TYPES] + port_slugs + sup_slugs
