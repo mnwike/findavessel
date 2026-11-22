@@ -96,7 +96,7 @@ function passportChip(c) {
 }
 function tag(text, kind) { return `<span class="tag${kind ? ' tag-' + kind : ''}">${esc(text)}</span>`; }
 function plimsoll(size) {
-  return `<svg class="plimsoll" width="${size}" height="${size}" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="11" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M4 20h32" stroke="currentColor" stroke-width="2.6"/><path d="M20 3v6M20 31v6" stroke="currentColor" stroke-width="2.6"/></svg>`;
+  return `<svg class="plimsoll" width="${size}" height="${size}" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h30l-3.5 10h-23zM20 20v10M13 20v-8h14v8M20 12V5"/><path d="M4 36q4-3 8 0t8 0 8 0 8 0"/></svg>`;
 }
 function field(f, val, opt = {}) {
   const name = (opt.prefix || '') + f.k, id = 'f_' + name;
@@ -134,7 +134,7 @@ function shell(route) {
   return `
   <div class="demo-bar">Prototype with sample data. The companies, ships, cargoes and payments shown are invented and nothing here is a live offer.</div>
   <header class="top">
-    <a class="brand" href="#/">${plimsoll(26)}<span>FindAVessel</span></a>
+    <a class="brand" href="#/">${plimsoll(28)}<span>FindAVessel</span></a>
     <nav class="nav" aria-label="Main">${NAV.map(n => `<a href="#/${n[0]}"${top === n[0] || (n[0] === 'cargoes' && top === 'cargo') || (n[0] === 'vessels' && top === 'vessel') || (n[0] === 'deals' && top === 'deal') ? ' aria-current="page"' : ''}>${n[1]}</a>`).join('')}<a href="ports.html">Ports</a><a href="suppliers.html">Suppliers</a><a href="guides.html">Guides</a><a href="tools.html">Tools</a>${S.role === 'desk' ? `<a href="#/desk"${top === 'desk' ? ' aria-current="page"' : ''}>Desk</a>` : ''}</nav>
     <div class="top-right">
       ${THEME_BTN}

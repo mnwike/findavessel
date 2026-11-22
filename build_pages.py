@@ -10,7 +10,7 @@ DATE = '2026-11-22'
 THEME_BTN = ('<button class="theme-btn" data-theme-toggle aria-label="Switch between dark and light theme">'
              '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>'
              '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span>Theme</span></button>')
-LOGO = '<svg width="24" height="24" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="11" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M4 20h32M20 3v6M20 31v6" stroke="currentColor" stroke-width="2.6"/></svg>'
+LOGO = '<svg width="28" height="28" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h30l-3.5 10h-23zM20 20v10M13 20v-8h14v8M20 12V5"/><path d="M4 36q4-3 8 0t8 0 8 0 8 0"/></svg>'
 e = html.escape
 
 
@@ -168,7 +168,7 @@ def shell(slug, title, desc, body, kind='Article', extra_head='', scripts=''):
 <meta property="og:description" content="{e(desc)}">
 <meta property="og:type" content="article">
 <meta property="og:url" content="{SITE}/{slug}">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='6' fill='%230A1C2E'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%23fff' stroke-width='3'/%3E%3Cpath d='M5 20h30' stroke='%23fff' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='7' fill='%230A1C2E'/%3E%3Cg transform='translate(5 5) scale(.75)' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 20h30l-3.5 10h-23zM20 20v10M13 20v-8h14v8M20 12V5'/%3E%3Cpath d='M4 36q4-3 8 0t8 0 8 0 8 0'/%3E%3C/g%3E%3C/svg%3E">
 <script src="theme.js"></script>
 <link rel="stylesheet" href="styles.css">
 <script type="application/ld+json">{json.dumps(ld)}</script>{extra_head}
