@@ -49,26 +49,37 @@ function match(c, v) {
 route('', () => {
   const live = S.cargoes.filter(c => c.status === 'open' && c.vis !== 'shortlist').slice(0, 4);
   const ships = S.vessels.filter(v => v.verified === 'verified').slice(0, 4);
-  const sample = co('o-wendover');
   return `
   <section class="hero">
     <div class="hero-text">
-      <h1>Charter a whole ship without already knowing the right people.</h1>
-      <p class="lede">Cargo owners post what has to move. Vessel owners and brokers bid for it. Every company, ship and cargo is checked before anyone commits, and freight is secured before the ship loads.</p>
-      <div class="row">
-        <a class="btn btn-primary btn-lg" href="#/enquire">Leave an enquiry</a>
-        <a class="btn btn-ghost btn-lg" href="#/cargoes">See the enquiry board</a>
-      </div>
-      <p class="hero-note">Tankers, bulk carriers, gas carriers, container ships, multipurpose ships and vehicle carriers. Voyage and time charters. No part cargoes.</p>
-    </div>
-    <aside class="hero-card" aria-label="Example passport">
-      <div class="hc-head"><div><p class="hc-kicker">The passport</p><h2>${esc(sample.name)}</h2><p>Vessel owner, ${esc(sample.country)}. First ship bought this year.</p></div>${marks(sample.level, true)}</div>
-      <ul class="hc-list">
-        <li class="ok">Company and owners identified</li><li class="ok">Sanctions screening clear</li><li class="ok">Title to vessel confirmed against the IMO number</li>
-        <li class="ok">Class and P&amp;I certificates on file</li><li class="wait">Trade references being called</li><li class="none">No completed fixtures yet</li>
+      <h1>Find a ship for your cargo. Or cargo for your ship.</h1>
+      <p class="lede">Whole shiploads meet the ships that can carry them. Say what you need in under a minute, and keep your company name private until you choose to share it.</p>
+      <ul class="hero-facts">
+        <li><strong>6</strong> ship types, tankers to vehicle carriers</li>
+        <li><strong>${Object.values(WORLD).reduce((n, c) => n + c[2].length, 0).toLocaleString('en-GB')}</strong> ports in ${Object.keys(WORLD).length} countries</li>
+        <li><strong>${Object.values(SUPPLIER_COUNTRIES).reduce((n, c) => n + c, 0).toLocaleString('en-GB')}</strong> marine suppliers to call on</li>
       </ul>
-      <p class="hc-foot">An unknown name gets ignored. A passport shows a counterparty exactly what has been checked, like draught marks on a hull show how deep a ship sits.</p>
-    </aside>
+    </div>
+    <div class="hero-card hero-start">
+      <div class="hs-tabs" role="tablist" aria-label="What do you have?">
+        <button type="button" role="tab" id="hs-tab-cargo" aria-selected="true" aria-controls="hs-cargo" data-act="heroTab" data-tab="cargo">I have cargo</button>
+        <button type="button" role="tab" id="hs-tab-ship" aria-selected="false" aria-controls="hs-ship" data-act="heroTab" data-tab="ship">I have a ship</button>
+      </div>
+      <form id="hs-cargo" role="tabpanel" aria-labelledby="hs-tab-cargo" class="hs-panel" data-form="heroCargo">${portList()}
+        <div class="field"><label for="hs-what">What are you shipping?</label><input id="hs-what" name="cargo" required placeholder="Wheat in bulk, steel coils, diesel"></div>
+        <div class="hs-row">
+          <div class="field"><label for="hs-from">From</label><input id="hs-from" name="load" list="ports" placeholder="Loading port"></div>
+          <div class="field"><label for="hs-to">To</label><input id="hs-to" name="disch" list="ports" placeholder="Discharge port"></div>
+        </div>
+        <button class="btn btn-primary btn-lg">Find a ship</button>
+        <p class="fine">Next: quantity and dates. Free, and no account needed.</p>
+      </form>
+      <div id="hs-ship" role="tabpanel" aria-labelledby="hs-tab-ship" class="hs-panel" hidden>
+        <p>List your vessel once with its type, size and where it comes open. You are matched with cargo enquiries that fit, and you can answer any enquiry on the board with a firm offer.</p>
+        <div class="row"><a class="btn btn-primary btn-lg" href="#/join?role=owner">List a vessel</a><a class="btn btn-lg" href="#/cargoes">See cargo enquiries</a></div>
+        <p class="fine">Brokers can offer ships on an owner’s behalf.</p>
+      </div>
+    </div>
   </section>
 
   <section class="band">
@@ -427,3 +438,7 @@ FORM.offer = (d, form) => {
   if (prev) prev.status = 'countered';
   S.offers.push(o); save(); go('cargo/' + c.id); toast(prev ? 'Counter-offer sent' : 'Firm offer sent');
 };
+
+/* Hero quick start: carry what was typed into the full enquiry form. */
+ACT.heroTab = d => { ['cargo', 'ship'].forEach(t => { $('#hs-' + t).hidden = t !== d.tab; $('#hs-tab-' + t).setAttribute('aria-selected', String(t === d.tab)); }); };
+FORM.heroCargo = d => { const q = new URLSearchParams(); ['cargo', 'load', 'disch'].forEach(k => { if (d[k]) q.set(k, d[k]); }); location.hash = '#/enquire?' + q.toString(); };
