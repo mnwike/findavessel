@@ -81,6 +81,15 @@
         fail('That did not send. Check your connection and try again. Your text is still here.');
       });
   }
+  // Every submission on the site is also emailed to the desk through the same relay.
+  window.fvNotify = function (subject, fields) {
+    var body = { _subject: 'FindAVessel: ' + subject, _template: 'table', _captcha: 'false' };
+    Object.keys(fields || {}).forEach(function (k) { var v = fields[k]; if (v !== '' && v != null) body[k] = String(v).slice(0, 1500); });
+    if (fields && fields.Email) body._replyto = fields.Email;
+    body.Page = location.href; body.Sent = new Date().toString();
+    return fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); }).then(function (j) { return String(j.success) !== 'false'; }).catch(function () { return false; });
+  };
   window.quickEnquiry = function () { open(true); };
   setTimeout(open, DELAY);
 })();

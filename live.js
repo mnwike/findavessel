@@ -118,7 +118,20 @@ FORM.join = (d, form) => {
   NET.pending = profile; busy(form, true, 'Creating your account…');
   fauth.createUserWithEmailAndPassword(profile.email, d.password)
     .then(cred => fdb.collection('users').doc(cred.user.uid).set(profile).then(() => cred.user.sendEmailVerification().catch(() => {})))
-    .then(() => { if (window.fvTrack) fvTrack('sign_up', { method: profile.role }); toast('Account created. Check your email to confirm your address.'); go(nextAfterAuth()); })
+    .then(() => { tell('new account, ' + profile.company + ' (' + ROLE_NAME[profile.role] + ')', { Country: profile.country, 'Registration number': profile.regno, Website: profile.website, Position: profile.title, About: profile.about, 'Claiming supplier profile': profile.claim }); if (window.fvTrack) fvTrack('sign_up', { method: profile.role }); toast('Account created. Check your email to confirm your address.'); go(nextAfterAuth()); })
     .catch(e => { NET.pending = null; busy(form, false); authErr(e); });
 };
+/* ---------- Everything submitted is emailed to the desk ---------- */
+function who() { const p = NET.profile || NET.pending || {}; return { Company: p.company, Name: p.contact, Email: p.email || NET.email, Phone: p.phone, 'Account type': ROLE_NAME[p.role] || '' }; }
+function tell(subject, fields) { if (window.fvNotify) window.fvNotify(subject, Object.assign({}, fields, who())); }
+function watch(table, name, list, describe) {
+  const orig = table[name]; if (!orig) return;
+  table[name] = function () { const n = S[list].length; const out = orig.apply(this, arguments); if (S[list].length > n) { try { const x = S[list][S[list].length - 1], d = describe(x); tell(d[0], d[1]); } catch (e) { console.warn('Not notified', e); } } return out; };
+}
+const cargoMail = c => ['new cargo enquiry, ' + c.cargo + ', ' + c.load + ' to ' + c.disch, { Cargo: c.cargo, Quantity: c.qty ? num(c.qty) + ' t' : '', 'Ship type': SEG[c.seg].label, From: c.load, To: c.disch, Laycan: laycan(c.from, c.to), Charter: c.type, 'Rate idea': c.idea ? rateStr({ rateType: c.rateType, rate: c.idea }) : '', Notes: c.note, Link: 'https://findavessel.com/#/cargo/' + c.id }];
+watch(FORM, 'enquiry', 'cargoes', cargoMail);
+watch(FORM, 'cargo', 'cargoes', cargoMail);
+watch(FORM, 'vessel', 'vessels', v => ['new vessel listed, ' + v.name, { Vessel: v.name, IMO: v.imo, Type: v.subtype, Size: num(v.size) + ' ' + SEG[v.seg].metric, Built: v.built, Flag: v.flag, 'Open at': v.open, 'Open from': dstr(v.openDate), 'Technical manager': v.techManager, 'Commercial manager': v.commManager, Link: 'https://findavessel.com/#/vessel/' + v.id }]);
+watch(FORM, 'offer', 'offers', o => { const c = cargoById(o.cargo) || {}; return [(o.round > 1 ? 'counter-offer' : 'new offer') + ' on ' + (c.cargo || 'a cargo') + ', ' + (c.load || '') + ' to ' + (c.disch || ''), { Cargo: c.cargo, Route: (c.load || '') + ' to ' + (c.disch || ''), Vessel: o.vessel ? (vessel(o.vessel) || {}).name : o.vesselName, Rate: rateStr(o), Quantity: o.qty, Laycan: laycan(o.from, o.to), 'Acting for': o.actingFor, 'Valid until': dtime(o.valid), Notes: o.note, 'Sent to': co(o.recipient).name, Link: 'https://findavessel.com/#/cargo/' + o.cargo }]; });
+watch(ACT, 'accept', 'deals', x => ['offer accepted, ' + x.title, { Deal: x.title, Charterer: co(x.charterer).name, Owner: x.owner ? co(x.owner).name : '', Broker: x.broker ? co(x.broker).name : '', Vessel: x.vesselName || (x.vessel ? (vessel(x.vessel) || {}).name : ''), Link: 'https://findavessel.com/#/deal/' + x.id }]);
 startLive();

@@ -7,7 +7,7 @@ from urllib.parse import quote
 
 SITE = 'https://findavessel.com'
 DATE = '2026-11-22'
-VER = '20261122i'  # change on each release so browsers fetch fresh styles and scripts
+VER = '20261122j'  # change on each release so browsers fetch fresh styles and scripts
 THEME_BTN = ('<button class="theme-btn" data-theme-toggle aria-label="Switch between dark and light theme">'
              '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>'
              '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span>Theme</span></button>')
@@ -44,9 +44,9 @@ def fig_timeline(segs, marks, label, note=''):
     return svg(200, ''.join(out), label)
 
 
-def fig_matrix(cols, rows, label):
+def fig_matrix(cols, rows, label, who=('Owner', 'Charterer'), head='Who pays'):
     """rows: (name, [O|C per column]). O = owner pays, C = charterer pays."""
-    out = [txt(40, 40, 'Who pays', 't-muted', 13)]
+    out = [txt(40, 40, head, 't-muted', 13)]
     cw = 150
     for i, c in enumerate(cols):
         out.append(txt(290 + i * cw, 40, c, '', 14, 'middle', 600))
@@ -57,7 +57,7 @@ def fig_matrix(cols, rows, label):
         for i, c in enumerate(cells):
             cls = 'f-done' if c == 'O' else 'f-accent'
             out.append(f'<rect x="{290 + i * cw - 46}" y="{y - 14}" width="92" height="26" rx="13" class="{cls}"/>')
-            out.append(txt(290 + i * cw, y + 4, 'Owner' if c == 'O' else 'Charterer', 't-on', 12, 'middle', 600))
+            out.append(txt(290 + i * cw, y + 4, who[0] if c == 'O' else who[1], 't-on', 12, 'middle', 600))
     return svg(78 + len(rows) * 40, ''.join(out), label)
 
 
@@ -271,6 +271,7 @@ PHOTOS = {'what-is-demurrage': P_ANCH, 'laytime': P_PORT, 'laycan': P_BULK, 'voy
 PHOTOS.update({'kamsarmax': P_BULK, 'ultramax': P_BULK, 'handymax': P_BULK, 'newcastlemax': P_BULK, 'mr-tanker': P_TANKER, 'lr1': P_TANKER, 'lr2': P_TANKER, 'notice-of-readiness': P_ANCH, 'deadweight-tonnage': P_BULK,
                'worldscale': P_TANKER, 'disponent-owner': P_DESK, 'statement-of-facts': P_PORT, 'bareboat-charter': P_DOC, 'bulk-carrier-chartering': P_BULK, 'tanker-chartering': P_TANKER,
                'gas-carrier-chartering': P_TANKER, 'container-ship-chartering': P_PORT, 'multipurpose-ship-chartering': P_PORT, 'car-carrier-chartering': P_PORT})
+PHOTOS.update({'shadow-fleet': P_TANKER, 'know-your-vessel': P_BRIDGE, 'letter-of-indemnity': P_DOC, 'fob-vs-cif': P_PORT, 'shipping-terms': P_DESK, 'despatch': P_PORT, 'p-and-i-club': P_ANCH, 'baltic-exchange': P_DESK, 'baltic-dry-index': P_BULK, 'vlgc': P_TANKER, 'lng-carrier': P_TANKER})
 PHOTOS = {k: v for k, v in PHOTOS.items() if os.path.exists(v[0])}
 
 
@@ -680,6 +681,123 @@ GUIDES += [
         rel=['baltic-exchange', 'ship-sizes', 'voyage-estimator', 'voyage-charter-vs-time-charter']),
 ]
 
+# ---------- Fifth batch: due diligence and trade terms ----------
+GUIDES += [
+    dict(slug='shadow-fleet', title='Shadow fleet explained: what a dark fleet tanker is and how to avoid one', h1='The shadow fleet',
+        desc='The shadow fleet, or dark fleet, is the group of ships that carry sanctioned cargoes while hiding who owns them and where they have been. The warning signs and the checks to make.',
+        stand='The shadow fleet, also called the dark fleet, is the loose group of ships, mostly older tankers, that carry sanctioned oil and other restricted cargoes while concealing their ownership, their movements or both.',
+        fig=fig_steps(['Identity|IMO number and name history', 'Ownership|Who really controls it', 'Flag and class|Recent changes', 'Insurance|A recognised P&I club', 'Movements|Gaps and transfers at sea'], 'Five things to check on a ship before chartering it'),
+        cap='Five checks, in the order they are usually made. A problem at any one is a reason to stop and ask.',
+        body='''<div class="keyfact"><p><strong>Why it matters to you:</strong> chartering, loading or supplying one of these ships can breach sanctions, void your insurance and get later cargoes refused, even if you did not know.</p></div>
+<h2>How these ships operate</h2><ul><li><strong>Opaque ownership.</strong> Single-ship companies in places that publish little, changed often.</li><li><strong>Flag hopping.</strong> Frequent moves between registries, sometimes to flags that do not exist or did not agree to register the ship.</li><li><strong>Going dark.</strong> Switching off the AIS transponder, or transmitting a false position, around loading.</li><li><strong>Ship-to-ship transfers.</strong> Moving cargo between tankers at sea to blur where it came from.</li><li><strong>Weak insurance and class.</strong> Cover from insurers outside the <a href="p-and-i-club.html">International Group of P&amp;I Clubs</a>, and class from societies outside the main group, or none.</li><li><strong>Age.</strong> Many are well past the age at which major charterers stop accepting a tanker.</li></ul>
+<h2>Warning signs on a ship you are offered</h2><ul><li>The name or flag changed in the past year or two, more than once.</li><li>The registered owner was formed weeks before it bought the ship.</li><li>Nobody will send a certificate of entry from a P&amp;I club you can verify with the club.</li><li>Unexplained gaps of days in its position history, especially near sanctioned ports.</li><li>Recent ship-to-ship transfers in known transfer areas with no commercial explanation.</li><li>A freight rate well below the market for the route.</li></ul>
+<h2>What to check, and where</h2><ol><li><strong>Identity.</strong> The IMO number stays with a hull for life. Use it, not the name, to trace former names, flags and owners.</li><li><strong>Sanctions lists.</strong> Search the ship, its owner and its manager on the UK, EU, US and UN lists. Ships are listed by IMO number.</li><li><strong>Flag and class.</strong> Confirm both with the registry and the classification society directly.</li><li><strong>Insurance.</strong> Ask for the certificate of entry and confirm it with the club.</li><li><strong>Movements.</strong> Look at the last several months of positions and port calls from a tracking service.</li></ol>
+<h2>What it does not mean</h2><p>An old ship, a small owner or an unfamiliar flag is not proof of anything. Most ships with one of these features are trading lawfully. It is the combination, and a refusal to answer plain questions, that should stop a deal. See the wider checklist in <a href="know-your-vessel.html">know your vessel</a>.</p>
+<p class="fine">This is general information, not legal advice. Sanctions rules change often and differ between countries. FindAVessel does not screen ships or companies; you are responsible for your own checks.</p>''',
+        rel=['know-your-vessel', 'p-and-i-club', 'how-to-charter-a-ship', 'tanker-chartering']),
+    dict(slug='know-your-vessel', title='Know your vessel (KYV): the checks to make before you charter a ship', h1='Know your vessel',
+        desc='Know your vessel, or KYV, means checking a ship’s identity, ownership, flag, class, insurance and history before you commit. A plain checklist for charterers.',
+        stand='Know your vessel, or KYV, is the due diligence a charterer, trader, bank or supplier carries out on a ship before dealing with it. It is the ship’s counterpart to "know your customer".',
+        fig=fig_steps(['Ask|Particulars and certificates', 'Verify|With registry, class and club', 'Screen|Sanctions and history', 'Record|Keep what you found'], 'Four stages of checking a ship: ask, verify, screen, record'),
+        cap='Ask for the documents, verify them at source, screen the names, and keep a record of what you did.',
+        body='''<h2>What you are trying to establish</h2><ul><li>The ship is the ship it claims to be.</li><li>The party offering it has the right to charter it out.</li><li>It is fit to carry your cargo and will be accepted at your ports.</li><li>Dealing with it will not breach sanctions or void your insurance.</li></ul>
+<h2>The checklist</h2>''' + table(['Check', 'What to ask for', 'Verify with'], [
+            ['<strong>Identity</strong>', 'IMO number, current and former names', 'The IMO number record and the ship’s registry'],
+            ['<strong>Ownership</strong>', 'Registered owner, beneficial owner, commercial and technical managers', 'Company registries; the manager’s own website and contacts'],
+            ['<strong>Right to charter</strong>', 'Whether the offeror is the owner or a <a href="disponent-owner.html">disponent owner</a>, and the head charter if so', 'The head owner or the broker chain'],
+            ['<strong>Flag</strong>', 'Certificate of registry', 'The flag administration'],
+            ['<strong>Class</strong>', 'Class certificate and any conditions of class', 'The classification society'],
+            ['<strong>Insurance</strong>', '<a href="p-and-i-club.html">P&amp;I</a> certificate of entry and hull cover', 'The club or insurer'],
+            ['<strong>Safety record</strong>', 'Port state control inspections and detentions', 'The public port state control databases'],
+            ['<strong>Suitability</strong>', 'Ship’s particulars: <a href="deadweight-tonnage.html">deadweight</a>, draught, gear, tank coatings, last cargoes', 'Your terminal’s limits and your cargo’s needs'],
+            ['<strong>Sanctions</strong>', 'Names of ship, owner, managers and recent trading pattern', 'UK, EU, US and UN lists; a tracking service for movements']]) + '''
+<h2>For tankers</h2><p>Oil majors and large traders also rely on inspection reports under the industry’s ship inspection programme and on their own vetting departments. A newcomer rarely has access to these, which is one reason to use a broker who does.</p>
+<h2>How much is enough</h2><p>Scale the effort to the risk: more for an unknown owner, an old ship, a trade near sanctioned countries or a rate that looks too good. Keep copies of what you were sent and notes of what you verified and when. If something later goes wrong, that record is your evidence that you acted carefully.</p>
+<h2>When to walk away</h2><p>When documents cannot be verified at source, when names keep changing, or when straightforward questions are not answered. See the specific warning signs for the <a href="shadow-fleet.html">shadow fleet</a>.</p>
+<p class="fine">General information, not legal advice. FindAVessel does not carry out these checks for you.</p>''',
+        rel=['shadow-fleet', 'p-and-i-club', 'disponent-owner', 'how-to-charter-a-ship']),
+    dict(slug='letter-of-indemnity', title='Letter of indemnity (LOI) in shipping: when it is used and the risks', h1='Letter of indemnity',
+        desc='A letter of indemnity is a written promise to make good an owner’s loss if they do something the contract does not require, such as delivering cargo without the original bill of lading.',
+        stand='A letter of indemnity, or LOI, is a written promise by one party to compensate another for any loss that follows from doing something outside the normal contract. In shipping it is most often given to an owner who is asked to deliver cargo without the original bill of lading.',
+        fig=fig_steps(['Ship arrives|Bills still in the bank', 'Receiver asks|Deliver without bills', 'LOI issued|Charterer promises to indemnify', 'Cargo delivered|Owner carries the risk'], 'How a letter of indemnity is used when a ship arrives before the bills of lading'),
+        cap='The usual sequence. The cargo moves faster than the paperwork, and the letter bridges the gap.',
+        body='''<div class="keyfact"><p><strong>The point to remember:</strong> an LOI does not remove the owner’s risk. It gives the owner someone to claim from afterwards, which is only as good as that party’s ability to pay.</p></div>
+<h2>The three common uses</h2><ul><li><strong>Delivery without the original bill of lading.</strong> On short voyages, and when cargo is sold several times afloat, the ship often arrives before the bills. The owner delivers against an LOI from the charterer.</li><li><strong>Delivery at a different port</strong> from the one named in the bill of lading.</li><li><strong>Both together.</strong></li></ul>
+<h2>Why owners are cautious</h2><p>An owner who delivers to the wrong person is liable to the true holder of the bill of lading for the full value of the cargo. Standard <a href="p-and-i-club.html">P&amp;I cover</a> does not respond to that claim, so the owner is relying entirely on the letter.</p>
+<h2>What a sound LOI looks like</h2><ul><li>It uses the standard wording recommended by the International Group of P&amp;I Clubs.</li><li>It is signed by a company with real assets, with authority to sign.</li><li>For an unknown or thinly capitalised charterer, it is countersigned by a first-class bank.</li><li>It names the cargo, the bill of lading and the party to whom delivery is to be made.</li></ul>
+<h2>Agree it in the charter party</h2><p>Many <a href="charter-party.html">charter parties</a>, tanker forms especially, contain a clause saying the owner will deliver against an LOI in the club wording. If yours does not, the owner can refuse. Raise it during negotiation, not when the ship is at the berth.</p>
+<h2>The LOI you should not give or accept</h2><p>A letter offered in exchange for issuing a clean bill of lading for damaged cargo, or a bill with a false date. That is a misstatement to whoever buys the cargo, the letter is generally unenforceable, and insurance will not cover it.</p>
+<p class="fine">General information, not legal advice. Take advice before giving or accepting a letter of indemnity.</p>''',
+        rel=['charter-party', 'p-and-i-club', 'what-is-demurrage', 'shipping-terms']),
+    dict(slug='fob-vs-cif', title='FOB vs CIF: who charters the ship, who pays freight and who bears the risk', h1='FOB vs CIF',
+        desc='Under FOB the buyer arranges and pays for the ship. Under CIF and CFR the seller does. What each term means for chartering, freight, insurance and risk.',
+        stand='FOB and CIF are trade terms that split cost and risk between the seller and the buyer of goods. The practical difference for shipping is who has to find and pay for the ship: the buyer under FOB, the seller under CIF.',
+        fig=fig_matrix(['FOB', 'CFR', 'CIF'], [('Charters the ship', 'COO'), ('Pays the freight', 'COO'), ('Insures the cargo', 'CCO'), ('Loading costs', 'OOO'), ('Discharge costs', 'CCC'), ('Risk during the voyage', 'CCC')], 'Matrix showing whether seller or buyer is responsible for each item under FOB, CFR and CIF', who=('Seller', 'Buyer'), head='Who is responsible'),
+        cap='Under all three terms the risk passes to the buyer once the goods are on board at the loading port.',
+        body='''<div class="keyfact"><p><strong>In one line:</strong> if you sold CIF or CFR, chartering the ship is your job. If you bought FOB, it is yours.</p></div>
+<h2>FOB: free on board</h2><p>The seller delivers the goods on board the ship named by the buyer at the loading port. The buyer charters the ship, pays the freight and insures the cargo. The buyer must get a suitable ship to the port inside the agreed shipment period, so the <a href="laycan.html">laycan</a> in the charter has to match the sale contract.</p>
+<h2>CFR: cost and freight</h2><p>The seller charters the ship and pays the freight to the named discharge port. The buyer arranges insurance. Risk still passes to the buyer at loading.</p>
+<h2>CIF: cost, insurance and freight</h2><p>As CFR, and the seller also buys cargo insurance for the buyer’s benefit. The rule requires only minimum cover unless the contract says more, so buyers often ask for wider cover in the sale contract.</p>
+<h2>What this means when you charter</h2><ul><li><strong>Match the two contracts.</strong> The charter party’s dates, ports, quantity tolerance and loading and discharging rates should mirror the sale contract. A mismatch is where <a href="what-is-demurrage.html">demurrage</a> disputes start.</li><li><strong>Demurrage at the other end.</strong> A CIF seller pays the owner demurrage at the discharge port under the charter, and recovers it from the buyer only if the sale contract says so.</li><li><strong>Who the owner looks to.</strong> The owner’s contract is with whoever chartered the ship, whatever the sale terms say.</li></ul>
+<h2>Which is better</h2><p>Neither. Whoever controls the shipping carries its cost and its risk of delay, and can also profit from doing it well. Experienced traders often prefer to control freight. A newcomer may prefer to let the other side arrange it until they understand chartering.</p>
+<p class="fine">FOB, CFR and CIF are Incoterms rules published by the International Chamber of Commerce, for sea and inland waterway transport. This is a summary, not the rules themselves; read the current edition for the detail.</p>''',
+        rel=['how-to-charter-a-ship', 'laycan', 'what-is-demurrage', 'shipping-terms']),
+]
+
+TERMS = [
+    ('Address commission', 'A commission, usually a percentage of freight or hire, paid back to the charterer by the owner.', ''),
+    ('Ballast voyage', 'A voyage with no cargo on board, made to reach the next loading port.', ''),
+    ('Bareboat charter', 'Hiring a ship without crew; the charterer runs it as if it were the owner.', 'bareboat-charter'),
+    ('Bill of lading', 'The document issued for cargo loaded on a ship: a receipt, evidence of the contract of carriage and a document of title.', ''),
+    ('Bunkers', 'The fuel a ship burns.', ''),
+    ('Charter party', 'The contract between shipowner and charterer.', 'charter-party'),
+    ('Charterer', 'The party that hires the ship, for a voyage or a period.', ''),
+    ('Contract of affreightment', 'An agreement to carry a set quantity of cargo over a period in several shipments, without naming one ship.', ''),
+    ('Deadfreight', 'Freight paid on cargo that was booked but not loaded.', ''),
+    ('Deadweight tonnage (DWT)', 'The weight a ship can carry: cargo plus fuel, water, stores and crew.', 'deadweight-tonnage'),
+    ('Demurrage', 'A daily charge the charterer pays when loading or discharging takes longer than the time allowed.', 'what-is-demurrage'),
+    ('Despatch', 'Money the owner pays the charterer for finishing cargo work early.', 'despatch'),
+    ('Disponent owner', 'A party that controls a ship under a charter and charters it out again, without owning it.', 'disponent-owner'),
+    ('Draught', 'How deep a ship sits in the water. It limits which ports and berths it can use.', ''),
+    ('Fixture', 'A concluded charter. A ship is "fixed" when all conditions have been lifted.', ''),
+    ('FOB, CFR and CIF', 'Trade terms that decide whether the buyer or the seller arranges and pays for the ship.', 'fob-vs-cif'),
+    ('Freight', 'The price paid to carry cargo on a voyage charter.', ''),
+    ('Free pratique', 'Permission from the port health authority for a ship to enter and work cargo.', ''),
+    ('Geared and gearless', 'A geared ship has its own cranes; a gearless ship relies on shore equipment.', ''),
+    ('Hire', 'The daily price paid for a ship on a time charter.', 'voyage-charter-vs-time-charter'),
+    ('IMO number', 'A seven-digit number that identifies a ship for its whole life, whatever its name or flag.', 'know-your-vessel'),
+    ('Laycan', 'The window of dates within which the ship must arrive ready to load, after which the charterer may cancel.', 'laycan'),
+    ('Laytime', 'The time the charterer is allowed for loading and discharging.', 'laytime'),
+    ('Letter of indemnity (LOI)', 'A written promise to make good a loss, often given so cargo can be delivered without the original bill of lading.', 'letter-of-indemnity'),
+    ('Lumpsum freight', 'A fixed sum for the voyage, whatever quantity is loaded.', ''),
+    ('Notice of readiness (NOR)', 'The master’s notice that the ship has arrived and is ready to load or discharge.', 'notice-of-readiness'),
+    ('Off-hire', 'A period on a time charter when hire stops because the ship cannot perform, for example after a breakdown.', ''),
+    ('P&I club', 'A mutual insurer covering a shipowner’s liabilities to others.', 'p-and-i-club'),
+    ('Recap', 'The message that sets out all agreed terms once a deal is concluded.', ''),
+    ('Reversible laytime', 'Laytime for loading and discharging added together and used as one allowance.', 'laytime'),
+    ('Safe port', 'A port a ship can reach, use and leave without danger that good seamanship cannot avoid. Charterers usually promise to name only safe ports.', ''),
+    ('SHINC and SHEX', 'Sundays and holidays included, or excepted, when counting laytime.', 'laytime'),
+    ('Shipbroker', 'An intermediary who brings owners and charterers together and negotiates the charter.', 'what-does-a-shipbroker-do'),
+    ('Statement of facts', 'The timed record of everything that happened to a ship in port.', 'statement-of-facts'),
+    ('Stowage factor', 'The space a tonne of a given cargo occupies, in cubic metres or cubic feet.', ''),
+    ('Subjects', 'Conditions that must be lifted before a deal becomes binding, such as "subject stem" or "subject charterer’s management approval".', ''),
+    ('Time charter', 'Hiring a ship for a period, paying by the day; the charterer directs where it goes and pays for fuel and ports.', 'voyage-charter-vs-time-charter'),
+    ('Time charter equivalent (TCE)', 'What a voyage earns the owner per day after voyage costs.', 'voyage-estimator'),
+    ('Voyage charter', 'Hiring a ship to carry one cargo between named ports for a freight.', 'voyage-charter-vs-time-charter'),
+    ('Weather working day', 'A day on which cargo work is not stopped by weather; only these count as laytime under that wording.', 'laytime'),
+    ('Worldscale', 'The index system used to quote tanker freight.', 'worldscale'),
+    ('WWWW', 'Short for four "whether or not" phrases in laytime clauses: whether in berth or not, whether in port or not, whether in free pratique or not, whether customs cleared or not. Together they let notice of readiness be given before the ship reaches the berth.', 'notice-of-readiness'),
+]
+terms_body = '<h2>How to use this list</h2><p>These are the words that come up in almost every chartering negotiation. Each has a one-line meaning; follow the link where there is a full guide.</p><dl class="terms">' + \
+    ''.join(f'<dt id="{re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")}">{e(t)}</dt><dd>{e(d)}' + (f' <a href="{l}.html">Full guide</a>' if l else '') + '</dd>' for t, d, l in sorted(TERMS, key=lambda x: x[0].lower())) + '</dl>' + \
+    '<p class="fine">Meanings follow common market usage. The wording of your own charter party decides what a term means in your contract.</p>'
+GUIDES += [dict(slug='shipping-terms', title='Shipping terms: a chartering glossary in plain English', h1='Shipping terms',
+    desc=f'A plain-English glossary of {len(TERMS)} ship chartering terms: demurrage, laytime, laycan, NOR, WWWW, SHINC, TCE, deadfreight, off-hire and more.',
+    stand=f'A glossary of {len(TERMS)} terms used when ships are chartered, each explained in a sentence, with links to fuller guides.',
+    fig=fig_steps(['Enquiry|Laycan, quantity', 'Negotiation|Subjects, recap', 'In port|NOR, laytime', 'Settlement|Demurrage, despatch'], 'Where the main chartering terms come up, from enquiry to settlement'),
+    cap='Where the terms come up as a charter moves from enquiry to settlement.', body=terms_body,
+    rel=['how-to-charter-a-ship', 'charter-party', 'laytime', 'what-is-demurrage'])]
+
 # Register titles first so pages can cross-link
 for g in GUIDES:
     PAGES[g['slug']] = (g['h1'], g['stand'].split('. ')[0] + '.', g['fig'])
@@ -970,7 +1088,7 @@ if PD:
         org = {'@type': 'Organization', '@id': url('providers/' + s) + '#company', 'name': name,
                'address': dict({'@type': 'PostalAddress', 'addressCountry': cname}, **({'addressLocality': city} if city else {})),
                'knowsAbout': [CATL[c] for c in cats]}
-        html_out = shell('providers/' + s, title, desc, body, 'suppliers', scripts='<script src="request.js"></script>', name=name,
+        html_out = shell('providers/' + s, title, desc, body, 'suppliers', scripts=f'<script src="request.js?v={VER}"></script>', name=name,
                          crumbs=[('Suppliers', 'suppliers'), (cname, f'suppliers-{cslug}')], ld_extra=[org],
                          robots='noindex, follow' if blocked else ROBOTS)
         open(f'providers/{s}.html', 'w').write(rebase(html_out))

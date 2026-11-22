@@ -1,4 +1,4 @@
-/* Supplier request form. Prototype: the request is kept in this browser and the notification email is shown, not sent. */
+/* Supplier request form. The request is emailed to the FindAVessel desk, which passes it to the supplier. */
 (function () {
   var KEY = 'findavessel.requests';
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -17,6 +17,13 @@
       'Claim it to confirm your details, list your services and ports, and receive requests in one place: ' + claim + '\n\n' +
       'If you would rather not be listed or contacted, remove the listing here: findavessel.com/remove/' + d.slug + '\n\n' +
       'FindAVessel, [registered company name and postal address]';
-    f.outerHTML = '<div class="notice notice-ok"><p><strong>Request recorded.</strong> This is a prototype, so nothing has been sent. In the live service ' + esc(d.supplier) + ' would now receive this email:</p></div><pre class="recap">' + esc(mail) + '</pre>';
+    var btn = f.querySelector('button'); if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+    var done = function (ok) {
+      f.outerHTML = ok ? '<div class="notice notice-ok"><p><strong>Request received.</strong> We will pass it to ' + esc(d.supplier) + ' and you will hear back by email at ' + esc(d.email) + '.</p></div>'
+        : '<div class="notice"><p><strong>That did not send.</strong> Check your connection and try again, or use the enquiry form on any page.</p></div>';
+    };
+    if (!window.fvNotify) return done(false);
+    window.fvNotify('supplier request for ' + d.supplier, { Supplier: d.supplier, 'Supplier profile': 'https://findavessel.com/providers/' + d.slug + '.html', Need: d.need, Port: d.port, 'Needed by': d.date, Vessel: d.vessel,
+      Company: d.company, Name: d.name, Email: d.email, 'Email to forward to the supplier': mail }).then(done);
   });
 })();

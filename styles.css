@@ -428,3 +428,6 @@ tr[hidden] { display: none; }
 @media (max-width: 640px) { .hero-facts { gap: .6rem; } .hero-facts strong { font-size: 1.25rem; } }
 .top .btn { white-space: nowrap; }
 @media (max-width: 640px) { .hero-facts { display: none; } .hero .lede { font-size: 1.0625rem; margin-bottom: 0; } }
+.terms { margin: 1rem 0 0; }
+.terms dt { font-weight: 600; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); scroll-margin-top: 5rem; }
+.terms dd { margin: .25rem 0 0; color: var(--text); }
