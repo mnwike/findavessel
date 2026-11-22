@@ -7,7 +7,7 @@ from urllib.parse import quote
 
 SITE = 'https://findavessel.com'
 DATE = '2026-11-22'
-VER = '20261122j'  # change on each release so browsers fetch fresh styles and scripts
+VER = '20261122k'  # change on each release so browsers fetch fresh styles and scripts
 THEME_BTN = ('<button class="theme-btn" data-theme-toggle aria-label="Switch between dark and light theme">'
              '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>'
              '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span>Theme</span></button>')
@@ -1138,24 +1138,30 @@ if MD:
     RESTRICTED = {'IR': 'Iran', 'KP': 'North Korea', 'SY': 'Syria'}
     CAUTION = {'RU', 'BY', 'CU', 'VE', 'MM', 'SD', 'LY', 'YE'}
     UPSELL = '<div class="upsell"><div><strong>Own, manage or broker ships?</strong><span>Register to be sent enquiries for these ports that fit your vessels.</span></div><a class="btn" href="index.html#/join">Register a fleet</a></div>'
-    SOURCE = '<p class="fine">Port names, codes and positions come from the open sea-ports dataset and country shapes from Natural Earth. The list covers commercial seaports and some inland terminals; it is not complete, positions are approximate and none of it is for navigation. Draught limits and berth details are not included yet.</p>'
+    SOURCE = '<p class="fine">Positions, harbour type, shelter, facilities, pilotage and tugs come from the World Port Index published by the US National Geospatial-Intelligence Agency. UN/LOCODEs and some further ports come from the open sea-ports dataset; places that were inland or misplaced in that list have been removed or corrected. Country shapes are from Natural Earth. The index is revised slowly, so facilities may have changed. Depths and draught limits are deliberately not shown: confirm them with a local agent. Not for navigation.</p>'
     pos = lambda p: f'{abs(p["lat"]):.2f}°{"N" if p["lat"] >= 0 else "S"}, {abs(p["lon"]):.2f}°{"E" if p["lon"] >= 0 else "W"}'
     from urllib.parse import quote
     for c in CS:
         n, slug, ports = c['name'], 'ports-' + c['slug'], c['ports']
         blocked = c['cc'] in RESTRICTED
-        rows = ''.join(f'<tr><td><strong>{e(p["n"])}</strong></td><td>{e(p["u"])}</td><td>{e(p["prov"])}</td><td>{pos(p)}</td>' + ('' if blocked else f'<td class="acts"><a href="index.html#/enquire?load={quote(p["n"])}">Ship from</a><a href="index.html#/enquire?disch={quote(p["n"])}">Ship to</a></td>') + '</tr>' for p in ports)
+        def harbour(p):
+            bits = [x for x in (p.get('ht', ''), ('shelter ' + p['sh'].lower()) if p.get('sh') and p['sh'] not in ('Unknown', 'None') else '') if x]
+            return e(', '.join(bits)) if bits else '<span class="sub">Not in the index</span>'
+        def services(p):
+            s = ', '.join(p.get('fac', []) + [x for x, k in (('pilotage', 'pi'), ('tugs', 'tg')) if p.get(k)])
+            return e(s[0].upper() + s[1:]) if s else ''
+        rows = ''.join(f'<tr><td><strong>{e(p["n"])}</strong>' + (f'<br><span class="sub">Also {e(p["aka"])}</span>' if p.get('aka') else '') + f'</td><td>{e(p["u"])}</td><td>{harbour(p)}</td><td>{services(p)}</td><td>{pos(p)}</td>' + ('' if blocked else f'<td class="acts"><a href="index.html#/enquire?load={quote(p["n"])}">Ship from</a><a href="index.html#/enquire?disch={quote(p["n"])}">Ship to</a></td>') + '</tr>' for p in ports)
         notice = '<div class="notice"><p><strong>Sanctions.</strong> Trade with this country is heavily restricted under UK, EU, US and UN measures. FindAVessel does not accept enquiries for its ports. The list is shown for reference only.</p></div>' if blocked else \
             '<div class="notice"><p><strong>Sanctions.</strong> Some trade with this country is restricted under UK, EU, US or UN measures. Every enquiry is screened and may be declined.</p></div>' if c['cc'] in CAUTION else ''
         count = f'{len(ports)} {"port" if len(ports) == 1 else "ports"}'
         body = f'''<article class="article wide-article">
 <p class="crumbs"><a href="ports.html">Ports</a> / {e(n)}</p>
 <h1>Ports in {e(n)}</h1>
-<p class="standfirst">{count} in {e(n)}, with UN/LOCODE and position. Choose one as the loading or discharging port to start a shipping enquiry.</p>
+<p class="standfirst">{count} in {e(n)}, with position, harbour type and the cargoes and services recorded for each. Choose one as the loading or discharging port to start a shipping enquiry.</p>
 <figure>{c['svg']}<figcaption>{e(n)} and its listed ports. Hover a marker for the name.</figcaption></figure>
 {notice}
 <h2>Port list</h2>
-<div class="tbl"><table><thead><tr><th>Port</th><th>UN/LOCODE</th><th>Region</th><th>Position</th>{'' if blocked else '<th>Start an enquiry</th>'}</tr></thead><tbody>{rows}</tbody></table></div>
+<div class="tbl"><table><thead><tr><th>Port</th><th>UN/LOCODE</th><th>Harbour</th><th>Handles and services</th><th>Position</th>{'' if blocked else '<th>Start an enquiry</th>'}</tr></thead><tbody>{rows}</tbody></table></div>
 {SOURCE}
 {'' if blocked else UPSELL}
 {f'<h2>Ship suppliers and services in {e(n)}</h2><p>Need stores, spares or repairs during a port call? See the <a href="suppliers-{c["slug"]}.html">{SUP_COUNT[c["slug"]]:,} marine suppliers listed in {e(n)}</a> and request a quote.</p>' if c['slug'] in SUP_CSLUGS else ''}
@@ -1164,7 +1170,7 @@ if MD:
 {'' if blocked else '<div class="row"><a class="btn btn-primary" href="index.html#/enquire">Leave an enquiry</a><a class="btn" href="index.html#/cargoes">See the enquiry board</a></div>'}
 <div class="related"><h2>Keep reading</h2><ul><li><a href="ports.html">All countries</a></li><li><a href="how-to-charter-a-ship.html">How to charter a ship</a></li><li><a href="ship-sizes.html">Ship sizes and classes</a></li><li><a href="tools.html">Calculators</a></li></ul></div>
 </article>'''
-        open(f'{slug}.html', 'w').write(shell(slug, f'Ports in {n}: {count} with UN/LOCODE', f'List of {count} in {n} with UN/LOCODE and position. Start a ship chartering enquiry from or to any of them.', body, 'ports'))
+        open(f'{slug}.html', 'w').write(shell(slug, f'Ports in {n}: list of {count} with position and facilities', f'{count[0].upper() + count[1:]} in {n}: position, harbour type, cargo facilities, pilotage and tugs. Start a ship chartering enquiry from or to any of them.', body, 'ports'))
         port_slugs.append(slug)
     clist = ''.join(f'<li><a href="ports-{c["slug"]}.html">{e(c["name"])}</a><span>{len(c["ports"])}</span></li>' for c in CS)
     hub = f'''<section class="page"><div class="page-head"><div><h1>Ports of the world by country</h1><p>{MD["total"]:,} ports in {len(CS)} countries. Choose a country on the map or in the list to see its ports and start an enquiry.</p></div><a class="btn btn-primary" href="index.html#/enquire">Leave an enquiry</a></div>
@@ -1173,7 +1179,7 @@ if MD:
 <div class="sec-head"><h2>Countries A to Z</h2></div><ul class="countries">{clist}</ul>
 {photo('ports', True)}
 {SOURCE}</section>'''
-    open('ports.html', 'w').write(shell('ports', 'Ports of the world by country', f'World map and list of {MD["total"]:,} seaports in {len(CS)} countries, with UN/LOCODE and position. Start a ship chartering enquiry from any port.', hub, 'ports'))
+    open('ports.html', 'w').write(shell('ports', 'Ports of the world by country', f'World map and list of {MD["total"]:,} seaports in {len(CS)} countries, with position, harbour type and facilities. Start a ship chartering enquiry from any port.', hub, 'ports'))
     port_slugs.insert(0, 'ports')
     print('ports pages', len(port_slugs))
 
@@ -1335,7 +1341,7 @@ FAQ = [
         ('How are companies checked?', 'Each company has a passport showing which checks it has passed, such as company registration, ownership of the ship, class and insurance certificates. These checks are not yet carried out for new accounts, which are labelled as unverified until they are.'),
     ]),
     ('Ports and suppliers', [
-        ('How do I find ports in a country?', 'Open the <a href="ports.html">ports page</a>, pick a country on the map or in the list, and you get its seaports with their UN/LOCODE. From any port you can start an enquiry with that port as the loading or discharge port.'),
+        ('How do I find ports in a country?', 'Open the <a href="ports.html">ports page</a>, pick a country on the map or in the list, and you get its seaports with position, harbour type and recorded facilities. From any port you can start an enquiry with that port as the loading or discharge port.'),
         ('How do I request a service from a marine supplier?', 'Find the company in the <a href="suppliers.html">supplier directory</a>, open its page and fill in the request form: what you need, where and by when. The request goes to the supplier by email from FindAVessel.'),
         ('Why can I not see a supplier’s email address?', 'Supplier email addresses are not published. Requests are passed on by FindAVessel, which keeps the addresses away from scraping and bulk mail. A supplier is emailed only when someone asks for its services.'),
         ('How do I claim or correct my company’s listing?', 'Open your company’s page and choose "Claim this profile". Claiming is free and lets you confirm your details, list the services and ports you cover, or have the listing removed.'),
