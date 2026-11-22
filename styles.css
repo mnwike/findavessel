@@ -384,3 +384,23 @@ tr[hidden] { display: none; }
 @media (prefers-reduced-motion: no-preference) {
   .btn, .lrow, .nav a, .tile { transition: background-color .12s, border-color .12s; }
 }
+
+/* Quick enquiry panel: a corner card on wide screens, a bottom sheet on phones. Never covers the whole page. */
+.qe { position: fixed; z-index: 60; right: 1rem; bottom: 1rem; width: min(24rem, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); overflow: auto;
+  background: var(--surface); color: var(--text); border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 10px; box-shadow: var(--shadow);
+  padding: 1.1rem 1.1rem 1rem; transform: translateY(1.5rem); opacity: 0; transition: transform .28s ease, opacity .28s ease; }
+.qe.qe-in { transform: none; opacity: 1; }
+.qe h2 { font-size: 1.1875rem; line-height: 1.25; letter-spacing: -.02em; margin: 0 2rem .35rem 0; }
+.qe-lede { font-size: .9375rem; color: var(--muted); margin: 0 0 .8rem; }
+.qe-form { display: grid; gap: .65rem; }
+.qe-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .65rem; }
+.qe .field label small { color: var(--muted); font-weight: 400; }
+.qe textarea { resize: vertical; min-height: 4.5rem; }
+.qe-x { position: absolute; top: .45rem; right: .5rem; width: 2.25rem; height: 2.25rem; border: 0; background: transparent; color: var(--muted); font-size: 1.5rem; line-height: 1; cursor: pointer; border-radius: 6px; }
+.qe-x:hover { background: var(--surface-2); color: var(--text); }
+.qe-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.qe-err { margin: 0; padding: .5rem .65rem; border-radius: 6px; background: var(--bad-bg); color: var(--bad); font-size: .875rem; }
+.qe-send { width: 100%; }
+.qe .fine { margin: 0; }
+@media (max-width: 640px) { .qe { right: 0; left: 0; bottom: 0; width: auto; border-radius: 14px 14px 0 0; border-left: 0; border-right: 0; border-bottom: 0; max-height: 82vh; padding-bottom: calc(1rem + env(safe-area-inset-bottom)); } }
+@media (prefers-reduced-motion: reduce) { .qe { transition: none; } }
