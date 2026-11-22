@@ -8,7 +8,7 @@ function vesselRow(v) {
     <div class="l-main"><strong>${esc(v.name)}</strong><span>${esc(vclass(v))}, ${sizeStr(v)}</span></div>
     <div class="l-route"><strong>Open ${esc(v.open)}</strong><span>From ${dstr(v.openDate)}</span></div>
     <div class="l-rate"><strong>${esc(v.subtype)}</strong><span>Built ${v.built}, ${esc(v.flag)}</span></div>
-    <div class="l-meta">${tag(SEG[v.seg].short)}${v.verified === 'verified' ? tag('Vessel verified', 'ok') : tag('In review', 'warn')}<span class="pp-mini">${marks(o.level)}</span></div>
+    <div class="l-meta">${tag(SEG[v.seg].short)}${exTag(v)}${v.verified === 'verified' ? tag('Vessel verified', 'ok') : tag('In review', 'warn')}<span class="pp-mini">${marks(o.level)}</span></div>
   </a>`;
 }
 route('vessels', () => {
@@ -28,7 +28,7 @@ route('vessel/:id', id => {
   const exp = Math.round((new Date(v.certExpiry) - Date.now()) / DAY);
   return `<section class="page">
     <a class="back" href="#/vessels">All vessels</a>
-    <div class="page-head"><div><h1>${esc(v.name)}</h1><p>${esc(vclass(v))} ${esc(v.subtype.toLowerCase())}, ${sizeStr(v)}, built ${v.built}.</p></div>
+    <div class="page-head"><div><h1>${esc(v.name)}</h1><p>${esc(vclass(v))} ${esc(v.subtype.toLowerCase())}, ${sizeStr(v)}, built ${v.built}.${isExample(v) ? ' This is an example listing, not a ship on offer.' : ''}</p></div>
       ${S.role === 'charterer' && myCargoes.length ? `<button class="btn btn-primary" data-act="invite" data-c="${myCargoes[0].id}" data-v="${v.id}">Invite to offer on ${esc(myCargoes[0].cargo.toLowerCase())}</button>` : ''}</div>
     <div class="cols">
       <div>

@@ -232,7 +232,7 @@ function cargoRow(c) {
     <div class="l-main"><strong>${esc(c.cargo)}</strong><span>${c.type === 'time' ? esc(c.duration || 'Time charter') : num(c.qty) + ' t' + (c.tol ? ', ' + c.tol + '% more or less' : '')}</span></div>
     <div class="l-route"><strong>${esc(c.load)} to ${esc(c.disch)}</strong><span>Laycan ${laycan(c.from, c.to)}</span></div>
     <div class="l-rate"><strong>${c.idea ? rateStr({ rateType: c.rateType, rate: c.idea }) : 'No rate idea given'}</strong><span>${c.idea ? 'Charterer’s idea' : ''}</span></div>
-    <div class="l-meta">${tag(SEG[c.seg].short)}${c.unverified ? tag('Unverified enquiry', 'warn') : ''}${c.status === 'review' ? tag('Awaiting desk review', 'warn') : c.status !== 'open' ? tag(c.status[0].toUpperCase() + c.status.slice(1), 'ok') : tag(VISIBILITY[c.vis][0], c.vis === 'open' ? '' : 'accent')}<span class="pp-mini">${marks(p.level)}</span>${c.status === 'open' ? `<span class="clock">Closes in ${until(c.deadline)}</span>` : ''}</div>
+    <div class="l-meta">${tag(SEG[c.seg].short)}${exTag(c)}${c.unverified ? tag('Unverified enquiry', 'warn') : ''}${c.status === 'review' ? tag('Awaiting desk review', 'warn') : c.status !== 'open' ? tag(c.status[0].toUpperCase() + c.status.slice(1), 'ok') : tag(VISIBILITY[c.vis][0], c.vis === 'open' ? '' : 'accent')}<span class="pp-mini">${marks(p.level)}</span>${c.status === 'open' ? `<span class="clock">Closes in ${until(c.deadline)}</span>` : ''}</div>
   </a>`;
 }
 function filterBar(kind, fields) {
@@ -287,7 +287,7 @@ route('cargo/:id', id => {
   }
   return `<section class="page">
     <a class="back" href="#/cargoes">All cargoes</a>
-    <div class="page-head"><div><h1>${esc(c.cargo)}, ${c.type === 'time' ? 'time charter' : num(c.qty) + ' t'}</h1><p>${esc(c.load)} to ${esc(c.disch)}. Laycan ${laycan(c.from, c.to)}.</p></div>
+    <div class="page-head"><div><h1>${esc(c.cargo)}, ${c.type === 'time' ? 'time charter' : num(c.qty) + ' t'}</h1><p>${esc(c.load)} to ${esc(c.disch)}. Laycan ${laycan(c.from, c.to)}.${isExample(c) ? ' This is an example listing, not a live cargo.' : ''}</p></div>
       ${canOffer ? `<a class="btn btn-primary" href="#/cargo/${c.id}/offer">Make a firm offer</a>` : ''}</div>
     <div class="cols">
       <div>
