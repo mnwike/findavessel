@@ -184,7 +184,7 @@ def fit_title(title):
     return ' '.join(words).rstrip(' ,:;-')
 
 
-STOP = set('a an the and or how to of it its with by from why what who is in on get for as at that which are'.split())
+STOP = set('a an the and or how to of it its with by from why what who is in on get for as at that which are when than bears worked less find load you pay'.split())
 
 
 def fit_desc(desc):
@@ -272,6 +272,7 @@ PHOTOS.update({'kamsarmax': P_BULK, 'ultramax': P_BULK, 'handymax': P_BULK, 'new
                'worldscale': P_TANKER, 'disponent-owner': P_DESK, 'statement-of-facts': P_PORT, 'bareboat-charter': P_DOC, 'bulk-carrier-chartering': P_BULK, 'tanker-chartering': P_TANKER,
                'gas-carrier-chartering': P_TANKER, 'container-ship-chartering': P_PORT, 'multipurpose-ship-chartering': P_PORT, 'car-carrier-chartering': P_PORT})
 PHOTOS.update({'shadow-fleet': P_TANKER, 'know-your-vessel': P_BRIDGE, 'letter-of-indemnity': P_DOC, 'fob-vs-cif': P_PORT, 'shipping-terms': P_DESK, 'despatch': P_PORT, 'p-and-i-club': P_ANCH, 'baltic-exchange': P_DESK, 'baltic-dry-index': P_BULK, 'vlgc': P_TANKER, 'lng-carrier': P_TANKER})
+PHOTOS.update({'eu-ets-shipping': P_PORT, 'fueleu-maritime': P_TANKER, 'cii-rating-eexi': P_BRIDGE, 'bill-of-lading': P_DOC, 'charterers-liability-insurance': P_DOC, 'ship-chandler': P_PORT, 'contract-of-affreightment': P_BULK, 'forward-freight-agreement': P_DESK, 'time-charter-equivalent': P_DESK, 'off-hire': P_ANCH, 'deadfreight': P_BULK, 'safe-port': P_ANCH, 'ship-management': P_BRIDGE, 'shipbroker-commission': P_DESK})
 PHOTOS = {k: v for k, v in PHOTOS.items() if os.path.exists(v[0])}
 
 
@@ -745,15 +746,15 @@ GUIDES += [
 ]
 
 TERMS = [
-    ('Address commission', 'A commission, usually a percentage of freight or hire, paid back to the charterer by the owner.', ''),
+    ('Address commission', 'A commission, usually a percentage of freight or hire, paid back to the charterer by the owner.', 'shipbroker-commission'),
     ('Ballast voyage', 'A voyage with no cargo on board, made to reach the next loading port.', ''),
     ('Bareboat charter', 'Hiring a ship without crew; the charterer runs it as if it were the owner.', 'bareboat-charter'),
-    ('Bill of lading', 'The document issued for cargo loaded on a ship: a receipt, evidence of the contract of carriage and a document of title.', ''),
+    ('Bill of lading', 'The document issued for cargo loaded on a ship: a receipt, evidence of the contract of carriage and a document of title.', 'bill-of-lading'),
     ('Bunkers', 'The fuel a ship burns.', ''),
     ('Charter party', 'The contract between shipowner and charterer.', 'charter-party'),
     ('Charterer', 'The party that hires the ship, for a voyage or a period.', ''),
-    ('Contract of affreightment', 'An agreement to carry a set quantity of cargo over a period in several shipments, without naming one ship.', ''),
-    ('Deadfreight', 'Freight paid on cargo that was booked but not loaded.', ''),
+    ('Contract of affreightment', 'An agreement to carry a set quantity of cargo over a period in several shipments, without naming one ship.', 'contract-of-affreightment'),
+    ('Deadfreight', 'Freight paid on cargo that was booked but not loaded.', 'deadfreight'),
     ('Deadweight tonnage (DWT)', 'The weight a ship can carry: cargo plus fuel, water, stores and crew.', 'deadweight-tonnage'),
     ('Demurrage', 'A daily charge the charterer pays when loading or discharging takes longer than the time allowed.', 'what-is-demurrage'),
     ('Despatch', 'Money the owner pays the charterer for finishing cargo work early.', 'despatch'),
@@ -771,18 +772,18 @@ TERMS = [
     ('Letter of indemnity (LOI)', 'A written promise to make good a loss, often given so cargo can be delivered without the original bill of lading.', 'letter-of-indemnity'),
     ('Lumpsum freight', 'A fixed sum for the voyage, whatever quantity is loaded.', ''),
     ('Notice of readiness (NOR)', 'The master’s notice that the ship has arrived and is ready to load or discharge.', 'notice-of-readiness'),
-    ('Off-hire', 'A period on a time charter when hire stops because the ship cannot perform, for example after a breakdown.', ''),
+    ('Off-hire', 'A period on a time charter when hire stops because the ship cannot perform, for example after a breakdown.', 'off-hire'),
     ('P&I club', 'A mutual insurer covering a shipowner’s liabilities to others.', 'p-and-i-club'),
     ('Recap', 'The message that sets out all agreed terms once a deal is concluded.', ''),
     ('Reversible laytime', 'Laytime for loading and discharging added together and used as one allowance.', 'laytime'),
-    ('Safe port', 'A port a ship can reach, use and leave without danger that good seamanship cannot avoid. Charterers usually promise to name only safe ports.', ''),
+    ('Safe port', 'A port a ship can reach, use and leave without danger that good seamanship cannot avoid. Charterers usually promise to name only safe ports.', 'safe-port'),
     ('SHINC and SHEX', 'Sundays and holidays included, or excepted, when counting laytime.', 'laytime'),
     ('Shipbroker', 'An intermediary who brings owners and charterers together and negotiates the charter.', 'what-does-a-shipbroker-do'),
     ('Statement of facts', 'The timed record of everything that happened to a ship in port.', 'statement-of-facts'),
     ('Stowage factor', 'The space a tonne of a given cargo occupies, in cubic metres or cubic feet.', ''),
     ('Subjects', 'Conditions that must be lifted before a deal becomes binding, such as "subject stem" or "subject charterer’s management approval".', ''),
     ('Time charter', 'Hiring a ship for a period, paying by the day; the charterer directs where it goes and pays for fuel and ports.', 'voyage-charter-vs-time-charter'),
-    ('Time charter equivalent (TCE)', 'What a voyage earns the owner per day after voyage costs.', 'voyage-estimator'),
+    ('Time charter equivalent (TCE)', 'What a voyage earns the owner per day after voyage costs.', 'time-charter-equivalent'),
     ('Voyage charter', 'Hiring a ship to carry one cargo between named ports for a freight.', 'voyage-charter-vs-time-charter'),
     ('Weather working day', 'A day on which cargo work is not stopped by weather; only these count as laytime under that wording.', 'laytime'),
     ('Worldscale', 'The index system used to quote tanker freight.', 'worldscale'),
@@ -797,6 +798,170 @@ GUIDES += [dict(slug='shipping-terms', title='Shipping terms: a chartering gloss
     fig=fig_steps(['Enquiry|Laycan, quantity', 'Negotiation|Subjects, recap', 'In port|NOR, laytime', 'Settlement|Demurrage, despatch'], 'Where the main chartering terms come up, from enquiry to settlement'),
     cap='Where the terms come up as a charter moves from enquiry to settlement.', body=terms_body,
     rel=['how-to-charter-a-ship', 'charter-party', 'laytime', 'what-is-demurrage'])]
+
+# ---------- Sixth batch: emissions rules, documents, cover and commercial terms ----------
+SRC2 = lambda *links: '<p class="fine">Sources, read 22 November 2026: ' + ', '.join(f'<a href="{u}" rel="nofollow noopener">{t}</a>' for t, u in links) + '. Rules change: check the current text before relying on this summary. General information, not legal advice.</p>'
+G = lambda slug, title, h1, desc, stand, fig, cap, body, rel: dict(slug=slug, title=title, h1=h1, desc=desc, stand=stand, fig=fig, cap=cap, body=body, rel=rel)
+GUIDES += [
+    G('eu-ets-shipping', 'EU ETS for shipping explained: which voyages count and who pays', 'EU ETS for shipping',
+      'The EU Emissions Trading System has covered ships since 2024. Which ships and voyages are in scope, how the phase-in works, and who pays under a charter.',
+      'Since 2024 the EU Emissions Trading System, or EU ETS, has made shipping companies buy and hand in allowances for the carbon dioxide their ships emit on voyages to, from and within the European Union.',
+      fig_timeline([('40% of 2024 emissions', .33, 'f-done'), ('70% of 2025 emissions', .33, 'f-ok'), ('100% from 2026 emissions', .34, 'f-accent')], [(0, 'Surrendered 2025'), (.33, 'Surrendered 2026'), (.66, 'Surrendered 2027 on'), (1, '')], 'Phase-in of the EU ETS for shipping: 40 percent, then 70 percent, then 100 percent of reported emissions', 'Allowances are handed in the year after the emissions, by 30 September.'),
+      'The share of reported emissions that must be covered by allowances rises over three years.',
+      '''<h2>Which ships</h2><p>Cargo and passenger ships of 5,000 gross tonnage and above, whatever their flag. Offshore ships of that size join from 2027.</p>
+<h2>Which emissions</h2><ul><li><strong>100%</strong> of emissions on voyages between two EU ports, and while at berth in an EU port.</li><li><strong>50%</strong> of emissions on voyages between an EU port and a port outside the EU.</li></ul>
+<h2>The phase-in</h2><p>Companies hand in allowances for 40% of emissions reported for 2024, 70% for 2025 and 100% from then on. Allowances for a year are surrendered by 30 September of the following year.</p>
+<h2>Who is responsible</h2><p>The law places the duty on the "shipping company": the registered owner, or the manager that has taken on the ship’s safety management. That party must open an account, monitor emissions and surrender allowances.</p>
+<h2>Who actually pays under a charter</h2><p>That is decided by the <a href="charter-party.html">charter party</a>, not by the regulation.</p><ul><li><strong>Time charter.</strong> The charterer chooses the route and speed and buys the fuel, so ETS clauses usually require the charterer to transfer allowances to the owner, often monthly.</li><li><strong>Voyage charter.</strong> The owner normally builds the cost into the freight, or the charter adds a stated surcharge.</li></ul><p>If your voyage touches an EU port, ask how the ETS cost is being handled before you agree the rate. An offer that is silent on it is not necessarily cheaper.</p>
+<h2>Related rules</h2><p><a href="fueleu-maritime.html">FuelEU Maritime</a> is a separate EU rule on the greenhouse gas intensity of the fuel used. The <a href="cii-rating-eexi.html">CII and EEXI</a> are worldwide measures from the International Maritime Organization.</p>''' + SRC2(('European Commission FAQ on maritime transport in the EU ETS', 'https://climate.ec.europa.eu/eu-action/transport-decarbonisation/reducing-emissions-shipping-sector/faq-maritime-transport-eu-emissions-trading-system-ets_en'), ('EMSA: ETS extension to maritime', 'https://www.emsa.europa.eu/reducing-emissions/extension-ets.html')),
+      ['fueleu-maritime', 'cii-rating-eexi', 'voyage-charter-vs-time-charter', 'voyage-estimator']),
+    G('fueleu-maritime', 'FuelEU Maritime explained: what it requires and who bears the cost', 'FuelEU Maritime',
+      'FuelEU Maritime is an EU regulation that limits the greenhouse gas intensity of the energy ships use on voyages to and from EU ports. What it requires and how charters deal with it.',
+      'FuelEU Maritime is an EU regulation, in force for ships since 2025, that limits the greenhouse gas intensity of the energy a ship uses. The limit tightens in steps to 2050.',
+      fig_steps(['Monitor|Fuel and energy used', 'Calculate|Intensity for the year', 'Balance|Surplus or deficit', 'Settle|Bank, pool or pay'], 'How FuelEU Maritime works each year: monitor, calculate, balance, settle'),
+      'Each year’s result is a surplus or a deficit against the limit, which can be banked, pooled with other ships or paid off.',
+      '''<h2>How it differs from the EU ETS</h2><p>The <a href="eu-ets-shipping.html">EU ETS</a> puts a price on how much a ship emits. FuelEU regulates how clean the energy is per unit used, counted from production of the fuel to its use on board. A ship can be subject to both.</p>
+<h2>Scope</h2><p>Ships above 5,000 gross tonnage calling at EU ports, with the same voyage rule as the ETS: all of the energy used between EU ports and at berth, and half of that used on voyages into or out of the EU.</p>
+<h2>How a ship complies</h2><ul><li>Use fuels with lower life-cycle emissions, such as certain biofuels.</li><li>Bank a surplus from one year for the next, or borrow against the next within limits.</li><li>Pool with other ships so that one ship’s surplus covers another’s deficit.</li><li>Pay a penalty for any remaining deficit.</li></ul>
+<h2>Who bears the cost</h2><p>As with the ETS, the regulation makes the shipping company responsible, and the <a href="charter-party.html">charter party</a> decides who pays. A time charterer who buys the fuel is usually made responsible for the result of its fuel choices. Agree this in the charter, and agree who gets the benefit if the ship ends the year in surplus.</p>
+<h2>What it means for a newcomer</h2><p>If you charter a ship for a voyage touching the EU, ask the owner how FuelEU and ETS costs are treated in the rate. If you own a ship, a time charter without a clause on these costs leaves you carrying them.</p>''' + SRC2(('European Commission: reducing emissions from the shipping sector', 'https://climate.ec.europa.eu/eu-action/transport/reducing-emissions-shipping-sector')),
+      ['eu-ets-shipping', 'cii-rating-eexi', 'voyage-charter-vs-time-charter', 'charter-party']),
+    G('cii-rating-eexi', 'CII rating and EEXI explained: the IMO carbon rules for existing ships', 'CII rating and EEXI',
+      'The CII rates a ship from A to E each year on its carbon intensity. The EEXI is a one-off design efficiency standard. Which ships they apply to and why charterers care.',
+      'The CII and the EEXI are two rules from the International Maritime Organization that have applied to existing ships since 2023. The CII grades how efficiently a ship is operated each year, from A to E. The EEXI sets a minimum for how efficient its design must be.',
+      fig_timeline([('A', .2, 'f-ok'), ('B', .2, 'f-ok'), ('C', .2, 'f-done'), ('D', .2, 'f-accent'), ('E', .2, 'f-accent')], [(0, 'Best'), (.4, ''), (.6, 'Required level is C'), (1, 'Worst')], 'The five CII ratings from A, best, to E, worst, with C as the required level', 'Three years at D, or one year at E, triggers a corrective action plan.'),
+      'The annual rating scale. C is the level a ship is required to reach.',
+      '''<h2>CII: carbon intensity indicator</h2><ul><li><strong>What it measures.</strong> Carbon dioxide emitted per unit of carrying capacity and distance sailed, over a calendar year.</li><li><strong>Which ships.</strong> Cargo, ro-ro passenger and cruise ships of 5,000 gross tonnage and above.</li><li><strong>The rating.</strong> A to E, issued each year. The thresholds tighten over time, so a ship that does nothing slides down the scale.</li><li><strong>Consequence.</strong> A ship rated D for three years running, or E in any one year, must file a plan of corrective actions showing how it will get back to C.</li></ul>
+<h2>EEXI: energy efficiency existing ship index</h2><ul><li><strong>What it measures.</strong> The ship’s design efficiency, calculated once.</li><li><strong>Which ships.</strong> Existing ships of 400 gross tonnage and above.</li><li><strong>How ships comply.</strong> Most commonly by limiting engine or shaft power, which caps the ship’s top speed.</li></ul>
+<h2>Why a charterer should care</h2><ul><li><strong>Speed.</strong> A power-limited ship may not make the speed an older description promises. Check the warranted speed and consumption in the charter.</li><li><strong>Who controls the rating.</strong> On a time charter the charterer decides routes, speed and waiting time, which drive the CII, while the owner holds the certificate. Charter clauses now deal with this, and they are negotiated hard.</li><li><strong>Acceptance.</strong> Some charterers and financiers will not take ships rated D or E.</li></ul>
+<h2>What it is not</h2><p>There is no fine attached to a poor rating in the IMO rule itself. The pressure comes from the corrective plan, from flag and port states, and from the market.</p>''' + SRC2(('IMO: EEXI and CII FAQ', 'https://imo.org/en/MediaCentre/HotTopics/Pages/EEXI-CII-FAQ.aspx'), ('IMO: improving the energy efficiency of ships', 'https://imo.org/en/OurWork/Environment/Pages/Improving%20the%20energy%20efficiency%20of%20ships.aspx')),
+      ['eu-ets-shipping', 'fueleu-maritime', 'voyage-charter-vs-time-charter', 'know-your-vessel']),
+    G('bill-of-lading', 'Bill of lading explained: what it is, its three functions and the main types', 'Bill of lading',
+      'A bill of lading is the document a carrier issues for cargo loaded on a ship. It is a receipt, evidence of the contract of carriage and a document of title.',
+      'A bill of lading is the document issued by or for the master when cargo is loaded. It does three jobs: it is a receipt for the goods, evidence of the contract to carry them, and a document of title that lets the cargo be sold while it is at sea.',
+      fig_steps(['Shipper|Loads, receives the bill', 'Bank or buyer|Bill passes with payment', 'Receiver|Presents the bill', 'Ship|Delivers the cargo'], 'How a bill of lading travels from shipper to receiver while the cargo is at sea'),
+      'The cargo travels by sea; the bill travels through banks and buyers. The ship delivers to whoever presents it.',
+      '''<h2>The three functions</h2><ol><li><strong>Receipt.</strong> It records what was loaded: the description, quantity and apparent condition.</li><li><strong>Evidence of the contract.</strong> It sets out, or refers to, the terms on which the cargo is carried.</li><li><strong>Document of title.</strong> Whoever lawfully holds an original can claim the cargo, which is why banks accept it as security.</li></ol>
+<h2>Clean and claused</h2><p>A clean bill says the cargo was loaded in apparent good order. A claused bill carries a remark, such as "rust stained" or "bags torn". Buyers and banks usually insist on clean bills, which is why pressure is sometimes put on a master to leave remarks off. A master should not sign a clean bill for cargo that is visibly damaged.</p>
+<h2>Negotiable and straight</h2><ul><li><strong>To order.</strong> Can be transferred by endorsement, so the cargo can be sold afloat.</li><li><strong>Straight.</strong> Names one receiver and cannot be passed on.</li><li><strong>Sea waybill.</strong> A receipt and contract only. No original needs to be presented, which avoids delay on short voyages.</li></ul>
+<h2>Bills under a charter party</h2><p>When a ship is chartered, the bill usually incorporates the <a href="charter-party.html">charter party</a> terms by reference. Between owner and charterer the charter governs. Once the bill passes to a third-party buyer, the bill governs between that buyer and the carrier.</p>
+<h2>When the bill is late</h2><p>If the ship arrives before the original bills, receivers ask for delivery against a <a href="letter-of-indemnity.html">letter of indemnity</a>. That shifts risk to the owner, so agree in advance how it will be handled.</p>
+<p class="fine">General information, not legal advice.</p>''',
+      ['letter-of-indemnity', 'charter-party', 'fob-vs-cif', 'shipping-terms']),
+    G('charterers-liability-insurance', 'Charterers’ liability insurance: what it covers and who needs it', 'Charterers’ liability insurance',
+      'Charterers’ liability insurance covers what a charterer may owe the shipowner and others: damage to the ship, cargo claims, pollution and more. Who needs it and what to ask.',
+      'Charterers’ liability insurance covers the liabilities a charterer takes on by hiring a ship: above all, damage to the ship itself, plus a share of cargo, pollution and other claims that the charter party puts on the charterer.',
+      fig_matrix(['Cargo policy', 'Charterers’ liability'], [('Loss of your own cargo', 'OC'), ('Damage to the chartered ship', 'CO'), ('Unsafe port claims', 'CO'), ('Cargo claims passed to you', 'CO'), ('Pollution and fines', 'CO')], 'Matrix showing what cargo insurance and charterers’ liability insurance each respond to', who=('Covers', 'No'), head='Which policy responds'),
+      'A cargo policy protects your goods. It does not pay for what you may owe the shipowner.',
+      '''<h2>Why a charterer has liabilities at all</h2><p>A <a href="charter-party.html">charter party</a> puts obligations on the charterer: to name safe ports and berths, to load a cargo that is safe and as described, to pay for stevedore damage, and often to share cargo claims with the owner. If any of these goes wrong the owner claims against the charterer.</p>
+<h2>What the cover usually includes</h2><ul><li><strong>Damage to hull.</strong> Physical damage to the ship caused by an unsafe port or berth, by stevedores or by the cargo. This is often the largest exposure.</li><li><strong>Cargo liabilities</strong> apportioned to the charterer under the charter.</li><li><strong>Pollution, wreck removal, fines and injury</strong> where the charterer is responsible.</li><li><strong>Legal costs</strong> of defending or pursuing claims, sometimes as a separate cover.</li></ul>
+<h2>Who sells it</h2><p><a href="p-and-i-club.html">P&amp;I clubs</a> offer it to charterers on fixed premium terms, and specialist insurers sell it too. It can be arranged for a single voyage, which suits an occasional charterer.</p>
+<h2>What it does not cover</h2><p>Loss of or damage to your own cargo: that needs a cargo policy. <a href="what-is-demurrage.html">Demurrage</a> and other ordinary trading costs are also outside it.</p>
+<h2>For a first-time charterer</h2><p>One voyage is enough to incur a claim worth more than the cargo. Ask a broker for a single-voyage quotation before you fix, and give the insurer the charter party terms you are agreeing.</p>
+<p class="fine">General information, not insurance advice.</p>''',
+      ['p-and-i-club', 'charter-party', 'safe-port', 'how-to-charter-a-ship']),
+    G('ship-chandler', 'What is a ship chandler? What they supply and how to find one', 'Ship chandler',
+      'A ship chandler supplies a ship in port with provisions, deck and engine stores, safety equipment and more. What they do, how ordering works and how to find one by port.',
+      'A ship chandler is a port-based supplier that delivers what a ship needs to keep running: food and water, deck and engine stores, cabin stores, safety equipment, chemicals and spare parts.',
+      fig_steps(['Ship or manager|Sends a requisition', 'Chandler|Quotes and sources', 'Delivery|Alongside or by launch', 'Invoice|Checked against delivery'], 'How a ship is supplied by a chandler: requisition, quotation, delivery, invoice'),
+      'The usual order of events. Time in port is short, so the order is placed before the ship arrives.',
+      '''<h2>What a chandler supplies</h2><ul><li><strong>Provisions.</strong> Fresh, frozen and dry food, and bonded stores.</li><li><strong>Deck stores.</strong> Rope, wire, paint, cleaning gear, tools.</li><li><strong>Engine stores.</strong> Consumables, gaskets, filters, hand tools.</li><li><strong>Safety equipment.</strong> Lifesaving and firefighting items, often with servicing.</li><li><strong>Cabin and galley stores, charts and publications.</strong></li></ul>
+<h2>How ordering works</h2><p>The master or the ship’s manager sends a list, often using standard catalogue codes so that items are identified the same way in every port. The chandler quotes, the manager approves, and the goods are delivered alongside or by launch at anchor. The chief officer or chief engineer checks the delivery against the order before signing.</p>
+<h2>How to choose one</h2><ul><li>Ask whether they hold stock or buy in to order.</li><li>Ask for delivery times at the berth or anchorage your ship will use.</li><li>Ask about membership of the national or international ship suppliers’ association.</li><li>Compare quotations on the same list, including delivery and launch costs.</li></ul>
+<h2>Find a chandler by port</h2><p>The FindAVessel <a href="suppliers.html">supplier directory</a> lists marine suppliers by country, including <a href="suppliers-cat-chandlers.html">ship chandlers and provisions suppliers</a>. Open a company’s page to send a request.</p>''',
+      ['ship-management', 'how-to-charter-a-ship', 'shipping-terms', 'know-your-vessel']),
+    G('contract-of-affreightment', 'Contract of affreightment (COA) explained, and how it differs from a charter', 'Contract of affreightment',
+      'A contract of affreightment, or COA, is an agreement to carry a set quantity of cargo over a period in several shipments, without naming one ship.',
+      'A contract of affreightment, or COA, is an agreement under which an owner or operator undertakes to carry a stated total quantity of cargo over a period, in a series of shipments, using ships it nominates each time.',
+      fig_timeline([('Lift 1', .25, 'f-done'), ('Lift 2', .25, 'f-done'), ('Lift 3', .25, 'f-done'), ('Lift 4', .25, 'f-done')], [(0, 'Start'), (.25, ''), (.5, ''), (.75, ''), (1, 'End of period')], 'A contract of affreightment spread as four shipments over the contract period', 'Example: 120,000 tonnes over twelve months in four shipments of 30,000 tonnes.'),
+      'One contract, several voyages. The owner chooses which ship performs each one.',
+      '''<h2>How it differs from a voyage charter</h2><ul><li>A <a href="voyage-charter-vs-time-charter.html">voyage charter</a> is for one named ship and one cargo.</li><li>A COA is for a volume of cargo. The ship is not named in the contract; the owner nominates a suitable one before each shipment.</li></ul><p>Each shipment is then performed on voyage charter terms set out in, or attached to, the COA.</p>
+<h2>What the contract fixes</h2><ul><li>Total quantity, and the size and number of shipments, usually with a tolerance.</li><li>The period, and how evenly the shipments must be spread.</li><li>Ports or ranges, and the type and size of ship.</li><li>Freight: fixed, or adjusted by a fuel or index formula.</li><li>How and when each shipment is nominated and the ship named.</li><li><a href="laytime.html">Laytime</a> and <a href="what-is-demurrage.html">demurrage</a> terms for each voyage.</li></ul>
+<h2>Why use one</h2><p>The cargo owner gets assured shipping and a known freight for a programme of cargoes. The owner gets steady employment and freedom to use whichever ship is best placed. The risk for both is a market that moves away from the agreed rate during the contract.</p>
+<h2>Is it for newcomers?</h2><p>Usually not at first. Owners want evidence that the cargo programme is real before committing ships to it. One or two voyage charters performed well are the normal way to earn a COA.</p>''',
+      ['voyage-charter-vs-time-charter', 'charter-party', 'laytime', 'how-to-charter-a-ship']),
+    G('forward-freight-agreement', 'Forward freight agreement (FFA) explained: how freight is hedged', 'Forward freight agreement',
+      'A forward freight agreement, or FFA, is a financial contract that fixes a freight rate for a future period. It is settled in cash against a published index and no ship or cargo is involved.',
+      'A forward freight agreement, or FFA, is a financial contract between two parties who agree a freight rate for a route or ship type over a future period. At the end it is settled in cash against a published average, and no ship or cargo changes hands.',
+      fig_steps(['Agree|Route, period, rate', 'Clear|Through a clearing house', 'Wait|Market moves', 'Settle|Cash against the index'], 'How a forward freight agreement works: agree a rate, clear it, then settle in cash against the index'),
+      'The difference between the agreed rate and the published average is paid in cash by one side to the other.',
+      '''<h2>Who uses them</h2><ul><li><strong>Shipowners</strong> sell FFAs to lock in earnings for ships that will come open.</li><li><strong>Charterers and traders</strong> buy them to cap the cost of freight they will need.</li><li><strong>Financial firms</strong> trade them for profit.</li></ul>
+<h2>A simple example</h2><p>A trader expects to ship coal in three months and fears rates will rise. It buys an FFA at USD 15,000 a day for that month. If the published average turns out to be USD 18,000, the trader receives USD 3,000 a day, which offsets the dearer ship it must charter. If the average is USD 12,000, the trader pays USD 3,000 a day, but charters the real ship more cheaply.</p>
+<h2>How they are settled</h2><p>Against the route and time charter averages published by the <a href="baltic-exchange.html">Baltic Exchange</a>, usually the average over the contract month. Most are arranged through brokers and passed to a clearing house, which stands between the two sides and collects margin.</p>
+<h2>What an FFA is not</h2><p>It is not a charter. It does not provide a ship, and the hedge is only as good as the match between the index route and your actual voyage. FFAs are financial instruments and those who trade or arrange them are regulated in most countries.</p>
+<p class="fine">General information only. FindAVessel does not arrange, advise on or deal in freight derivatives.</p>''',
+      ['baltic-exchange', 'baltic-dry-index', 'time-charter-equivalent', 'voyage-charter-vs-time-charter']),
+    G('time-charter-equivalent', 'Time charter equivalent (TCE): meaning, formula and a worked example', 'Time charter equivalent',
+      'Time charter equivalent, or TCE, is what a voyage earns a shipowner per day after voyage costs. The formula, a worked example and why charterers should understand it.',
+      'Time charter equivalent, or TCE, is the amount a voyage earns the shipowner per day once the voyage costs have been taken off the freight. It lets an owner compare a voyage charter with a time charter on the same footing.',
+      fig_timeline([('Net result', .5, 'f-ok'), ('Fuel', .26, 'f-done'), ('Ports', .14, 'f-done'), ('Comm.', .1, 'f-accent')], [(0, ''), (1, 'Gross freight')], 'Gross freight divided into net earning, fuel, port costs and commission', 'Illustrative split. The shares vary with fuel prices, distance and port costs.'),
+      'What is left of the freight after voyage costs, spread over the days of the voyage.',
+      '''<div class="keyfact"><p><strong>TCE</strong> = (freight − commission − fuel − port and canal costs) ÷ voyage days</p></div>
+<h2>A worked example</h2>''' + table(['Item', 'Amount'], [['Freight: 30,000 t at USD 26', 'USD 780,000'], ['Commission, 2.5%', '− USD 19,500'], ['Fuel', '− USD 250,000'], ['Port costs, both ends', '− USD 95,000'], ['<strong>Net voyage result</strong>', '<strong>USD 415,500</strong>'], ['Voyage length, including the ballast leg', '32 days'], ['<strong>TCE</strong>', '<strong>about USD 12,980 a day</strong>']]) + '''
+<h2>Why owners think in TCE</h2><p>On a <a href="voyage-charter-vs-time-charter.html">time charter</a> the charterer pays fuel and port costs and the owner receives hire by the day. On a voyage charter the owner pays those costs out of the freight. TCE converts the second into the first, so the owner can ask one question of every cargo: what does it pay per day?</p>
+<h2>What moves it</h2><ul><li><strong>The ballast leg.</strong> The empty distance to the loading port counts in the days and the fuel.</li><li><strong>Fuel price and speed.</strong> Slower steaming burns less but takes longer.</li><li><strong>Time in port.</strong> Slow loading or waiting lowers the daily result, which is what <a href="what-is-demurrage.html">demurrage</a> is there to make good.</li></ul>
+<h2>Why a charterer should understand it</h2><p>If your freight idea gives the owner a TCE below what ships are earning elsewhere, you will not get offers. Work it out roughly before you go to market with the <a href="voyage-estimator.html">voyage estimator</a>.</p>''',
+      ['voyage-estimator', 'voyage-charter-vs-time-charter', 'what-is-demurrage', 'forward-freight-agreement']),
+    G('off-hire', 'Off-hire explained: when hire stops under a time charter', 'Off-hire',
+      'Off-hire is a period during a time charter when the charterer does not pay hire because the ship cannot perform. What triggers it, what does not, and how it is calculated.',
+      'Off-hire is a period under a time charter during which the charterer stops paying hire because the ship is prevented from doing what the charterer needs, for a reason the charter lists.',
+      fig_timeline([('On hire', .45, 'f-done'), ('Off-hire: breakdown', .2, 'f-accent'), ('On hire', .35, 'f-done')], [(0, 'Delivery'), (.45, 'Engine failure'), (.65, 'Service resumed'), (1, 'Redelivery')], 'A time charter period with an off-hire gap caused by a breakdown', 'Hire is not paid for the time lost. Fuel used in that time is usually for the owner too.'),
+      'Hire runs continuously except for the time lost to a listed cause.',
+      '''<h2>What usually triggers it</h2><p>The off-hire clause sets out a list. Typical causes are:</p><ul><li>Breakdown of machinery or equipment</li><li>Deficiency or strike of crew</li><li>Damage to hull, grounding or collision</li><li>Drydocking and repairs</li><li>Detention by authorities because of the ship’s own condition</li></ul>
+<h2>What usually does not</h2><ul><li>Bad weather and port congestion: the charterer bears these on a time charter.</li><li>Delay caused by the charterer’s own orders or cargo.</li><li>Anything not within the words of the clause. Off-hire is an exception to the duty to pay, so the charterer has to bring the event inside the list.</li></ul>
+<h2>How the time is counted</h2><p>Two approaches are found:</p><ul><li><strong>Net loss of time.</strong> Only time actually lost counts. A ship with one crane down that still works at reduced speed is off-hire for the extra time taken.</li><li><strong>Period.</strong> The ship is off-hire from the event until it is fully efficient again, whether or not time was lost.</li></ul><p>Which applies depends on the wording, and the difference can be large.</p>
+<h2>Fuel and other costs</h2><p>Most forms say fuel consumed during off-hire is for the owner’s account. Many also let the charterer add off-hire time to the end of the charter.</p>
+<h2>Off-hire and damages are different</h2><p>Off-hire does not depend on fault. A charterer who has suffered loss beyond the hire saved must show a breach of the <a href="charter-party.html">charter party</a> to recover it.</p>
+<p class="fine">General information, not legal advice. The wording of your own charter party decides.</p>''',
+      ['voyage-charter-vs-time-charter', 'charter-party', 'disponent-owner', 'shipping-terms']),
+    G('deadfreight', 'Deadfreight explained: what you pay when you load less than agreed', 'Deadfreight',
+      'Deadfreight is the freight a charterer pays on cargo that was agreed but not loaded. How it is calculated and how to avoid it.',
+      'Deadfreight is compensation paid by the charterer to the shipowner for cargo that the charterer agreed to load but did not. It is charged at the freight rate on the shortfall, less any costs the owner saved.',
+      fig_timeline([('Loaded: 27,000 t', .9, 'f-done'), ('Short: 3,000 t', .1, 'f-accent')], [(0, ''), (.9, ''), (1, 'Agreed minimum: 30,000 t')], 'A cargo loaded 3,000 tonnes short of the agreed minimum of 30,000 tonnes', 'At USD 26 a tonne, a 3,000 tonne shortfall is USD 78,000 of deadfreight before savings.'),
+      'The owner priced the voyage on a full agreed cargo. The shortfall is charged as if it had been carried.',
+      '''<h2>Why it exists</h2><p>On a voyage charter the owner sets the freight per tonne expecting an agreed quantity. If less is loaded, the owner’s costs are almost the same and the income is lower. Deadfreight puts the owner back where it would have been.</p>
+<h2>How the quantity is agreed</h2><p>Charters state a quantity with a tolerance, for example "30,000 tonnes, 10% more or less". Whose option the tolerance is matters:</p><ul><li><strong>In owner’s option:</strong> the master declares the quantity the ship will load, and the charterer must supply it.</li><li><strong>In charterer’s option:</strong> the charterer may load anywhere within the range.</li></ul>
+<h2>How it is calculated</h2><p>Shortfall in tonnes, multiplied by the freight rate, less what the owner saved by not handling that cargo, such as loading and discharging costs where those are for the owner. Time saved in port may also be taken into account.</p>
+<h2>How to avoid it</h2><ul><li>Agree a quantity you are sure you can deliver, with a tolerance that fits your supply.</li><li>Check the ship can lift it at the draught available at both ports.</li><li>Consider <a href="shipping-terms.html#lumpsum-freight">lumpsum freight</a> if your quantity is uncertain.</li><li>If a shortfall is coming, tell the owner early. The master will usually note it, and a deadfreight claim follows with the freight invoice.</li></ul>
+<p class="fine">General information, not legal advice.</p>''',
+      ['what-is-demurrage', 'charter-party', 'deadweight-tonnage', 'shipping-terms']),
+    G('safe-port', 'Safe port warranty explained: what a charterer promises when naming a port', 'Safe port',
+      'A safe port is one a ship can reach, use and leave without danger that good seamanship cannot avoid. What the charterer promises and what happens if the port is unsafe.',
+      'A safe port is one that the particular ship can reach, use and return from without being exposed to danger that good navigation and seamanship cannot avoid, unless something abnormal happens. When a charter lets the charterer choose the port, the charterer usually promises that it will be safe.',
+      fig_steps(['Approach|Channel, depth, pilotage', 'Berth|Fendering, depth alongside', 'Stay|Weather, security, politics', 'Departure|Able to leave safely'], 'The four stages at which a port must be safe for the ship: approach, berth, stay and departure'),
+      'Safety is judged across the whole call, for that ship, at that time.',
+      '''<h2>What makes a port unsafe</h2><ul><li><strong>Physical.</strong> Too little water, uncharted obstructions, poor fendering, no tugs or pilots when they are needed, no warning system for bad weather.</li><li><strong>Political.</strong> War, seizure or blockade that the ship cannot avoid.</li><li><strong>For that ship.</strong> A port can be safe for a small ship and unsafe for a large one.</li></ul>
+<h2>What does not make it unsafe</h2><ul><li>Ordinary hazards that a competent crew deals with.</li><li>A one-off, abnormal event that nobody could have expected.</li><li>Delay alone, unless it is so long that it defeats the charter.</li></ul>
+<h2>When the promise is given</h2><p>It is judged when the charterer names the port: the port must be expected to be safe for the time the ship will be there. If it becomes unsafe afterwards, a time charterer generally has to give fresh orders.</p>
+<h2>Named ports and ranges</h2><p>If the <a href="charter-party.html">charter party</a> names the port and contains no safety wording, the owner is usually taken to have accepted it. If the charterer chooses from a range ("one safe port Mediterranean"), the promise bites in full.</p>
+<h2>What is at stake</h2><p>If the ship is damaged because the port was unsafe, the owner can claim the repair cost and the lost time from the charterer. These are some of the largest claims in shipping, and they are the main reason charterers buy <a href="charterers-liability-insurance.html">charterers’ liability insurance</a>.</p>
+<h2>Before you name a port</h2><p>Check depths, restrictions and recent incidents with a local agent, and confirm the ship fits. FindAVessel lists <a href="ports.html">ports by country</a> for reference only; it does not hold depth or restriction data.</p>
+<p class="fine">General information, not legal advice.</p>''',
+      ['charterers-liability-insurance', 'charter-party', 'notice-of-readiness', 'how-to-charter-a-ship']),
+    G('ship-management', 'Ship management explained: technical, crew and commercial managers', 'Ship management',
+      'Ship management is running a ship on the owner’s behalf. The difference between technical, crew and commercial management, and why a charterer should know who each one is.',
+      'Ship management is the running of a ship on behalf of its owner. The work divides into technical management, crew management and commercial management, and each may be done by the owner or by a separate company.',
+      fig_steps(['Owner|Holds title', 'Technical|Keeps it running', 'Crew|Mans it', 'Commercial|Finds it work'], 'The registered owner and the three kinds of manager: technical, crew and commercial'),
+      'One ship, up to four companies. Know which one you are dealing with.',
+      '''<h2>Technical management</h2><p>Keeping the ship seaworthy and compliant: maintenance, repairs, drydocking, spare parts and stores, class and flag surveys, and the safety management system. The technical manager is usually the company named on the ship’s safety certificates.</p>
+<h2>Crew management</h2><p>Recruiting, training, paying and rotating the officers and ratings. Often combined with technical management.</p>
+<h2>Commercial management</h2><p>Finding employment for the ship: negotiating charters, issuing voyage instructions, collecting freight and hire, and handling claims such as <a href="what-is-demurrage.html">demurrage</a>. Many small owners keep this themselves or place the ship in a pool.</p>
+<h2>Why a charterer should care</h2><ul><li><strong>Who you contract with.</strong> The charter is with the owner or <a href="disponent-owner.html">disponent owner</a>. A commercial manager signs "as agent" and is not itself liable.</li><li><strong>Who answers the phone during the voyage.</strong> Operations go through the commercial manager; a breakdown is the technical manager’s problem.</li><li><strong>Due diligence.</strong> The quality of the technical manager says more about how a ship is run than the name of a single-ship owning company. See <a href="know-your-vessel.html">know your vessel</a>.</li></ul>
+<h2>On FindAVessel</h2><p>A vessel listing can name the technical and commercial managers separately from the owner, so a charterer can see who stands behind the ship.</p>''',
+      ['know-your-vessel', 'disponent-owner', 'ship-chandler', 'what-does-a-shipbroker-do']),
+    G('shipbroker-commission', 'Shipbroker commission and address commission explained', 'Shipbroker and address commission',
+      'Shipbrokers are paid a commission on freight or hire, normally by the shipowner. How brokerage and address commission work and what total commission means in an offer.',
+      'A shipbroker is paid by commission: a percentage of the freight or hire, deducted from what the charterer pays and normally borne by the shipowner. Address commission is a further percentage returned to the charterer.',
+      fig_timeline([('Owner receives 95%', .6, 'f-done'), ('Address 3.75%', .22, 'f-ok'), ('Broker 1.25%', .18, 'f-accent')], [(0, ''), (1, 'Gross freight')], 'Gross freight split between the owner, address commission and brokerage', 'Example: 5% total commission. Widths are not to scale.'),
+      'Commission comes off the gross freight before the owner is paid.',
+      '''<h2>Brokerage</h2><p>Each broker in the chain customarily earns 1.25% of the gross freight, deadfreight and <a href="what-is-demurrage.html">demurrage</a> on a voyage charter, or of the hire on a time charter. With one broker for the owner and one for the charterer, that is 2.5%.</p>
+<h2>Address commission</h2><p>A percentage, by custom 2.5% or 3.75% in many dry cargo trades, that the charterer deducts from the freight for itself. It began as a payment for the charterer’s own chartering department. In practice it is a discount, and owners price it in.</p>
+<h2>"Total commission" in an offer</h2><p>Offers quote commission as a single figure, such as "5% total including 3.75% address". From the owner’s side it is all money that does not arrive, so two offers must be compared net of commission. A rate of USD 26.00 with 5% total is worth USD 24.70 to the owner.</p>
+<h2>When it is earned</h2><p>Usually when the freight or hire is paid. If a charter is cancelled before any freight is earned, whether commission is due depends on the commission clause.</p>
+<h2>Why it matters to a newcomer</h2><ul><li>Ask how many brokers are in the chain and what each takes. A long chain is paid for in the rate.</li><li>The broker is paid by the owner out of your freight, whichever side engaged it. Ask whose interests the broker is acting for.</li><li>Do not agree an address commission you have not understood: it lowers what the owner receives and will be reflected in the rate offered.</li></ul>
+<p>On FindAVessel a broker’s offer states who the broker acts for and the commission, so both sides can see it.</p>''',
+      ['what-does-a-shipbroker-do', 'time-charter-equivalent', 'charter-party', 'how-to-charter-a-ship']),
+]
 
 # Register titles first so pages can cross-link
 for g in GUIDES:
