@@ -23,6 +23,11 @@
     if (/faq|privacy/.test(path)) return 'Help';
     return 'Guides';
   }
+  // Theme test: every event carries the assigned theme and the theme on screen, so the two groups can be compared.
+  function themeParams() { var th = window.fvTheme || {}; return { theme_variant: th.variant || 'unknown', theme_shown: th.shown || 'unknown', theme_switched: th.switched ? 'yes' : 'no' }; }
+  gtag('set', themeParams());
+  gtag('set', 'user_properties', { theme_variant: themeParams().theme_variant });
+  window.fvThemeChanged = function (from, to) { gtag('set', themeParams()); gtag('event', 'theme_switch', { from_theme: from, to_theme: to, theme_variant: themeParams().theme_variant }); };
   gtag('config', ID, { send_page_view: !app, content_group: group(), anonymize_ip: true });
   var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID; document.head.appendChild(s);
 
