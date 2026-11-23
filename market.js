@@ -268,6 +268,7 @@ route('cargoes', () => {
     ${filterBar('cargo', [['seg', 'Vessel type', SEG_OPTS], ['region', 'Loading region', REGIONS], ['type', 'Charter', [['voyage', 'Voyage'], ['time', 'Time charter']]], ['sort', 'Sort', [['laycan', 'Earliest laycan']]]])}
     ${S.role === 'guest' ? upsell() : ''}
     <div class="list">${list.length ? list.map(cargoRow).join('') : empty('No cargoes match those filters', 'Clear a filter, or post where your ship opens so cargo owners can find you.')}</div>
+    ${typeof deskSection === 'function' && !f.region && !f.type && !f.seg ? deskSection() : ''}
     ${hidden ? `<p class="fine">${hidden} more ${hidden === 1 ? 'listing is' : 'listings are'} restricted to a shortlist or awaiting desk review.</p>` : ''}
   </section>`;
 });
