@@ -7,7 +7,7 @@ from urllib.parse import quote
 
 SITE = 'https://findavessel.com'
 DATE = '2026-11-22'
-VER = '20261123b'  # change on each release so browsers fetch fresh styles and scripts
+VER = '20261123c'  # change on each release so browsers fetch fresh styles and scripts
 THEME_BTN = ('<button class="theme-btn" data-theme-toggle aria-label="Switch between dark and light theme">'
              '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>'
              '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span>Theme</span></button>')

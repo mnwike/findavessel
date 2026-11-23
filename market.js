@@ -47,7 +47,8 @@ function match(c, v) {
 
 /* ---------- Home ---------- */
 route('', () => {
-  const live = S.cargoes.filter(c => c.status === 'open' && c.vis !== 'shortlist').slice(0, 4);
+  const live = S.cargoes.filter(c => !isExample(c) && c.status === 'open' && c.vis !== 'shortlist').slice(0, 4);
+  const liveRows = live.map(cargoRow).concat(typeof DESK_ENQ !== 'undefined' ? DESK_ENQ.slice(0, Math.max(0, 4 - live.length)).map(deskRow) : []);
   const ships = S.vessels.filter(v => v.verified === 'verified').slice(0, 4);
   return `
   <section class="hero">
@@ -90,7 +91,7 @@ route('', () => {
 
   <section class="band">
     <div class="split">
-      <div><div class="sec-head"><h2>Cargoes open for offers</h2><a href="#/cargoes">See all cargoes</a></div>${live.map(cargoRow).join('')}</div>
+      <div><div class="sec-head"><h2>Cargoes open for offers</h2><a href="#/cargoes">See all cargoes</a></div>${liveRows.join('')}</div>
       <div><div class="sec-head"><h2>Vessels coming open</h2><a href="#/vessels">See all vessels</a></div>${ships.map(vesselRow).join('')}</div>
     </div>
   </section>
@@ -260,15 +261,16 @@ LIVE.filter = el => { const form = el.closest('form'); S.filters[form.dataset.ki
 const SEG_OPTS = Object.keys(SEG).map(k => [k, SEG[k].label]);
 route('cargoes', () => {
   const f = S.filters.cargo;
-  let list = S.cargoes.filter(canSee).filter(c => (!f.seg || c.seg === f.seg) && (!f.region || (PORT[c.load] || {}).region === f.region) && (!f.type || c.type === f.type));
+  let list = S.cargoes.filter(c => !isExample(c)).filter(canSee).filter(c => (!f.seg || c.seg === f.seg) && (!f.region || (PORT[c.load] || {}).region === f.region) && (!f.type || c.type === f.type));
   if (f.sort === 'laycan') list.sort((a, b) => a.from.localeCompare(b.from)); else list.sort((a, b) => b.posted - a.posted);
-  const hidden = S.cargoes.filter(c => !canSee(c)).length;
+  const hidden = S.cargoes.filter(c => !isExample(c) && !canSee(c)).length;
+  const anyFilter = f.region || f.type || f.seg;
   return `<section class="page">
     <div class="page-head"><div><h1>Cargoes</h1><p>Whole shiploads and whole-ship time charters open for offers.</p></div>${S.role === 'charterer' ? '<a class="btn btn-primary" href="#/post/cargo">Post a cargo</a>' : S.role === 'guest' ? '<a class="btn btn-primary" href="#/enquire">Leave an enquiry</a>' : ''}</div>
     ${filterBar('cargo', [['seg', 'Vessel type', SEG_OPTS], ['region', 'Loading region', REGIONS], ['type', 'Charter', [['voyage', 'Voyage'], ['time', 'Time charter']]], ['sort', 'Sort', [['laycan', 'Earliest laycan']]]])}
     ${S.role === 'guest' ? upsell() : ''}
-    <div class="list">${list.length ? list.map(cargoRow).join('') : empty('No cargoes match those filters', 'Clear a filter, or post where your ship opens so cargo owners can find you.')}</div>
-    ${typeof deskSection === 'function' && !f.region && !f.type && !f.seg ? deskSection() : ''}
+    ${list.length || anyFilter ? `<div class="list">${list.length ? list.map(cargoRow).join('') : empty('No cargoes match those filters', 'Clear a filter to see the enquiries held by the desk, or post where your ship opens so cargo owners can find you.')}</div>` : ''}
+    ${typeof deskSection === 'function' && !anyFilter ? deskSection() : ''}
     ${hidden ? `<p class="fine">${hidden} more ${hidden === 1 ? 'listing is' : 'listings are'} restricted to a shortlist or awaiting desk review.</p>` : ''}
   </section>`;
 });
