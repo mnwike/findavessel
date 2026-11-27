@@ -6,7 +6,7 @@ import collections, glob, html, json, math, os, re
 from urllib.parse import quote
 
 SITE = 'https://findavessel.com'
-DATE = '2026-11-22'
+DATE = '2026-11-27'
 VER = '20261123c'  # change on each release so browsers fetch fresh styles and scripts
 THEME_BTN = ('<button class="theme-btn" data-theme-toggle aria-label="Switch between dark and light theme">'
              '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>'
@@ -1375,6 +1375,13 @@ open('privacy.html', 'w').write(shell('privacy', 'Privacy and cookies', 'What Fi
 
 # Sitemap and robots
 slugs = ['', 'faq', 'privacy', 'guides', 'tools', 'ship-sizes', 'laytime-demurrage-calculator', 'voyage-estimator'] + [g['slug'] for g in GUIDES] + list(CLASSES) + [t['slug'] for t in TYPES] + port_slugs + sup_slugs
-open('sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'  <url><loc>{url(s)}</loc><lastmod>{DATE}</lastmod></url>\n' for s in slugs) + '</urlset>\n')
+core_slugs = [s for s in slugs if s not in set(sup_slugs)]
+def _smap(name, items):
+    open(name, 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'  <url><loc>{url(s)}</loc><lastmod>{DATE}</lastmod></url>\n' for s in items) + '</urlset>\n')
+# Two sitemaps under one index: the core pages (guides, ports, classes, tools) and the supplier profiles.
+# Search Console then reports indexing for each group separately, and the core pages are not buried among profiles.
+_smap('sitemap-core.xml', core_slugs)
+_smap('sitemap-suppliers.xml', sup_slugs)
+open('sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'  <sitemap><loc>{SITE}/{n}</loc><lastmod>{DATE}</lastmod></sitemap>\n' for n in ('sitemap-core.xml', 'sitemap-suppliers.xml')) + '</sitemapindex>\n')
 open('robots.txt', 'w').write(f'User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n')
 print('built', len(slugs) - 1, 'pages')
